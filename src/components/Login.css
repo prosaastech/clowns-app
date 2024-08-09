@@ -1,0 +1,16 @@
+/* Login.css */
+.login-container {
+    height: 100vh; /* Full viewport height */
+    background-image: url('/public/bg.jpg'); /* Replace with the path to your background image */
+    background-size: cover; /* Cover the entire container */
+    background-position: center; /* Center the background image */
+    display: flex; /* Use flexbox to center the content */
+    align-items: center; /* Center items vertically */
+    justify-content: center; /* Center items horizontally */
+  }
+  
+  .error-message {
+    color: red;
+    margin-top: 1rem;
+  }
+  
