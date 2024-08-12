@@ -30,10 +30,6 @@ const ContractCalendar = () => {
 
     // Fetch contract data
     const fetchContractData = async () => {
-      const [year, month, day] = selectedDate.split('-');
-      const dayOfWeek = new Date(selectedDate).getDay(); // 0 (Sunday) through 6 (Saturday)
-      console.log(selectedDate);
-      console.log(day);
       try {
         const response = await fetch(`http://localhost:5213/api/ContractTimeTeamInfoes/getAllContractsDateWise?date=${selectedDate}`);
         
@@ -41,18 +37,38 @@ const ContractCalendar = () => {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
 
-        const data = await response.json();
+        const result = await response.json();
+        const data = result.$values || []; // Access the $values array
 
-        // Check if the data is in expected format
-        if (Array.isArray(data)) {
-          setContractData(data);
-        } else {
-          console.error('Unexpected data format:', data);
-          setContractData([]); // or handle accordingly
-        }
+        console.log('Fetched contract data:', data);
+
+        // Map the fetched data to the selected ranges
+        const ranges = data.reduce((acc, contract) => {
+          const { Team, TimeSlot } = contract;
+          const teamId = Team?.TeamId;
+          const time = TimeSlot?.Time;
+          const date = contract.Date;
+
+          if (teamId && time) {
+            const teamNo = Team?.TeamNo || teamId;
+
+            // Initialize nested structure if not present
+            acc[teamNo] = acc[teamNo] || {};
+            acc[teamNo][date] = acc[teamNo][date] || [];
+            
+            // Collect all times for the team on this date
+            if (!acc[teamNo][date].includes(time)) {
+              acc[teamNo][date].push(time);
+            }
+          }
+          return acc;
+        }, {});
+
+        console.log("Selecting ranges");
+        setSelectedRanges(ranges);
       } catch (error) {
         console.error('Error fetching contract data:', error);
-        setContractData([]); // or handle accordingly
+        setContractData([]);
       }
     };
 
@@ -131,18 +147,10 @@ const ContractCalendar = () => {
   }, [dragging, activeSelection]);
 
   const isSelected = (time, team) => {
-    const ranges = selectedRanges[team] || [];
-    const currentTimeIndex = timeSlots.indexOf(time);
+    const dateRanges = selectedRanges[team] || {};
+    const times = Object.values(dateRanges).flat();
 
-    return ranges.some(range => {
-      const startTimeIndex = timeSlots.indexOf(range.start);
-      const endTimeIndex = timeSlots.indexOf(range.end);
-
-      const minTimeIndex = Math.min(startTimeIndex, endTimeIndex);
-      const maxTimeIndex = Math.max(startTimeIndex, endTimeIndex);
-
-      return currentTimeIndex >= minTimeIndex && currentTimeIndex <= maxTimeIndex;
-    });
+    return times.includes(time);
   };
 
   const handleDateChange = (event) => {
@@ -164,7 +172,7 @@ const ContractCalendar = () => {
             <TableRow>
               <TableCell>Time</TableCell>
               {teams.map((team, index) => (
-                <TableCell key={index}>{team.teamNo}</TableCell> // Update to `team.teamNo`
+                <TableCell key={index}>{team.teamNo}</TableCell>
               ))}
             </TableRow>
           </TableHead>
@@ -175,11 +183,11 @@ const ContractCalendar = () => {
                 {teams.map((team, colIndex) => (
                   <TableCell
                     key={colIndex}
-                    onMouseDown={(e) => handleMouseDown(e, time, team.teamNo)} // Update to `team.teamNo`
-                    onMouseOver={(e) => handleMouseOver(e, time, team.teamNo)} // Update to `team.teamNo`
-                    onContextMenu={(e) => handleContextMenu(e, time, team.teamNo)} // Update to `team.teamNo`
+                    onMouseDown={(e) => handleMouseDown(e, time, team.teamNo)}
+                    onMouseOver={(e) => handleMouseOver(e, time, team.teamNo)}
+                    onContextMenu={(e) => handleContextMenu(e, time, team.teamNo)}
                     data-time={time}
-                    data-team={team.teamNo} // Update to `team.teamNo`
+                    data-team={team.teamNo}
                     sx={{
                       border: '1px solid #ddd',
                       backgroundColor: isSelected(time, team.teamNo) ? '#2196F3' : 'inherit',
