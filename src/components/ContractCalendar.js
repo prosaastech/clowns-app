@@ -1,6 +1,5 @@
-// src/components/ContractCalendar.js
 import React, { useState, useEffect } from 'react';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Box, Menu, MenuItem } from '@mui/material';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Box, Menu, MenuItem, TextField } from '@mui/material';
 import '../css/ContractCalendar.css';
 
 const ContractCalendar = () => {
@@ -11,6 +10,8 @@ const ContractCalendar = () => {
   const [contextMenu, setContextMenu] = useState({ time: null, team: null });
   const [teams, setTeams] = useState([]);
   const [timeSlots, setTimeSlots] = useState([]);
+  const [contractData, setContractData] = useState([]);
+  const [selectedDate, setSelectedDate] = useState('2024-08-12'); // Default date
 
   useEffect(() => {
     // Fetch teams
@@ -27,9 +28,38 @@ const ContractCalendar = () => {
       setTimeSlots(data.map(slot => slot.time)); // Assuming the time property contains the time string
     };
 
+    // Fetch contract data
+    const fetchContractData = async () => {
+      const [year, month, day] = selectedDate.split('-');
+      const dayOfWeek = new Date(selectedDate).getDay(); // 0 (Sunday) through 6 (Saturday)
+      console.log(selectedDate);
+      console.log(day);
+      try {
+        const response = await fetch(`http://localhost:5213/api/ContractTimeTeamInfoes/getAllContractsDateWise?date=${selectedDate}`);
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        // Check if the data is in expected format
+        if (Array.isArray(data)) {
+          setContractData(data);
+        } else {
+          console.error('Unexpected data format:', data);
+          setContractData([]); // or handle accordingly
+        }
+      } catch (error) {
+        console.error('Error fetching contract data:', error);
+        setContractData([]); // or handle accordingly
+      }
+    };
+
     fetchTeams();
     fetchTimeSlots();
-  }, []);
+    fetchContractData();
+  }, [selectedDate]);
 
   const handleMouseDown = (event, time, team) => {
     event.preventDefault();
@@ -115,52 +145,65 @@ const ContractCalendar = () => {
     });
   };
 
+  const handleDateChange = (event) => {
+    setSelectedDate(event.target.value);
+  };
+
   return (
-    <TableContainer component={Box}>
-      <Table>
-        <TableHead>
-          <TableRow>
-            <TableCell>Time</TableCell>
-            {teams.map((team, index) => (
-              <TableCell key={index}>{team.teamNo}</TableCell> // Update to `team.teamNo`
-            ))}
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {timeSlots.map((time, rowIndex) => (
-            <TableRow key={rowIndex}>
-              <TableCell>{time}</TableCell>
-              {teams.map((team, colIndex) => (
-                <TableCell
-                  key={colIndex}
-                  onMouseDown={(e) => handleMouseDown(e, time, team.teamNo)} // Update to `team.teamNo`
-                  onMouseOver={(e) => handleMouseOver(e, time, team.teamNo)} // Update to `team.teamNo`
-                  onContextMenu={(e) => handleContextMenu(e, time, team.teamNo)} // Update to `team.teamNo`
-                  data-time={time}
-                  data-team={team.teamNo} // Update to `team.teamNo`
-                  sx={{
-                    border: '1px solid #ddd',
-                    backgroundColor: isSelected(time, team.teamNo) ? '#2196F3' : 'inherit',
-                    color: isSelected(time, team.teamNo) ? 'white' : 'inherit',
-                    cursor: 'pointer'
-                  }}
-                >
-                  {/* Optionally display selection */}
-                </TableCell>
+    <Box>
+      <TextField
+        type="date"
+        value={selectedDate}
+        onChange={handleDateChange}
+        InputLabelProps={{ shrink: true }}
+        sx={{ mb: 2 }}
+      />
+      <TableContainer component={Box}>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell>Time</TableCell>
+              {teams.map((team, index) => (
+                <TableCell key={index}>{team.teamNo}</TableCell> // Update to `team.teamNo`
               ))}
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-      <Menu
-        anchorReference="anchorPosition"
-        anchorPosition={anchorEl ? { top: anchorEl.top, left: anchorEl.left } : undefined}
-        open={Boolean(anchorEl)}
-        onClose={() => setAnchorEl(null)}
-      >
-        <MenuItem onClick={() => handleMenuClick('cancel')}>Cancel</MenuItem>
-      </Menu>
-    </TableContainer>
+          </TableHead>
+          <TableBody>
+            {timeSlots.map((time, rowIndex) => (
+              <TableRow key={rowIndex}>
+                <TableCell>{time}</TableCell>
+                {teams.map((team, colIndex) => (
+                  <TableCell
+                    key={colIndex}
+                    onMouseDown={(e) => handleMouseDown(e, time, team.teamNo)} // Update to `team.teamNo`
+                    onMouseOver={(e) => handleMouseOver(e, time, team.teamNo)} // Update to `team.teamNo`
+                    onContextMenu={(e) => handleContextMenu(e, time, team.teamNo)} // Update to `team.teamNo`
+                    data-time={time}
+                    data-team={team.teamNo} // Update to `team.teamNo`
+                    sx={{
+                      border: '1px solid #ddd',
+                      backgroundColor: isSelected(time, team.teamNo) ? '#2196F3' : 'inherit',
+                      color: isSelected(time, team.teamNo) ? 'white' : 'inherit',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    {/* Optionally display selection */}
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+        <Menu
+          anchorReference="anchorPosition"
+          anchorPosition={anchorEl ? { top: anchorEl.top, left: anchorEl.left } : undefined}
+          open={Boolean(anchorEl)}
+          onClose={() => setAnchorEl(null)}
+        >
+          <MenuItem onClick={() => handleMenuClick('cancel')}>Cancel</MenuItem>
+        </Menu>
+      </TableContainer>
+    </Box>
   );
 };
 
