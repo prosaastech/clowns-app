@@ -1,3 +1,4 @@
+// src/components/ContractCalendar.js
 import React, { useState, useEffect } from 'react';
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Box, Menu, MenuItem, TextField } from '@mui/material';
 import '../css/ContractCalendar.css';
@@ -10,7 +11,6 @@ const ContractCalendar = () => {
   const [contextMenu, setContextMenu] = useState({ time: null, team: null });
   const [teams, setTeams] = useState([]);
   const [timeSlots, setTimeSlots] = useState([]);
-  const [contractData, setContractData] = useState([]);
   const [selectedDate, setSelectedDate] = useState('2024-08-12'); // Default date
 
   useEffect(() => {
@@ -32,46 +32,40 @@ const ContractCalendar = () => {
     const fetchContractData = async () => {
       try {
         const response = await fetch(`http://localhost:5213/api/ContractTimeTeamInfoes/getAllContractsDateWise?date=${selectedDate}`);
-        
+    
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
-
+    
         const result = await response.json();
-        const data = result.$values || []; // Access the $values array
-
+        const data = result.contracts || [];
+    
         console.log('Fetched contract data:', data);
-
+    
         // Map the fetched data to the selected ranges
         const ranges = data.reduce((acc, contract) => {
-          const { Team, TimeSlot } = contract;
-          const teamId = Team?.TeamId;
-          const time = TimeSlot?.Time;
-          const date = contract.Date;
-
-          if (teamId && time) {
-            const teamNo = Team?.TeamNo || teamId;
-
-            // Initialize nested structure if not present
-            acc[teamNo] = acc[teamNo] || {};
-            acc[teamNo][date] = acc[teamNo][date] || [];
-            
-            // Collect all times for the team on this date
-            if (!acc[teamNo][date].includes(time)) {
-              acc[teamNo][date].push(time);
+          const { teamNo, time } = contract;
+    
+          if (teamNo && time) {
+            acc[teamNo] = acc[teamNo] || [];
+    
+            // Check if the time slot is already added to avoid duplicates
+            if (!acc[teamNo].includes(time)) {
+              acc[teamNo].push(time);
             }
           }
           return acc;
         }, {});
-
-        console.log("Selecting ranges");
+    
+        console.log("Selected ranges:", ranges);
         setSelectedRanges(ranges);
       } catch (error) {
         console.error('Error fetching contract data:', error);
-        setContractData([]);
+        setSelectedRanges({});
       }
     };
-
+    
+    
     fetchTeams();
     fetchTimeSlots();
     fetchContractData();
@@ -147,11 +141,35 @@ const ContractCalendar = () => {
   }, [dragging, activeSelection]);
 
   const isSelected = (time, team) => {
-    const dateRanges = selectedRanges[team] || {};
-    const times = Object.values(dateRanges).flat();
-
-    return times.includes(time);
+    console.log(`Checking if selected: team ${team}, time ${time}`);
+    
+    const ranges = Array.isArray(selectedRanges[team]) ? selectedRanges[team] : [];
+    const currentTimeIndex = timeSlots.indexOf(time);
+  
+    // The check should handle both range objects with `start` and `end` and simple time values.
+    const result = ranges.some(range => {
+      if (typeof range === 'string') {
+        // If range is a string, check if it's exactly the same as the time slot
+        return range === time;
+      } else if (typeof range === 'object' && range.start && range.end) {
+        // If range is an object, check the time index within the start and end range
+        console.log("Checking range: ", range);
+        const startTimeIndex = timeSlots.indexOf(range.start);
+        const endTimeIndex = timeSlots.indexOf(range.end);
+  
+        const minTimeIndex = Math.min(startTimeIndex, endTimeIndex);
+        const maxTimeIndex = Math.max(startTimeIndex, endTimeIndex);
+  
+        return currentTimeIndex >= minTimeIndex && currentTimeIndex <= maxTimeIndex;
+      }
+      return false;
+    });
+  
+    console.log(`Result for team ${team}, time ${time}: ${result}`);
+    return result;
   };
+  
+  
 
   const handleDateChange = (event) => {
     setSelectedDate(event.target.value);
@@ -166,13 +184,14 @@ const ContractCalendar = () => {
         InputLabelProps={{ shrink: true }}
         sx={{ mb: 2 }}
       />
+
       <TableContainer component={Box}>
         <Table>
           <TableHead>
             <TableRow>
               <TableCell>Time</TableCell>
               {teams.map((team, index) => (
-                <TableCell key={index}>{team.teamNo}</TableCell>
+                <TableCell key={index}>{team.teamNo}</TableCell> // Ensure teamNo is used
               ))}
             </TableRow>
           </TableHead>
@@ -183,11 +202,11 @@ const ContractCalendar = () => {
                 {teams.map((team, colIndex) => (
                   <TableCell
                     key={colIndex}
-                    onMouseDown={(e) => handleMouseDown(e, time, team.teamNo)}
-                    onMouseOver={(e) => handleMouseOver(e, time, team.teamNo)}
-                    onContextMenu={(e) => handleContextMenu(e, time, team.teamNo)}
+                    onMouseDown={(e) => handleMouseDown(e, time, team.teamNo)} // Ensure teamNo is used
+                    onMouseOver={(e) => handleMouseOver(e, time, team.teamNo)} // Ensure teamNo is used
+                    onContextMenu={(e) => handleContextMenu(e, time, team.teamNo)} // Ensure teamNo is used
                     data-time={time}
-                    data-team={team.teamNo}
+                    data-team={team.teamNo} // Ensure teamNo is used
                     sx={{
                       border: '1px solid #ddd',
                       backgroundColor: isSelected(time, team.teamNo) ? '#2196F3' : 'inherit',
@@ -208,6 +227,7 @@ const ContractCalendar = () => {
           open={Boolean(anchorEl)}
           onClose={() => setAnchorEl(null)}
         >
+          <MenuItem onClick={() => handleMenuClick('cancel')}>Create Contract</MenuItem>
           <MenuItem onClick={() => handleMenuClick('cancel')}>Cancel</MenuItem>
         </Menu>
       </TableContainer>
