@@ -15,24 +15,59 @@ const ContractCalendar = () => {
 
   useEffect(() => {
     // Fetch teams
+    const token = localStorage.getItem('token');
     const fetchTeams = async () => {
-      const response = await fetch('http://localhost:5213/api/Teams');
-      const data = await response.json();
-      setTeams(data);
+      try {
+        const response = await fetch('http://localhost:5213/api/Teams', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`, // Include the token in the header
+          },
+        });
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        setTeams(data);
+      } catch (error) {
+        console.error('Error fetching teams:', error);
+      }
     };
-
-    // Fetch time slots
+  
+    // Fetch time slots with Authorization header
     const fetchTimeSlots = async () => {
-      const response = await fetch('http://localhost:5213/api/TimeSlots');
-      const data = await response.json();
-      setTimeSlots(data.map(slot => slot.time)); // Assuming the time property contains the time string
+      try {
+        const response = await fetch('http://localhost:5213/api/TimeSlots', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`, // Include the token in the header
+          },
+        });
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        setTimeSlots(data.map(slot => slot.time)); // Assuming the time property contains the time string
+      } catch (error) {
+        console.error('Error fetching time slots:', error);
+      }
     };
+  
 
     // Fetch contract data
     const fetchContractData = async () => {
+      const token = localStorage.getItem('token');
       try {
-        const response = await fetch(`http://localhost:5213/api/ContractTimeTeamInfoes/getAllContractsDateWise?date=${selectedDate}`);
-    
+        const response = await fetch(`http://localhost:5213/api/ContractTimeTeamInfoes/getAllContractsDateWise?date=${selectedDate}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`, // Include the token in the header
+          },
+        });
+  
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }

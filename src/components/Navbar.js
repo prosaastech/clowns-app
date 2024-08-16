@@ -61,6 +61,9 @@ const Navbar = () => {
           <Button color="inherit" component={Link} to="/Contract" sx={{ mr: 2 }}>
             Contract
           </Button>
+          <Button color="inherit" component={Link} to="/Test" sx={{ mr: 2 }}>
+            Test
+          </Button>
           {user ? (
             <>
               <Button color="inherit" onClick={handleMenuClick} sx={{ mr: 2 }}>
