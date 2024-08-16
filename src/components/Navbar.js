@@ -1,15 +1,16 @@
-import React, { useState } from 'react';
+// src/components/Navbar.js
+import React from 'react';
 import { AppBar, Toolbar, Typography, Button, Box, IconButton, Menu, MenuItem } from '@mui/material';
-import { Link } from 'react-router-dom';
-import MenuIcon from '@mui/icons-material/Menu';
+import { Link, useNavigate } from 'react-router-dom'; // Import useNavigate
 import Logo from '../Images/bg.jpg'; // Import your logo
-import { getUserFromToken } from './Utils/authUtils'; // Import the utility function to get user info
+import { getUserFromToken } from './Utils/authUtils'; // Import the named export
 
 const Navbar = () => {
+  const navigate = useNavigate(); // Initialize useNavigate
   const user = getUserFromToken(); // Get the logged-in user's info
-  const [anchorEl, setAnchorEl] = useState(null);
 
-  console.log(user);
+  const [anchorEl, setAnchorEl] = React.useState(null);
+
   const handleMenuClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
@@ -18,20 +19,37 @@ const Navbar = () => {
     setAnchorEl(null);
   };
 
-  const handleLogout = () => {
-    // Clear token from localStorage and redirect to login page
-    localStorage.removeItem('token');
-    setAnchorEl(null);
-    window.location.href = '/';
+  const handleLogout = async () => {
+    
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch('http://localhost:5213/api/Users/logout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`, // Include the token in the header
+        },
+      });
+  
+      if (!response.ok) {
+        throw new Error(`Logout failed with status ${response.status}`);
+      }
+  
+      // Clear token from localStorage
+      localStorage.removeItem('token');
+      
+      // Optionally, clear any other session-related data here
+      
+      // Redirect to the login page
+      navigate('/'); // Use navigate from react-router-dom for SPA redirection
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
   };
-
   return (
     <AppBar position="static" sx={{ backgroundColor: '#2196F3' }}>
       <Toolbar>
         {/* Replace the three-line icon with a logo */}
-        <IconButton edge="start" color="inherit" aria-label="menu" sx={{ mr: 2 }}>
-          <MenuIcon />
-        </IconButton>
         <img src={Logo} alt="Logo" style={{ width: '40px', marginRight: '10px' }} />
         <Typography variant="h6" sx={{ flexGrow: 1 }}>
           Clowns
@@ -44,9 +62,9 @@ const Navbar = () => {
             Contract
           </Button>
           {user ? (
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <Button color="inherit" onClick={handleMenuClick}>
-                {user} {/* Display the username */}
+            <>
+              <Button color="inherit" onClick={handleMenuClick} sx={{ mr: 2 }}>
+                {user}
               </Button>
               <Menu
                 anchorEl={anchorEl}
@@ -55,7 +73,7 @@ const Navbar = () => {
               >
                 <MenuItem onClick={handleLogout}>Logout</MenuItem>
               </Menu>
-            </Box>
+            </>
           ) : (
             <Button color="inherit" component={Link} to="/login">
               Login
