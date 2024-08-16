@@ -40,6 +40,7 @@ export default function Login() {
 
       if (response.ok) {
         const data = await response.json();
+        localStorage.setItem('token', data.token); // Store the token
         console.log('Login successful:', data);
         // Redirect to the Dashboard
         navigate('/dashboard');
