@@ -6,6 +6,8 @@ import Dashboard from './components/Dashboard'; // Ensure Dashboard.js exists he
 import Contract from './components/Contract';
 import ProtectedRoute from './components/Utils/ProtectedRoute'; // Import the ProtectedRoute component
 import Test from './components/Test';
+import Customer from './components/Customer';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 const App = () => {
     return (
@@ -33,11 +35,11 @@ const App = () => {
                     }
                 />
                 <Route
-                    path="/Test"
+                    path="/Customer"
                     element={
                         <ProtectedRoute>
                             <Navbar /> {/* Navbar will be displayed on the Contract page */}
-                            <Test />
+                            <Customer />
                          </ProtectedRoute>
                     }
                 />

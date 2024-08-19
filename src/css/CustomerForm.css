@@ -1,0 +1,36 @@
+/* CustomerForm.css */
+.tab-content {
+    display: none;
+    padding: 16px;
+  }
+  
+  .tab-content.active {
+    display: block;
+  }
+  
+  .row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  
+  .col-md-3, .col-md-6, .col-md-12 {
+    flex: 1;
+  }
+  
+  .col-md-3 {
+    flex: 0 0 25%;
+  }
+  
+  .col-md-6 {
+    flex: 0 0 50%;
+  }
+  
+  .col-md-12 {
+    flex: 0 0 100%;
+  }
+  
+  .form-buttons {
+    margin-top: 16px;
+  }
+  

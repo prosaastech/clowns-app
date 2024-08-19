@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Box, Menu, MenuItem, TextField } from '@mui/material';
 import '../css/ContractCalendar.css';
+import { Navigate } from 'react-router-dom';
 
 const ContractCalendar = () => {
   const [dragging, setDragging] = useState(null);
@@ -12,6 +13,7 @@ const ContractCalendar = () => {
   const [teams, setTeams] = useState([]);
   const [timeSlots, setTimeSlots] = useState([]);
   const [selectedDate, setSelectedDate] = useState('2024-08-12'); // Default date
+  const [navigateToCustomer, setNavigateToCustomer] = useState(false); // New state for navigation
 
   useEffect(() => {
     // Fetch teams
@@ -155,9 +157,13 @@ const ContractCalendar = () => {
         return updatedRanges;
       });
     }
+    else if (action === 'CreateContract') {
+      setNavigateToCustomer(true); // Trigger navigation
+    }
+
     setAnchorEl(null);
   };
-
+ 
   useEffect(() => {
     const handleMouseMove = (event) => {
       if (dragging) {
@@ -209,7 +215,9 @@ const ContractCalendar = () => {
   const handleDateChange = (event) => {
     setSelectedDate(event.target.value);
   };
-
+  if (navigateToCustomer) {
+    return <Navigate to="/Customer" />;
+  };
   return (
     <Box>
       <TextField
@@ -262,7 +270,7 @@ const ContractCalendar = () => {
           open={Boolean(anchorEl)}
           onClose={() => setAnchorEl(null)}
         >
-          <MenuItem onClick={() => handleMenuClick('cancel')}>Create Contract</MenuItem>
+          <MenuItem onClick={() => handleMenuClick('CreateContract')}>Create Contract</MenuItem>
           <MenuItem onClick={() => handleMenuClick('cancel')}>Cancel</MenuItem>
         </Menu>
       </TableContainer>
