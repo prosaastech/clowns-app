@@ -7,7 +7,7 @@ export const getUserFromToken = () => {
 
   try {
     const decodedToken = jwtDecode(token);
-    console.log('DecodedToken:', decodedToken);
+    //console.log('DecodedToken:', decodedToken);
     return decodedToken.unique_name; // Assuming the token contains a `user` field
   } catch (error) {
     console.error('Invalid token:', error);

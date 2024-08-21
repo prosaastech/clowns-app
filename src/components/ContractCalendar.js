@@ -16,8 +16,9 @@ const ContractCalendar = () => {
   const [navigateToCustomer, setNavigateToCustomer] = useState(false); // New state for navigation
 
   useEffect(() => {
-    // Fetch teams
     const token = localStorage.getItem('token');
+
+    // Fetch teams
     const fetchTeams = async () => {
       try {
         const response = await fetch('http://localhost:5213/api/Teams', {
@@ -36,8 +37,8 @@ const ContractCalendar = () => {
         console.error('Error fetching teams:', error);
       }
     };
-  
-    // Fetch time slots with Authorization header
+
+    // Fetch time slots
     const fetchTimeSlots = async () => {
       try {
         const response = await fetch('http://localhost:5213/api/TimeSlots', {
@@ -56,11 +57,9 @@ const ContractCalendar = () => {
         console.error('Error fetching time slots:', error);
       }
     };
-  
 
     // Fetch contract data
     const fetchContractData = async () => {
-      const token = localStorage.getItem('token');
       try {
         const response = await fetch(`http://localhost:5213/api/ContractTimeTeamInfoes/getAllContractsDateWise?date=${selectedDate}`, {
           method: 'GET',
@@ -69,40 +68,32 @@ const ContractCalendar = () => {
             'Authorization': `Bearer ${token}`, // Include the token in the header
           },
         });
-  
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
-    
+
         const result = await response.json();
         const data = result.contracts || [];
-    
-        console.log('Fetched contract data:', data);
-    
+
         // Map the fetched data to the selected ranges
         const ranges = data.reduce((acc, contract) => {
           const { teamNo, time } = contract;
-    
           if (teamNo && time) {
             acc[teamNo] = acc[teamNo] || [];
-    
-            // Check if the time slot is already added to avoid duplicates
             if (!acc[teamNo].includes(time)) {
               acc[teamNo].push(time);
             }
           }
           return acc;
         }, {});
-    
-        console.log("Selected ranges:", ranges);
+
         setSelectedRanges(ranges);
       } catch (error) {
         console.error('Error fetching contract data:', error);
         setSelectedRanges({});
       }
     };
-    
-    
+
     fetchTeams();
     fetchTimeSlots();
     fetchContractData();
@@ -116,10 +107,12 @@ const ContractCalendar = () => {
 
   const handleMouseOver = (event, time, team) => {
     if (dragging === team && activeSelection) {
+      const updatedEnd = time;
       setActiveSelection(prev => ({
         ...prev,
-        end: time
+        end: updatedEnd
       }));
+      console.log('MouseOver - Active Selection:', { ...activeSelection, end: updatedEnd });
     }
   };
 
@@ -156,14 +149,16 @@ const ContractCalendar = () => {
         }
         return updatedRanges;
       });
-    }
-    else if (action === 'CreateContract') {
+    } else if (action === 'CreateContract') {
+      console.log('Active Selection on CreateContract:', activeSelection);
+      console.log('MouseOver - Active Selection:', { ...activeSelection });
+
       setNavigateToCustomer(true); // Trigger navigation
     }
 
     setAnchorEl(null);
   };
- 
+
   useEffect(() => {
     const handleMouseMove = (event) => {
       if (dragging) {
@@ -182,42 +177,48 @@ const ContractCalendar = () => {
   }, [dragging, activeSelection]);
 
   const isSelected = (time, team) => {
-    console.log(`Checking if selected: team ${team}, time ${time}`);
-    
     const ranges = Array.isArray(selectedRanges[team]) ? selectedRanges[team] : [];
     const currentTimeIndex = timeSlots.indexOf(time);
-  
-    // The check should handle both range objects with `start` and `end` and simple time values.
-    const result = ranges.some(range => {
+
+    return ranges.some(range => {
       if (typeof range === 'string') {
-        // If range is a string, check if it's exactly the same as the time slot
         return range === time;
       } else if (typeof range === 'object' && range.start && range.end) {
-        // If range is an object, check the time index within the start and end range
-        console.log("Checking range: ", range);
         const startTimeIndex = timeSlots.indexOf(range.start);
         const endTimeIndex = timeSlots.indexOf(range.end);
-  
         const minTimeIndex = Math.min(startTimeIndex, endTimeIndex);
         const maxTimeIndex = Math.max(startTimeIndex, endTimeIndex);
-  
+
         return currentTimeIndex >= minTimeIndex && currentTimeIndex <= maxTimeIndex;
       }
       return false;
     });
-  
-    console.log(`Result for team ${team}, time ${time}: ${result}`);
-    return result;
   };
-  
-  
 
   const handleDateChange = (event) => {
     setSelectedDate(event.target.value);
   };
+
   if (navigateToCustomer) {
-    return <Navigate to="/Customer" />;
-  };
+    console.log('Navigating with:', {
+      team: contextMenu.team,
+      timeStart: activeSelection?.start,
+      timeEnd: activeSelection?.end,
+      selectedTeam: contextMenu.team
+    });
+    return (
+      <Navigate
+        to="/Customer"
+        state={{
+          team: contextMenu.team,
+          timeStart: activeSelection?.start,
+          timeEnd: activeSelection?.end,
+          selectedTeam: contextMenu.team
+        }}
+      />
+    );
+  }
+  
   return (
     <Box>
       <TextField

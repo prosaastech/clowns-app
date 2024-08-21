@@ -1,8 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Tabs, Tab, TextField, MenuItem, Button } from '@mui/material';
 import '../css/CustomerForm.css';
+import EventInfo from './EventInfo';
+import { useLocation } from 'react-router-dom';
 
 const CustomerForm = () => {
+  const location = useLocation();
+  const { team, timeStart, timeEnd, selectedTeam } = location.state || {}; // Destructure the values from location state
+
   const [activeTab, setActiveTab] = useState(0);
   const [formData, setFormData] = useState({
     firstName: '',
@@ -24,10 +29,29 @@ const CustomerForm = () => {
     heardAboutUs: '',
     specifyOther: '',
     comments: '',
+    eventInfo_eventType: '',
+    eventInfo_numberOfChildren: '',
+    eventInfo_eventDate: '',
+    eventInfo_partyStartTime: timeStart || '', // Initialize with timeStart
+    eventInfo_partyEndTime: timeEnd || '',     // Initialize with timeEnd
+    eventInfo_teamAssigned: selectedTeam || '', // Initialize with selectedTeam
+    eventInfo_startClownHour: '',
+    eventInfo_endClownHour: '',
+    eventInfo_eventAddress: '',
+    eventInfo_eventCity: '',
+    eventInfo_eventZip: '',
+    eventInfo_eventState: '',
+    eventInfo_venue: '',
+    eventInfo_venueDescription: ''
   });
-
+ 
+ 
+ 
+ 
   const [addressTypes, setAddressTypes] = useState([]);
   const [states, setStates] = useState([]);
+  const [teams, setTeams] = useState([]);
+  const [venues, setVenues] = useState([]);
   const [childrenOptions, setChildrenOptions] = useState([]);
   const [childrenUnderAge, setChildrenUnderAge] = useState([]);
 
@@ -62,13 +86,16 @@ const CustomerForm = () => {
     fetchDropdownData('http://localhost:5213/api/HeardResources', setHeardAboutUsOptions);
     fetchDropdownData('http://localhost:5213/api/Relationships', setRelationships);
     fetchDropdownData('http://localhost:5213/api/Relationships', setOtherRelationships);
+    fetchDropdownData('http://localhost:5213/api/Venues', setOtherRelationships);
+    fetchDropdownData('http://localhost:5213/api/Teams', setTeams);
   }, []);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
-     
-    setFormData((prev) => ({ ...prev, [name]: value }));
-    console.log(formData.children);
+    setFormData((prev) => {
+      const updatedFormData = { ...prev, [name]: value };
+      return updatedFormData;
+    });
   };
 
   const handleTabChange = (event, newValue) => {
@@ -304,7 +331,7 @@ const CustomerForm = () => {
               ))}
             </TextField>
           </div>
-          {formData.heardAboutUs === 'Other' && (
+          {formData.heardAboutUs === 2 && (
             <div className="col-md-2 col-sm-12">
               <TextField
                 label="If other, Please Specify"
@@ -340,7 +367,16 @@ const CustomerForm = () => {
 
       <div className={`tab-content ${activeTab === 1 ? 'active' : ''}`}>
         <h2>Event Info</h2>
-        {/* Add Event Info form fields here */}
+        <EventInfo
+          formData={formData}
+          setFormData={setFormData}
+          states={states}
+          venues={venues}
+          teams={teams}
+          timeStart={timeStart}   // Pass timeStart to EventInfo
+          timeEnd={timeEnd}       // Pass timeEnd to EventInfo
+          selectedTeam={selectedTeam} // Pass selectedTeam to EventInfo
+        />
         <div className="form-buttons">
           <Button variant="contained" onClick={handlePrevious} disabled={activeTab === 0}>
             Previous
