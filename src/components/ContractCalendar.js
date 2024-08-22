@@ -7,6 +7,7 @@ import { Navigate } from 'react-router-dom';
 const ContractCalendar = () => {
   const [dragging, setDragging] = useState(null);
   const [activeSelection, setActiveSelection] = useState(null);
+  const [finalSelection, setFinalSelection] = useState(null);
   const [selectedRanges, setSelectedRanges] = useState({});
   const [anchorEl, setAnchorEl] = useState(null);
   const [contextMenu, setContextMenu] = useState({ time: null, team: null });
@@ -112,6 +113,7 @@ const ContractCalendar = () => {
         ...prev,
         end: updatedEnd
       }));
+      setFinalSelection(activeSelection);
       console.log('MouseOver - Active Selection:', { ...activeSelection, end: updatedEnd });
     }
   };
@@ -150,8 +152,8 @@ const ContractCalendar = () => {
         return updatedRanges;
       });
     } else if (action === 'CreateContract') {
-      console.log('Active Selection on CreateContract:', activeSelection);
-      console.log('MouseOver - Active Selection:', { ...activeSelection });
+      console.log('Active Selection on CreateContract:', finalSelection);
+      //console.log('MouseOver - Active Selection:', { ...activeSelection });
 
       setNavigateToCustomer(true); // Trigger navigation
     }
@@ -211,8 +213,8 @@ const ContractCalendar = () => {
         to="/Customer"
         state={{
           team: contextMenu.team,
-          timeStart: activeSelection?.start,
-          timeEnd: activeSelection?.end,
+          timeStart: finalSelection?.start,
+          timeEnd: finalSelection?.end,
           selectedTeam: contextMenu.team
         }}
       />

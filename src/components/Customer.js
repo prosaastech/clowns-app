@@ -3,6 +3,7 @@ import { Box, Tabs, Tab, TextField, MenuItem, Button } from '@mui/material';
 import '../css/CustomerForm.css';
 import EventInfo from './EventInfo';
 import { useLocation } from 'react-router-dom';
+import PackageInfo from './PackageInfo';
 
 const CustomerForm = () => {
   const location = useLocation();
@@ -42,7 +43,17 @@ const CustomerForm = () => {
     eventInfo_eventZip: '',
     eventInfo_eventState: '',
     eventInfo_venue: '',
-    eventInfo_venueDescription: ''
+    eventInfo_venueDescription: '',
+    packageInfo_price: '',
+    packageInfo_tax: '',
+    packageInfo_tip: '',
+    packageInfo_description: '',
+    characters: [],
+    addons: [],
+    bounces: [],
+    parkingFees: '',
+    tollFees: '',
+    deposit: ''
   });
  
  
@@ -86,7 +97,6 @@ const CustomerForm = () => {
     fetchDropdownData('http://localhost:5213/api/HeardResources', setHeardAboutUsOptions);
     fetchDropdownData('http://localhost:5213/api/Relationships', setRelationships);
     fetchDropdownData('http://localhost:5213/api/Relationships', setOtherRelationships);
-    fetchDropdownData('http://localhost:5213/api/Venues', setOtherRelationships);
     fetchDropdownData('http://localhost:5213/api/Teams', setTeams);
   }, []);
 
@@ -287,7 +297,7 @@ const CustomerForm = () => {
           <div className="col-md-2 col-sm-12">
             <TextField
               label="Children Under Age 11"
-              name="children"
+              name="childrenAge"
               select
               value={formData.childrenAge}
               onChange={handleChange}
@@ -371,7 +381,6 @@ const CustomerForm = () => {
           formData={formData}
           setFormData={setFormData}
           states={states}
-          venues={venues}
           teams={teams}
           timeStart={timeStart}   // Pass timeStart to EventInfo
           timeEnd={timeEnd}       // Pass timeEnd to EventInfo
@@ -389,7 +398,12 @@ const CustomerForm = () => {
 
       <div className={`tab-content ${activeTab === 2 ? 'active' : ''}`}>
         <h2>Package Info</h2>
-        {/* Add Package Info form fields here */}
+       <PackageInfo 
+       formData={formData}
+       setFormData={setFormData}
+       
+       
+       />
         <div className="form-buttons">
           <Button variant="contained" onClick={handlePrevious} disabled={activeTab === 0}>
             Previous

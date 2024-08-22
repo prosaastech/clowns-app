@@ -1,15 +1,43 @@
 import React, { useState, useEffect } from 'react';
 import { Box, TextField, MenuItem } from '@mui/material';
 
-const EventInfo = ({ formData, setFormData, states, venues, teams, selectedTeam, time }) => {
+const EventInfo = ({ formData, setFormData, states, teams, selectedTeam, time }) => {
   
   const handleChange = (event) => {
     const { name, value } = event.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const [venues, setVenues] = useState([]);
+  const [eventType, setEventType] = useState([]);
+ 
+
   useEffect(() => {
-    console.log("Team No:" + selectedTeam)
+    // Fetch address types
+    const fetchDropdownData = async (url, setter) => {
+      const token = localStorage.getItem('token');
+      try {
+        const response = await fetch(url, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+        if (!response.ok) throw new Error('Failed to fetch data');
+        const data = await response.json();
+        setter(data);
+      } catch (error) {
+        console.error(`Error fetching data from ${url}:`, error);
+      }
+    };
+
+    fetchDropdownData('http://localhost:5213/api/EventTypes', setEventType);
+    fetchDropdownData('http://localhost:5213/api/Venues', setVenues);
+   }, []);
+
+  useEffect(() => {
+    console.log("Team No:" + selectedTeam);
     if (selectedTeam) {
       // Find the teamId based on the teamNo
       const matchingTeam = teams.find(team => team.teamNo === selectedTeam);
@@ -42,9 +70,9 @@ const EventInfo = ({ formData, setFormData, states, venues, teams, selectedTeam,
             onChange={handleChange}
             fullWidth
           >
-            <MenuItem value="birthday">Birthday</MenuItem>
-            <MenuItem value="wedding">Wedding</MenuItem>
-            {/* Add more event types as needed */}
+            {eventType.map((type) => (
+              <MenuItem key={type.id} value={type.eventTypeId}>{type.eventTypeName}</MenuItem>
+            ))}
           </TextField>
         </div>
         <div className="col-md-3 col-sm-12">
@@ -98,19 +126,19 @@ const EventInfo = ({ formData, setFormData, states, venues, teams, selectedTeam,
         </div>
         <div className="col-md-3 col-sm-12">
         <TextField
-  label="Team Assigned"
-  name="eventInfo_teamAssigned"
-  select
-  value={formData.eventInfo_teamAssigned || ''}
-  onChange={handleChange}
-  fullWidth
->
-  {teams.map((team) => (
-    <MenuItem key={team.id} value={team.teamId}>
-      {team.teamNo}
-    </MenuItem>
-  ))}
-</TextField>
+        label="Team Assigned"
+        name="eventInfo_teamAssigned"
+        select
+        value={formData.eventInfo_teamAssigned || ''}
+        onChange={handleChange}
+        fullWidth
+      >
+      {teams.map((team) => (
+        <MenuItem key={team.id} value={team.teamId}>
+          {team.teamNo}
+        </MenuItem>
+      ))}
+    </TextField>
 
         </div>
         <div className="col-md-3 col-sm-12">
