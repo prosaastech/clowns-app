@@ -1,35 +1,143 @@
-import React from 'react';
-import { TextField, MenuItem, Button } from '@mui/material';
+import React, { useState } from 'react';
+import { Box, TextField, MenuItem, Button, Grid, Typography, IconButton } from '@mui/material';
+import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit';
 
-const AddonsTab = ({ addons, formData, setFormData }) => {
+const AddonTab = ({ addons, formData, setFormData }) => {
+  const [selectedAddon, setSelectedAddon] = useState('');
+  const [selectedPrice, setSelectedPrice] = useState('');
+  const [editIndex, setEditIndex] = useState(null);
+
+  const handleAddonChange = (event) => {
+    const addonId = event.target.value;
+    setSelectedAddon(addonId);
+
+    const Addon = addons.find(char => char.addonId === addonId);
+    setSelectedPrice(Addon?.price || '');
+  };
+
   const handleAddAddon = () => {
-    // Logic to add add-on to the grid
+    const newAddon = {
+      addonId: selectedAddon,
+      price: selectedPrice,
+    };
+
+    setFormData(prev => ({
+      ...prev,
+      addons: editIndex === null
+        ? [...(prev.addons || []), newAddon]
+        : prev.addons.map((char, index) =>
+            index === editIndex ? newAddon : char
+          ),
+    }));
+
+    setSelectedAddon('');
+    setSelectedPrice('');
+    setEditIndex(null);
+  };
+
+  const handleEdit = (index) => {
+    const Addon = formData.addons[index];
+    setSelectedAddon(Addon.addonId);
+    setSelectedPrice(Addon.price);
+    setEditIndex(index);
+  };
+
+  const handleDelete = (index) => {
+    setFormData(prev => ({
+      ...prev,
+      addons: prev.addons.filter((_, i) => i !== index),
+    }));
   };
 
   return (
-    <div>
-      <TextField
-        label="Add-ons"
-        name="addons"
-        select
-        multiple
-        value={formData?.addons || []}
-        onChange={(e) => setFormData(prev => ({
-          ...prev,
-          addons: e.target.value
-        }))}
-        fullWidth
-      >
-        {addons.map((addon) => (
-          <MenuItem key={addon.addonId} value={addon.addonId}>
-            {addon.addonName}
-          </MenuItem>
-        ))}
-      </TextField>
-      <Button onClick={handleAddAddon}>Add Add-on</Button>
-      {/* Render the grid of added add-ons here */}
-    </div>
+    <Box>
+      <Grid container spacing={2} alignItems="center">
+        <Grid item xs={3}>
+          <TextField
+            label="Addon"
+            select
+            value={selectedAddon}
+            onChange={handleAddonChange}
+            fullWidth
+          >
+            {addons.map((char) => (
+              <MenuItem
+                key={char.addonId}
+                value={char.addonId}
+                disabled={formData.addons.some(c => c.addonId === char.addonId && c.addonId !== selectedAddon)}
+              >
+                {char.addonName}
+              </MenuItem>
+            ))}
+          </TextField>
+        </Grid>
+        <Grid item xs={3}>
+          <TextField
+            label="Price"
+            value={selectedPrice}
+            fullWidth
+            disabled
+          />
+        </Grid>
+        <Grid item xs={4}>
+          <Button onClick={handleAddAddon} variant="contained">
+            {editIndex === null ? 'Add Addon' : 'Update Addon'}
+          </Button>
+        </Grid>
+      </Grid>
+
+      {/* Render the grid of added addons here */}
+      <Box mt={1} px={0}> {/* Add padding on the x-axis to provide space from edges */}
+        {formData.addons && formData.addons.length > 0 && (
+          <Box
+            display="flex"
+            flexDirection="column"
+            gap={1}
+          >
+            {formData.addons.map((char, index) => {
+              const Addon = addons.find(c => c.addonId === char.addonId);
+              return (
+                <Box
+                  key={index}
+                  display="flex"
+                  justifyContent="space-between"
+                  alignItems="center"
+                  p={1}
+                  borderRadius="4px"
+                  border="1px solid #ddd"
+                  backgroundColor="#f9f9f9"
+                  maxWidth="700px" // Set a max width for the items
+                  mx="left" // Center the items horizontally
+                  sx={{
+                    '@media (max-width:700px)': {
+                      flexDirection: 'column',
+                      textAlign: 'left',
+                    },
+                  }}
+                >
+                  <Typography variant="body2" sx={{ flex: 1.2 }}>
+                    {Addon?.addonName}
+                  </Typography>
+                  <Typography variant="body2" sx={{ flex: 1, textAlign: 'left' }}>
+                    {char.price}
+                  </Typography>
+                  <Box>
+                    <IconButton onClick={() => handleEdit(index)} aria-label="edit">
+                      <EditIcon />
+                    </IconButton>
+                    <IconButton onClick={() => handleDelete(index)} aria-label="delete">
+                      <DeleteIcon />
+                    </IconButton>
+                  </Box>
+                </Box>
+              );
+            })}
+          </Box>
+        )}
+      </Box>
+    </Box>
   );
 };
 
-export default AddonsTab;
+export default AddonTab;

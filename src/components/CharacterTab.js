@@ -1,44 +1,142 @@
-import React from 'react';
-import { TextField, MenuItem, Button } from '@mui/material';
+import React, { useState } from 'react';
+import { Box, TextField, MenuItem, Button, Grid, Typography, IconButton } from '@mui/material';
+import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit';
 
 const CharacterTab = ({ characters, formData, setFormData }) => {
+  const [selectedCharacter, setSelectedCharacter] = useState('');
+  const [selectedPrice, setSelectedPrice] = useState('');
+  const [editIndex, setEditIndex] = useState(null);
+
+  const handleCharacterChange = (event) => {
+    const characterId = event.target.value;
+    setSelectedCharacter(characterId);
+
+    const character = characters.find(char => char.characterId === characterId);
+    setSelectedPrice(character?.price || '');
+  };
+
   const handleAddCharacter = () => {
-    // Logic to add character to the grid
+    const newCharacter = {
+      characterId: selectedCharacter,
+      price: selectedPrice,
+    };
+
+    setFormData(prev => ({
+      ...prev,
+      characters: editIndex === null
+        ? [...(prev.characters || []), newCharacter]
+        : prev.characters.map((char, index) =>
+            index === editIndex ? newCharacter : char
+          ),
+    }));
+
+    setSelectedCharacter('');
+    setSelectedPrice('');
+    setEditIndex(null);
+  };
+
+  const handleEdit = (index) => {
+    const character = formData.characters[index];
+    setSelectedCharacter(character.characterId);
+    setSelectedPrice(character.price);
+    setEditIndex(index);
+  };
+
+  const handleDelete = (index) => {
+    setFormData(prev => ({
+      ...prev,
+      characters: prev.characters.filter((_, i) => i !== index),
+    }));
   };
 
   return (
-    <div>
-      <TextField
-        label="Characters"
-        name="characters"
-        select
-        multiple
-        value={formData?.characters || []}
-        onChange={(e) => setFormData(prev => ({
-          ...prev,
-          characters: e.target.value
-        }))}
-        fullWidth
-      >
-        {characters.map((char) => (
-          <MenuItem key={char.characterId} value={char.characterId}>
-            {char.characterName}
-          </MenuItem>
-        ))}
-      </TextField>
-      <TextField
-        label="Price"
-        name="characterPrice"
-        value={formData?.characterPrice || ''}
-        onChange={(e) => setFormData(prev => ({
-          ...prev,
-          characterPrice: e.target.value
-        }))}
-        fullWidth
-      />
-      <Button onClick={handleAddCharacter}>Add Character</Button>
+    <Box>
+      <Grid container spacing={2} alignItems="center">
+        <Grid item xs={3}>
+          <TextField
+            label="Character"
+            select
+            value={selectedCharacter}
+            onChange={handleCharacterChange}
+            fullWidth
+          >
+            {characters.map((char) => (
+              <MenuItem
+                key={char.characterId}
+                value={char.characterId}
+                disabled={formData.characters.some(c => c.characterId === char.characterId && c.characterId !== selectedCharacter)}
+              >
+                {char.characterName}
+              </MenuItem>
+            ))}
+          </TextField>
+        </Grid>
+        <Grid item xs={3}>
+          <TextField
+            label="Price"
+            value={selectedPrice}
+            fullWidth
+            disabled
+          />
+        </Grid>
+        <Grid item xs={4}>
+          <Button onClick={handleAddCharacter} variant="contained">
+            {editIndex === null ? 'Add Character' : 'Update Character'}
+          </Button>
+        </Grid>
+      </Grid>
+
       {/* Render the grid of added characters here */}
-    </div>
+      <Box mt={1} px={0}> {/* Add padding on the x-axis to provide space from edges */}
+        {formData.characters && formData.characters.length > 0 && (
+          <Box
+            display="flex"
+            flexDirection="column"
+            gap={1}
+          >
+            {formData.characters.map((char, index) => {
+              const character = characters.find(c => c.characterId === char.characterId);
+              return (
+                <Box
+                  key={index}
+                  display="flex"
+                  justifyContent="space-between"
+                  alignItems="center"
+                  p={1}
+                  borderRadius="4px"
+                  border="1px solid #ddd"
+                  backgroundColor="#f9f9f9"
+                  maxWidth="700px" // Set a max width for the items
+                  mx="left" // Center the items horizontally
+                  sx={{
+                    '@media (max-width:700px)': {
+                      flexDirection: 'column',
+                      textAlign: 'left',
+                    },
+                  }}
+                >
+                  <Typography variant="body2" sx={{ flex: 1.2 }}>
+                    {character?.characterName}
+                  </Typography>
+                  <Typography variant="body2" sx={{ flex: 1, textAlign: 'left' }}>
+                    {char.price}
+                  </Typography>
+                  <Box>
+                    <IconButton onClick={() => handleEdit(index)} aria-label="edit">
+                      <EditIcon />
+                    </IconButton>
+                    <IconButton onClick={() => handleDelete(index)} aria-label="delete">
+                      <DeleteIcon />
+                    </IconButton>
+                  </Box>
+                </Box>
+              );
+            })}
+          </Box>
+        )}
+      </Box>
+    </Box>
   );
 };
 
