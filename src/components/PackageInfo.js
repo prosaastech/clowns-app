@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Box, TextField, MenuItem } from '@mui/material';
+import { Box, TextField, MenuItem, Button, Tabs, Tab } from '@mui/material';
+import CharacterTab from './CharacterTab';
+import AddonsTab from './AddonsTab';
+import BouncesTab from './BouncesTab';
+import ReviewTab from './ReviewTab';
 
 const PackageInfo = ({ formData, setFormData }) => {
   const [categories, setCategories] = useState([]);
@@ -7,6 +11,7 @@ const PackageInfo = ({ formData, setFormData }) => {
   const [characters, setCharacters] = useState([]);
   const [addons, setAddons] = useState([]);
   const [bounces, setBounces] = useState([]);
+  const [tabIndex, setTabIndex] = useState(0);
 
   useEffect(() => {
     const fetchDropdownData = async (url, setter) => {
@@ -94,192 +99,49 @@ const PackageInfo = ({ formData, setFormData }) => {
     return packagePrice + charactersTax + addonsTax + bouncesTax + parkingFees + tollFees - deposit;
   };
 
+  const handleTabChange = (event, newValue) => {
+    setTabIndex(newValue);
+  };
+
   return (
     <Box>
-      <div className="row">
-        <div className="col-md-3 col-sm-12">
-          <TextField
-            label="Category"
-            name="category"
-            select
-            value={formData?.category || ''}
-            onChange={handleCategoryChange}
-            fullWidth
-          >
-            {categories.map((category) => (
-              <MenuItem key={category.id} value={category.categoryId}>
-                {category.categoryName}
-              </MenuItem>
-            ))}
-          </TextField>
-        </div>
-        <div className="col-md-3 col-sm-12">
-          <TextField
-            label="Party Package"
-            name="package"
-            select
-            value={formData?.package || ''}
-            onChange={handlePackageChange}
-            fullWidth
-          >
-            {packages.map((pkg) => (
-              <MenuItem key={pkg.packageId} value={pkg.packageId}>
-                {pkg.packageName}
-              </MenuItem>
-            ))}
-          </TextField>
-        </div>
-        <div className="col-md-3 col-sm-12">
-          <TextField
-            label="Price"
-            name="price"
-            value={formatNumber(parseFloat(unformatNumber(formData?.price || ''))) || ''}
-            onChange={(e) => setFormData(prev => ({
-              ...prev,
-              price: e.target.value
-            }))}
-            fullWidth
-          />
-        </div>
-        <div className="col-md-3 col-sm-12">
-          <TextField
-            label="Tax"
-            name="tax"
-            value={formatNumber(parseFloat(unformatNumber(formData?.tax || ''))) || ''}
-            onChange={(e) => setFormData(prev => ({
-              ...prev,
-              tax: e.target.value
-            }))}
-            fullWidth
-          />
-        </div>
-        <div className="col-md-3 col-sm-12">
-          <TextField
-            label="Tip"
-            name="tip"
-            value={formatNumber(parseFloat(unformatNumber(formData?.tip || ''))) || ''}
-            onChange={(e) => setFormData(prev => ({
-              ...prev,
-              tip: e.target.value
-            }))}
-            fullWidth
-          />
-        </div>
-        <div className="col-md-3 col-sm-12">
-          <TextField
-            label="Description"
-            name="description"
-            value={formData?.description || ''}
-            InputProps={{
-              readOnly: true,
-            }}
-            fullWidth
-            multiline
-            rows={4}
-          />
-        </div>
-        {/* Add additional fields for Characters, Add-ons, Bounces, etc. */}
-        <div className="col-md-3 col-sm-12">
-          <TextField
-            label="Characters"
-            name="characters"
-            select
-            multiple
-            value={formData?.characters || []}
-            onChange={(e) => handleMultipleSelectChange('characters', e.target.value)}
-            fullWidth
-          >
-            {characters.map((char) => (
-              <MenuItem key={char.characterId} value={char.characterId}>
-                {char.characterName}
-              </MenuItem>
-            ))}
-          </TextField>
-        </div>
-        <div className="col-md-3 col-sm-12">
-          <TextField
-            label="Add-ons"
-            name="addons"
-            select
-            multiple
-            value={formData?.addons || []}
-            onChange={(e) => handleMultipleSelectChange('addons', e.target.value)}
-            fullWidth
-          >
-            {addons.map((addon) => (
-              <MenuItem key={addon.addonId} value={addon.addonId}>
-                {addon.addonName}
-              </MenuItem>
-            ))}
-          </TextField>
-        </div>
-        <div className="col-md-3 col-sm-12">
-          <TextField
-            label="Bounces"
-            name="bounces"
-            select
-            multiple
-            value={formData?.bounces || []}
-            onChange={(e) => handleMultipleSelectChange('bounces', e.target.value)}
-            fullWidth
-          >
-            {bounces.map((bounce) => (
-              <MenuItem key={bounce.bounceId} value={bounce.bounceId}>
-                {bounce.bounceName}
-              </MenuItem>
-            ))}
-          </TextField>
-        </div>
-        <div className="col-md-3 col-sm-12">
-          <TextField
-            label="Parking Fees"
-            name="parkingFees"
-            value={formatNumber(parseFloat(unformatNumber(formData?.parkingFees || ''))) || ''}
-            onChange={(e) => setFormData(prev => ({
-              ...prev,
-              parkingFees: e.target.value
-            }))}
-            fullWidth
-          />
-        </div>
-        <div className="col-md-3 col-sm-12">
-          <TextField
-            label="Toll Fees"
-            name="tollFees"
-            value={formatNumber(parseFloat(unformatNumber(formData?.tollFees || ''))) || ''}
-            onChange={(e) => setFormData(prev => ({
-              ...prev,
-              tollFees: e.target.value
-            }))}
-            fullWidth
-          />
-        </div>
-        <div className="col-md-3 col-sm-12">
-          <TextField
-            label="Deposit"
-            name="deposit"
-            value={formatNumber(parseFloat(unformatNumber(formData?.deposit || ''))) || ''}
-            onChange={(e) => setFormData(prev => ({
-              ...prev,
-              deposit: e.target.value
-            }))}
-            fullWidth
-          />
-        </div>
-      </div>
-      <div className="row">
-        <div className="col-md-12">
-          <TextField
-            label="Total Balance"
-            name="totalBalance"
-            value={formatNumber(calculateTotalBalance())}
-            InputProps={{
-              readOnly: true,
-            }}
-            fullWidth
-          />
-        </div>
-      </div>
+      <Tabs value={tabIndex} onChange={handleTabChange}>
+        <Tab label="Character" />
+        <Tab label="Add-ons" />
+        <Tab label="Bounces" />
+        <Tab label="Review" />
+      </Tabs>
+
+      {tabIndex === 0 && (
+        <CharacterTab
+          characters={characters}
+          formData={formData}
+          setFormData={setFormData}
+        />
+      )}
+
+      {tabIndex === 1 && (
+        <AddonsTab
+          addons={addons}
+          formData={formData}
+          setFormData={setFormData}
+        />
+      )}
+
+      {tabIndex === 2 && (
+        <BouncesTab
+          bounces={bounces}
+          formData={formData}
+          setFormData={setFormData}
+        />
+      )}
+
+      {tabIndex === 3 && (
+        <ReviewTab
+          formData={formData}
+          calculateTotalBalance={calculateTotalBalance}
+        />
+      )}
     </Box>
   );
 };
