@@ -1,0 +1,37 @@
+/* ReviewTab.css */
+
+.review-tab {
+    padding: 20px;
+  }
+  
+  .review-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+  
+  .review-section {
+    border: 1px solid #ccc;
+    padding: 10px;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+  }
+  
+  .review-items {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .review-item {
+    margin-bottom: 5px;
+  }
+  
+  .not-found {
+    color: red;
+  }
+  
+  .total-balance {
+    margin-top: 20px;
+    text-align: right;
+  }
+  
