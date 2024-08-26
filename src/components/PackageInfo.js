@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Box, TextField, MenuItem, Button, Tabs, Tab } from '@mui/material';
+import { Box, TextField, MenuItem, Button, Tabs, Tab, Grid, Typography } from '@mui/material';
 import CharacterTab from './CharacterTab';
 import AddonsTab from './AddonsTab';
 import BouncesTab from './BouncesTab';
@@ -58,6 +58,13 @@ const PackageInfo = ({ formData, setFormData }) => {
     }));
   };
 
+  const handleFieldChange = (field) => (event) => {
+    setFormData((prev) => ({
+      ...prev,
+      [field]: event.target.value,
+    }));
+  };
+
   const handleMultipleSelectChange = (type, value) => {
     setFormData(prev => ({
       ...prev,
@@ -76,7 +83,7 @@ const PackageInfo = ({ formData, setFormData }) => {
   };
 
   const calculateTotalBalance = () => {
-    const packagePrice = parseFloat(unformatNumber(formData.packageInfo_price || '')) || 0;
+    const packagePrice = parseFloat(unformatNumber(formData.price || '')) || 0;
     const charactersTax = formData.characters?.reduce((total, id) => {
       const char = characters.find(c => c.characterId === id);
       return total + (parseFloat(unformatNumber(char?.tax || '')) || 0);
@@ -105,6 +112,76 @@ const PackageInfo = ({ formData, setFormData }) => {
 
   return (
     <Box>
+      <Grid container spacing={2} mb={2}>
+        <Grid item xs={12} md={4}>
+          <TextField
+            label="Category"
+            select
+            value={formData.category || ''}
+            onChange={handleCategoryChange}
+            fullWidth
+          >
+            {categories.map((category) => (
+              <MenuItem key={category.categoryId} value={category.categoryId}>
+                {category.categoryName}
+              </MenuItem>
+            ))}
+          </TextField>
+        </Grid>
+        <Grid item xs={12} md={4}>
+          <TextField
+            label="Party Package"
+            select
+            value={formData.package || ''}
+            onChange={handlePackageChange}
+            fullWidth
+          >
+            {packages.map((pkg) => (
+              <MenuItem key={pkg.partyPackageId} value={pkg.partyPackageId}>
+                {pkg.partyPackageName}
+              </MenuItem>
+            ))}
+          </TextField>
+        </Grid>
+      </Grid>
+
+      <Grid container spacing={2}>
+        <Grid item xs={12} md={4}>
+          <TextField
+            label="Price"
+            value={formData.price || ''}
+            onChange={handleFieldChange('price')}
+            fullWidth
+          />
+        </Grid>
+        <Grid item xs={12} md={4}>
+          <TextField
+            label="Tax"
+            value={formData.tax || ''}
+            onChange={handleFieldChange('tax')}
+            fullWidth
+          />
+        </Grid>
+        <Grid item xs={12} md={4}>
+          <TextField
+            label="Tip"
+            value={formData.tip || ''}
+            onChange={handleFieldChange('tip')}
+            fullWidth
+          />
+        </Grid>
+        <Grid item xs={12}>
+          <TextField
+            label="Description"
+            value={formData.description || ''}
+            onChange={handleFieldChange('description')}
+            fullWidth
+            multiline
+            rows={4}
+          />
+        </Grid>
+      </Grid>
+
       <Tabs value={tabIndex} onChange={handleTabChange}>
         <Tab label="Character" />
         <Tab label="Add-ons" />
