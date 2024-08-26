@@ -11,8 +11,9 @@ const CustomerForm = () => {
 
   const [activeTab, setActiveTab] = useState(0);
   const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
+    CustomerId:0,
+    FirstName: '',
+    LastName: '',
     email: '',
     phone: '',
     relationship: '',
@@ -112,9 +113,39 @@ const CustomerForm = () => {
     setActiveTab(newValue);
   };
 
-  const handleNext = () => {
-    setActiveTab((prev) => Math.min(prev + 1, 2)); // Move to next tab
+  const handleNext = async () => {
+    // Call the save method before moving to the next tab
+    await saveFormData();
+  
+    // Move to the next tab
+    setActiveTab((prev) => Math.min(prev + 1, 2));
   };
+
+  const saveFormData = async () => {
+    const token = localStorage.getItem('token');
+    try {
+      // Make the API call to save the form data
+      const response = await fetch('http://localhost:5213/api/CustomerInfoes/SaveCustomer', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`, // Include your Bearer token if needed
+        },
+        body: JSON.stringify(formData), // Send the form data as JSON
+      });
+  
+      if (!response.ok) {
+        throw new Error(`Failed to save data: ${response.statusText}`);
+      }
+  
+      const result = await response.json();
+      console.log("Form data saved successfully:", result);
+    } catch (error) {
+      console.error("Error saving form data:", error);
+      // Handle the error appropriately in your application
+    }
+  };
+  
 
   const handlePrevious = () => {
     setActiveTab((prev) => Math.max(prev - 1, 0)); // Move to previous tab
