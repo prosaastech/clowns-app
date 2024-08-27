@@ -14,6 +14,7 @@ const CustomerForm = () => {
 
   const [activeTab, setActiveTab] = useState(0);
   const [formData, setFormData] = useState({
+    customerId:0,
     firstName: '',
     lastName: '',
     email: '',
@@ -33,20 +34,21 @@ const CustomerForm = () => {
     heardAboutUs: '',
     specifyOther: '',
     comments: '',
-    eventInfo_eventType: 0,
-    eventInfo_numberOfChildren: 0,
-    eventInfo_eventDate: '',
-    eventInfo_partyStartTime: timeStart || '', // Initialize with timeStart
-    eventInfo_partyEndTime: timeEnd || '',     // Initialize with timeEnd
-    eventInfo_teamAssigned: selectedTeam || '', // Initialize with selectedTeam
-    eventInfo_startClownHour: '',
-    eventInfo_endClownHour: '',
-    eventInfo_eventAddress: '',
-    eventInfo_eventCity: '',
-    eventInfo_eventZip: '',
-    eventInfo_eventState: '',
-    eventInfo_venue: '',
-    eventInfo_venueDescription: '',
+    contractEventInfoId:0,
+    eventInfoEventType: 0,
+    eventInfoNumberOfChildren: 0,
+    eventInfoEventDate: '',
+    eventInfoPartyStartTime: timeStart || '', // Initialize with timeStart
+    eventInfoPartyEndTime: timeEnd || '',     // Initialize with timeEnd
+    eventInfoTeamAssigned: selectedTeam || '', // Initialize with selectedTeam
+    eventInfoStartClownHour: '',
+    eventInfoEndClownHour: '',
+    eventInfoEventAddress: '',
+    eventInfoEventCity: '',
+    eventInfoEventZip: 0,
+    eventInfoEventState: 0,
+    eventInfoVenue: 0,
+    eventInfoVenueDescription: '',
     packageInfo_price: '',
     packageInfo_tax: '',
     packageInfo_tip: '',
@@ -120,7 +122,7 @@ const CustomerForm = () => {
     // Attempt to save the form data
     if (activeTab === 0)
     {
-        const success = await saveFormData();
+        const success = await saveCustomerData();
         
         // Only move to the next tab if the save was successful
         if (success) {
@@ -129,7 +131,7 @@ const CustomerForm = () => {
     }
     else if  (activeTab === 1)
       {
-          const success = await saveFormData();
+          const success = await saveEventData();
           
           // Only move to the next tab if the save was successful
           if (success) {
@@ -137,8 +139,81 @@ const CustomerForm = () => {
           }
       }
   };
+
+  const saveEventData = async () => {
+    const token = localStorage.getItem('token');
+
+    // if (!formData.firstName || !formData.lastName) {
+    //   Toastify({
+    //     text: "First Name and Last Name are required.",
+    //     className: "error",
+    //     style: {
+    //       background: "linear-gradient(to right, #ff5f6d, #ffc371)",
+    //     }
+    //   }).showToast();
+    //   return false; // Return false to prevent moving to the next tab
+    // }
+
+    try {
+      // Make the API call to save the form data
+      console.log(JSON.stringify(formData));
+      const response = await fetch('http://localhost:5213/api/ContractEventInfoes/SaveEventInfo', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`, // Include your Bearer token if needed
+        },
+        body: JSON.stringify(formData), // Send the form data as JSON
+      });
   
-  const saveFormData = async () => {
+      if (!response.ok) {
+        throw new Error(`Failed to save data: ${response.statusText}`);
+      }
+  
+      const result = await response.json();
+      console.log("Form data saved successfully:", result);
+      
+      let msg = "added";
+      
+      if (formData.contractEventInfoId !=0){
+       msg = "updated";
+      }
+
+
+      Toastify({
+        text: "Event " + msg + " successfully!",
+        className: "info",
+        style: {
+          background: "linear-gradient(to right, #00b09b, #96c93d)",
+        }
+      }).showToast();
+
+      localStorage.setItem('contractEventInfoId', result.contractEventInfoId);
+      
+      setFormData(prevFormData => ({
+        ...prevFormData,
+        contractEventInfoId: result.contractEventInfoId
+      }));
+
+      // Return true to indicate success
+      return true;
+    } catch (error) {
+      console.error("Error saving form data:", error);
+      Toastify({
+        text: "An error occurred while saving the data. Please try again.",
+        className: "error",
+        style: {
+          background: "linear-gradient(to right, #00b09b, #96c93d)",
+        }
+      }).showToast();
+      //toast.error();
+      //alert("An error occurred while saving the data. Please try again.");
+      
+      // Return false to indicate failure
+      return false;
+    }
+  };
+  const saveCustomerData = async () => {
     const token = localStorage.getItem('token');
 
     if (!formData.firstName || !formData.lastName) {
@@ -170,15 +245,25 @@ const CustomerForm = () => {
   
       const result = await response.json();
       console.log("Form data saved successfully:", result);
-      
+      let msg = "added";
+     if (formData.customerId !=0){
+      msg = "updated";
+     }
+
       Toastify({
-        text: "Data saved successfully!",
+        text: "Customer " + msg + " successfully!",
         className: "info",
         style: {
           background: "linear-gradient(to right, #00b09b, #96c93d)",
         }
       }).showToast();
-  
+
+      localStorage.setItem('customerId', result.customerId);
+      
+      setFormData(prevFormData => ({
+        ...prevFormData,
+        customerId: result.customerId
+      }));
       // Return true to indicate success
       return true;
     } catch (error) {

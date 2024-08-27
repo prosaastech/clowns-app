@@ -44,15 +44,15 @@ const EventInfo = ({ formData, setFormData, states, teams, selectedTeam, time })
       if (matchingTeam) {
         setFormData(prev => ({
           ...prev,
-          eventInfo_teamAssigned: matchingTeam.teamId,
+          eventInfoTeamAssigned: matchingTeam.teamId,
         }));
       }
     }
     if (time) {
       setFormData(prev => ({
         ...prev,
-        eventInfo_partyStartTime: time.startTime,
-        eventInfo_partyEndTime: time.endTime,
+        eventInfoPartyStartTime: time.startTime,
+        eventInfoPartyEndTime: time.endTime,
       }));
     }
   }, [selectedTeam, time, teams, setFormData]);
@@ -64,9 +64,9 @@ const EventInfo = ({ formData, setFormData, states, teams, selectedTeam, time })
         <div className="col-md-3 col-sm-12">
           <TextField
             label="Event Type"
-            name="eventInfo_eventType"
+            name="eventInfoEventType"
             select
-            value={formData.eventInfo_eventType || ''}
+            value={formData.eventInfoEventType || ''}
             onChange={handleChange}
             fullWidth
           >
@@ -78,9 +78,9 @@ const EventInfo = ({ formData, setFormData, states, teams, selectedTeam, time })
         <div className="col-md-3 col-sm-12">
           <TextField
             label="Number of Children Expected"
-            name="eventInfo_numberOfChildren"
+            name="eventInfoNumberOfChildren"
             type="number"
-            value={formData.eventInfo_numberOfChildren || ''}
+            value={formData.eventInfoNumberOfChildren || ''}
             onChange={handleChange}
             fullWidth
           />
@@ -88,9 +88,9 @@ const EventInfo = ({ formData, setFormData, states, teams, selectedTeam, time })
         <div className="col-md-3 col-sm-12">
           <TextField
             label="Date Of Event"
-            name="eventInfo_eventDate"
+            name="eventInfoEventDate"
             type="date"
-            value={formData.eventInfo_eventDate || ''}
+            value={formData.eventInfoEventDate || ''}
             onChange={handleChange}
             fullWidth
             InputLabelProps={{
@@ -101,9 +101,9 @@ const EventInfo = ({ formData, setFormData, states, teams, selectedTeam, time })
         <div className="col-md-3 col-sm-12">
           <TextField
             label="Party Start Time"
-            name="eventInfo_partyStartTime"
+            name="eventInfoPartyStartTime"
             type="time"
-            value={formData.eventInfo_partyStartTime || ''}
+            value={formData.eventInfoPartyStartTime || ''}
             onChange={handleChange}
             fullWidth
             InputLabelProps={{
@@ -114,9 +114,9 @@ const EventInfo = ({ formData, setFormData, states, teams, selectedTeam, time })
         <div className="col-md-3 col-sm-12">
           <TextField
             label="Party End Time"
-            name="eventInfo_partyEndTime"
+            name="eventInfoPartyEndTime"
             type="time"
-            value={formData.eventInfo_partyEndTime || ''}
+            value={formData.eventInfoPartyEndTime || ''}
             onChange={handleChange}
             fullWidth
             InputLabelProps={{
@@ -127,9 +127,9 @@ const EventInfo = ({ formData, setFormData, states, teams, selectedTeam, time })
         <div className="col-md-3 col-sm-12">
         <TextField
         label="Team Assigned"
-        name="eventInfo_teamAssigned"
+        name="eventInfoTeamAssigned"
         select
-        value={formData.eventInfo_teamAssigned || ''}
+        value={formData.eventInfoTeamAssigned || ''}
         onChange={handleChange}
         fullWidth
       >
@@ -144,9 +144,9 @@ const EventInfo = ({ formData, setFormData, states, teams, selectedTeam, time })
         <div className="col-md-3 col-sm-12">
           <TextField
             label="Start Clowns Hour"
-            name="eventInfo_startClownHour"
+            name="eventInfoStartClownHour"
             type="time"
-            value={formData.eventInfo_startClownHour || ''}
+            value={formData.eventInfoStartClownHour || ''}
             onChange={handleChange}
             fullWidth
             InputLabelProps={{
@@ -157,9 +157,9 @@ const EventInfo = ({ formData, setFormData, states, teams, selectedTeam, time })
         <div className="col-md-3 col-sm-12">
           <TextField
             label="End Clowns Hour"
-            name="eventInfo_endClownHour"
+            name="eventInfoEndClownHour"
             type="time"
-            value={formData.eventInfo_endClownHour || ''}
+            value={formData.eventInfoEndClownHour || ''}
             onChange={handleChange}
             fullWidth
             InputLabelProps={{
@@ -170,8 +170,8 @@ const EventInfo = ({ formData, setFormData, states, teams, selectedTeam, time })
         <div className="col-md-3 col-sm-12">
           <TextField
             label="Event Address"
-            name="eventInfo_eventAddress"
-            value={formData.eventInfo_eventAddress || ''}
+            name="eventInfoEventAddress"
+            value={formData.eventInfoEventAddress || ''}
             onChange={handleChange}
             fullWidth
           />
@@ -179,8 +179,8 @@ const EventInfo = ({ formData, setFormData, states, teams, selectedTeam, time })
         <div className="col-md-3 col-sm-12">
           <TextField
             label="City"
-            name="eventInfo_eventCity"
-            value={formData.eventInfo_eventCity || ''}
+            name="eventInfoEventCity"
+            value={formData.eventInfoEventCity || ''}
             onChange={handleChange}
             fullWidth
           />
@@ -188,8 +188,8 @@ const EventInfo = ({ formData, setFormData, states, teams, selectedTeam, time })
         <div className="col-md-3 col-sm-12">
           <TextField
             label="ZIP"
-            name="eventInfo_eventZip"
-            value={formData.eventInfo_eventZip || ''}
+            name="eventInfoEventZip"
+            value={formData.eventInfoEventZip || ''}
             onChange={handleChange}
             fullWidth
           />
@@ -197,9 +197,9 @@ const EventInfo = ({ formData, setFormData, states, teams, selectedTeam, time })
         <div className="col-md-3 col-sm-12">
           <TextField
             label="State"
-            name="eventInfo_eventState"
+            name="eventInfoEventState"
             select
-            value={formData.eventInfo_eventState || ''}
+            value={formData.eventInfoEventState || ''}
             onChange={handleChange}
             fullWidth
           >
@@ -211,9 +211,9 @@ const EventInfo = ({ formData, setFormData, states, teams, selectedTeam, time })
         <div className="col-md-3 col-sm-12">
           <TextField
             label="Venue"
-            name="eventInfo_venue"
+            name="eventInfoVenue"
             select
-            value={formData.eventInfo_venue || ''}
+            value={formData.eventInfoVenue || ''}
             onChange={handleChange}
             fullWidth
           >
@@ -225,8 +225,8 @@ const EventInfo = ({ formData, setFormData, states, teams, selectedTeam, time })
         <div className="col-md-3 col-sm-12">
           <TextField
             label="Venue Description"
-            name="eventInfo_venueDescription"
-            value={formData.eventInfo_venueDescription || ''}
+            name="eventInfoVenueDescription"
+            value={formData.eventInfoVenueDescription || ''}
             onChange={handleChange}
             fullWidth
           />
