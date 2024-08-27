@@ -4,35 +4,37 @@ import '../css/CustomerForm.css';
 import EventInfo from './EventInfo';
 import { useLocation } from 'react-router-dom';
 import PackageInfo from './PackageInfo';
-
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import Toastify from 'toastify-js'
+import "toastify-js/src/toastify.css"
 const CustomerForm = () => {
   const location = useLocation();
   const { team, timeStart, timeEnd, selectedTeam } = location.state || {}; // Destructure the values from location state
 
   const [activeTab, setActiveTab] = useState(0);
   const [formData, setFormData] = useState({
-    CustomerId:0,
-    FirstName: '',
-    LastName: '',
+    firstName: '',
+    lastName: '',
     email: '',
     phone: '',
-    relationship: '',
-    otherRelationship: '',
+    relationship: 0,
+    otherRelationship: 0,
     alternatePhone: '',
     address: '',
-    addressType: '',
+    addressType: 0,
     city: '',
-    zip: '',
-    state: '',
-    children: '',
-    childrenAge: '',
+    zip: 0,
+    state: 0,
+    children: 0,
+    childrenAge: 0,
     honoreeName: '',
-    honoreeAge: '',
+    honoreeAge: 0,
     heardAboutUs: '',
     specifyOther: '',
     comments: '',
-    eventInfo_eventType: '',
-    eventInfo_numberOfChildren: '',
+    eventInfo_eventType: 0,
+    eventInfo_numberOfChildren: 0,
     eventInfo_eventDate: '',
     eventInfo_partyStartTime: timeStart || '', // Initialize with timeStart
     eventInfo_partyEndTime: timeEnd || '',     // Initialize with timeEnd
@@ -110,21 +112,49 @@ const CustomerForm = () => {
   };
 
   const handleTabChange = (event, newValue) => {
-    setActiveTab(newValue);
+    
+   // setActiveTab(newValue);
   };
 
   const handleNext = async () => {
-    // Call the save method before moving to the next tab
-    await saveFormData();
-  
-    // Move to the next tab
-    setActiveTab((prev) => Math.min(prev + 1, 2));
+    // Attempt to save the form data
+    if (activeTab === 0)
+    {
+        const success = await saveFormData();
+        
+        // Only move to the next tab if the save was successful
+        if (success) {
+          setActiveTab((prev) => Math.min(prev + 1, 2));
+        }
+    }
+    else if  (activeTab === 1)
+      {
+          const success = await saveFormData();
+          
+          // Only move to the next tab if the save was successful
+          if (success) {
+            setActiveTab((prev) => Math.min(prev + 1, 2));
+          }
+      }
   };
-
+  
   const saveFormData = async () => {
     const token = localStorage.getItem('token');
+
+    if (!formData.firstName || !formData.lastName) {
+      Toastify({
+        text: "First Name and Last Name are required.",
+        className: "error",
+        style: {
+          background: "linear-gradient(to right, #ff5f6d, #ffc371)",
+        }
+      }).showToast();
+      return false; // Return false to prevent moving to the next tab
+    }
+
     try {
       // Make the API call to save the form data
+      console.log(JSON.stringify(formData));
       const response = await fetch('http://localhost:5213/api/CustomerInfoes/SaveCustomer', {
         method: 'POST',
         headers: {
@@ -140,9 +170,31 @@ const CustomerForm = () => {
   
       const result = await response.json();
       console.log("Form data saved successfully:", result);
+      
+      Toastify({
+        text: "Data saved successfully!",
+        className: "info",
+        style: {
+          background: "linear-gradient(to right, #00b09b, #96c93d)",
+        }
+      }).showToast();
+  
+      // Return true to indicate success
+      return true;
     } catch (error) {
       console.error("Error saving form data:", error);
-      // Handle the error appropriately in your application
+      Toastify({
+        text: "An error occurred while saving the data. Please try again.",
+        className: "error",
+        style: {
+          background: "linear-gradient(to right, #00b09b, #96c93d)",
+        }
+      }).showToast();
+      //toast.error();
+      //alert("An error occurred while saving the data. Please try again.");
+      
+      // Return false to indicate failure
+      return false;
     }
   };
   
@@ -171,6 +223,7 @@ const CustomerForm = () => {
 
   return (
     <Box>
+     
       <Tabs value={activeTab} onChange={handleTabChange} aria-label="form tabs">
         <Tab label="Customer Info" />
         <Tab label="Event Info" />
