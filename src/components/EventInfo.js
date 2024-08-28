@@ -2,15 +2,36 @@ import React, { useState, useEffect } from 'react';
 import { Box, TextField, MenuItem } from '@mui/material';
 
 const EventInfo = ({ formData, setFormData, states, teams, selectedTeam, time }) => {
-  
+
   const handleChange = (event) => {
     const { name, value } = event.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  // Convert 24-hour format to 12-hour format with AM/PM
+  const convertTo12HourFormat = (time) => {
+    let [hours, minutes] = time.split(':');
+    const suffix = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12 || 12; // Convert '0' hours to '12' for AM
+    return `${hours}:${minutes} ${suffix}`;
+  };
+
+  // Convert 12-hour format to 24-hour format
+  const convertTo24HourFormat = (time) => {
+    const [timeString, modifier] = time.split(' ');
+    let [hours, minutes] = timeString.split(':');
+  
+    if (modifier === 'PM' && hours !== '12') {
+      hours = String(parseInt(hours, 10) + 12);
+    } else if (modifier === 'AM' && hours === '12') {
+      hours = '00';
+    }
+  
+    return `${hours.padStart(2, '0')}:${minutes}`;
+  };
+
   const [venues, setVenues] = useState([]);
   const [eventType, setEventType] = useState([]);
- 
 
   useEffect(() => {
     // Fetch address types
@@ -49,14 +70,14 @@ const EventInfo = ({ formData, setFormData, states, teams, selectedTeam, time })
       }
     }
     if (time) {
+      console.log("this time" + time);
       setFormData(prev => ({
         ...prev,
-        eventInfoPartyStartTime: time.startTime,
-        eventInfoPartyEndTime: time.endTime,
+        eventInfoPartyStartTime: convertTo12HourFormat(time.startTime),
+        eventInfoPartyEndTime: convertTo12HourFormat(time.endTime),
       }));
     }
   }, [selectedTeam, time, teams, setFormData]);
-  
 
   return (
     <Box>
@@ -102,44 +123,45 @@ const EventInfo = ({ formData, setFormData, states, teams, selectedTeam, time })
           <TextField
             label="Party Start Time"
             name="eventInfoPartyStartTime"
-            type="time"
+            type="text"
+            placeholder="HH:MM AM/PM"
             value={formData.eventInfoPartyStartTime || ''}
-            onChange={handleChange}
+            onChange={(e) => setFormData(prev => ({
+              ...prev,
+              eventInfoPartyStartTime: convertTo24HourFormat(e.target.value)
+            }))}
             fullWidth
-            InputLabelProps={{
-              shrink: true,
-            }}
           />
         </div>
         <div className="col-md-3 col-sm-12">
           <TextField
             label="Party End Time"
             name="eventInfoPartyEndTime"
-            type="time"
+            type="text"
+            placeholder="HH:MM AM/PM"
             value={formData.eventInfoPartyEndTime || ''}
-            onChange={handleChange}
+            onChange={(e) => setFormData(prev => ({
+              ...prev,
+              eventInfoPartyEndTime: convertTo24HourFormat(e.target.value)
+            }))}
             fullWidth
-            InputLabelProps={{
-              shrink: true,
-            }}
           />
         </div>
         <div className="col-md-3 col-sm-12">
-        <TextField
-        label="Team Assigned"
-        name="eventInfoTeamAssigned"
-        select
-        value={formData.eventInfoTeamAssigned || ''}
-        onChange={handleChange}
-        fullWidth
-      >
-      {teams.map((team) => (
-        <MenuItem key={team.id} value={team.teamId}>
-          {team.teamNo}
-        </MenuItem>
-      ))}
-    </TextField>
-
+          <TextField
+            label="Team Assigned"
+            name="eventInfoTeamAssigned"
+            select
+            value={formData.eventInfoTeamAssigned || ''}
+            onChange={handleChange}
+            fullWidth
+          >
+            {teams.map((team) => (
+              <MenuItem key={team.id} value={team.teamId}>
+                {team.teamNo}
+              </MenuItem>
+            ))}
+          </TextField>
         </div>
         <div className="col-md-3 col-sm-12">
           <TextField

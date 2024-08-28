@@ -53,6 +53,7 @@ const ContractCalendar = () => {
           throw new Error('Network response was not ok');
         }
         const data = await response.json();
+        console.log("timeslot " + data.map(slot => slot.time));
         setTimeSlots(data.map(slot => slot.time)); // Assuming the time property contains the time string
       } catch (error) {
         console.error('Error fetching time slots:', error);
