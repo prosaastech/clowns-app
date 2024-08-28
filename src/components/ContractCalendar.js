@@ -83,6 +83,7 @@ const ContractCalendar = () => {
           if (teamNo && time) {
             acc[teamNo] = acc[teamNo] || [];
             if (!acc[teamNo].includes(time)) {
+              console.log(time);
               acc[teamNo].push(time);
             }
           }
