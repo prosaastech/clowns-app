@@ -272,6 +272,19 @@ const PackageInfo = ({ formData, setFormData }) => {
         </Grid>
         <Grid item xs={12} md={4}>
           <TextField
+            label="Tip"
+            value={formData.Tip2 || ''}
+            onChange={handleFieldChange('Tip2')}
+            fullWidth
+            sx={{
+              '& .MuiInputBase-input': {
+                textAlign: 'right',
+              },
+            }}
+          />
+        </Grid>
+        <Grid item xs={12} md={4}>
+          <TextField
             label="Toll Fees"
             value={formData.tollFees || ''}
             onChange={handleFieldChange('tollFees')}

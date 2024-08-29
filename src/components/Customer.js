@@ -8,30 +8,32 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Toastify from 'toastify-js'
 import "toastify-js/src/toastify.css"
+import config from './Utils/config'
+
 const CustomerForm = () => {
   const location = useLocation();
-  const { team, timeStart, timeEnd, selectedTeam } = location.state || {}; // Destructure the values from location state
+  const { team, timeStart, timeEnd, selectedTeam, selectedDate } = location.state || {}; // Destructure the values from location state
 
   const [activeTab, setActiveTab] = useState(0);
   const [formData, setFormData] = useState({
     customerId:0,
     firstName: '',
     lastName: '',
-    email: '',
-    phone: '',
-    relationship: 0,
-    otherRelationship: 0,
+    emailAddress: '',
+    phoneNo: '',
+    relationshipId: 0,
+    otherRelationshipId: 0,
     alternatePhone: '',
     address: '',
-    addressType: 0,
+    addressTypeId: 0,
     city: '',
     zip: 0,
-    state: 0,
-    children: 0,
-    childrenAge: 0,
+    stateId: 0,
+    childrenId: 0,
+    childrenUnderAgeId: 0,
     honoreeName: '',
     honoreeAge: 0,
-    heardAboutUs: '',
+    heardResourceId: 0,
     specifyOther: '',
     comments: '',
     contractEventInfoId:0,
@@ -58,7 +60,8 @@ const CustomerForm = () => {
     bounces: [],
     parkingFees: '',
     tollFees: '',
-    deposit: ''
+    deposit: '',
+    selectedDate:selectedDate
   });
  
  
@@ -95,14 +98,14 @@ const CustomerForm = () => {
       }
     };
 
-    fetchDropdownData('http://localhost:5213/api/AddressTypes', setAddressTypes);
-    fetchDropdownData('http://localhost:5213/api/States', setStates);
-    fetchDropdownData('http://localhost:5213/api/Children', setChildrenOptions);
-    fetchDropdownData('http://localhost:5213/api/ChildrenUnderAges', setChildrenUnderAge);
-    fetchDropdownData('http://localhost:5213/api/HeardResources', setHeardAboutUsOptions);
-    fetchDropdownData('http://localhost:5213/api/Relationships', setRelationships);
-    fetchDropdownData('http://localhost:5213/api/Relationships', setOtherRelationships);
-    fetchDropdownData('http://localhost:5213/api/Teams', setTeams);
+    fetchDropdownData(config.apiBaseUrl + 'AddressTypes', setAddressTypes);
+    fetchDropdownData(config.apiBaseUrl + 'States', setStates);
+    fetchDropdownData(config.apiBaseUrl + 'Children', setChildrenOptions);
+    fetchDropdownData(config.apiBaseUrl + 'ChildrenUnderAges', setChildrenUnderAge);
+    fetchDropdownData(config.apiBaseUrl + 'HeardResources', setHeardAboutUsOptions);
+    fetchDropdownData(config.apiBaseUrl + 'Relationships', setRelationships);
+    fetchDropdownData(config.apiBaseUrl + 'Relationships', setOtherRelationships);
+    fetchDropdownData(config.apiBaseUrl + 'Teams', setTeams);
   }, []);
 
   const handleChange = (event) => {
@@ -139,25 +142,29 @@ const CustomerForm = () => {
           }
       }
   };
+  function validateEmail(email) {
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailPattern.test(email);
+}
 
   const saveEventData = async () => {
     const token = localStorage.getItem('token');
 
-    // if (!formData.firstName || !formData.lastName) {
-    //   Toastify({
-    //     text: "First Name and Last Name are required.",
-    //     className: "error",
-    //     style: {
-    //       background: "linear-gradient(to right, #ff5f6d, #ffc371)",
-    //     }
-    //   }).showToast();
-    //   return false; // Return false to prevent moving to the next tab
-    // }
+    if (formData.eventInfoEventDate == '') {
+      Toastify({
+        text: "Invalid Event Date.",
+        className: "error",
+        style: {
+          background: "linear-gradient(to right, #ff5f6d, #ffc371)",
+        }
+      }).showToast();
+      return false; // Return false to prevent moving to the next tab
+    }
 
     try {
       // Make the API call to save the form data
       console.log(JSON.stringify(formData));
-      const response = await fetch('http://localhost:5213/api/ContractEventInfoes/SaveEventInfo', {
+      const response = await fetch(config.apiBaseUrl + 'ContractEventInfoes/SaveEventInfo', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -216,6 +223,18 @@ const CustomerForm = () => {
   const saveCustomerData = async () => {
     const token = localStorage.getItem('token');
 
+    if (formData.emailAddress !=""){
+    if (!validateEmail(formData.emailAddress)) {
+      Toastify({
+        text: "Please provide valid email",
+        className: "error",
+        style: {
+          background: "linear-gradient(to right, #ff5f6d, #ffc371)",
+        }
+      }).showToast();
+      return false; // Return false to prevent moving to the next tab
+    }
+  }
     if (!formData.firstName || !formData.lastName) {
       Toastify({
         text: "First Name and Last Name are required.",
@@ -230,7 +249,7 @@ const CustomerForm = () => {
     try {
       // Make the API call to save the form data
       console.log(JSON.stringify(formData));
-      const response = await fetch('http://localhost:5213/api/CustomerInfoes/SaveCustomer', {
+      const response = await fetch(config.apiBaseUrl + 'CustomerInfoes/SaveCustomer', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -291,7 +310,7 @@ const CustomerForm = () => {
   const handleSubmit = async () => {
     const token = localStorage.getItem('token');
     try {
-      const response = await fetch('http://localhost:5213/api/SubmitForm', {
+      const response = await fetch('SubmitForm', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -339,8 +358,8 @@ const CustomerForm = () => {
           <div className="col-md-2 col-sm-12">
             <TextField
               label="Email"
-              name="email"
-              value={formData.email}
+              name="emailAddress"
+              value={formData.emailAddress}
               onChange={handleChange}
               fullWidth
             />
@@ -348,8 +367,8 @@ const CustomerForm = () => {
           <div className="col-md-2 col-sm-12">
             <TextField
               label="Phone"
-              name="phone"
-              value={formData.phone}
+              name="phoneNo"
+              value={formData.phoneNo}
               onChange={handleChange}
               fullWidth
             />
@@ -358,9 +377,9 @@ const CustomerForm = () => {
           <div className="col-md-2 col-sm-12">
             <TextField
               label="Relationship"
-              name="relationship"
+              name="relationshipId"
               select
-              value={formData.relationship}
+              value={formData.relationshipId}
               onChange={handleChange}
               fullWidth
             >
@@ -372,9 +391,9 @@ const CustomerForm = () => {
           <div className="col-md-2 col-sm-12">
             <TextField
               label="Other Relationship"
-              name="otherRelationship"
+              name="otherRelationshipId"
               select
-              value={formData.otherRelationship}
+              value={formData.otherRelationshipId}
               onChange={handleChange}
               fullWidth
             >
@@ -405,9 +424,9 @@ const CustomerForm = () => {
           <div className="col-md-2 col-sm-12">
             <TextField
               label="Address Type"
-              name="addressType"
+              name="addressTypeId"
               select
-              value={formData.addressType}
+              value={formData.addressTypeId}
               onChange={handleChange}
               fullWidth
             >
@@ -437,9 +456,9 @@ const CustomerForm = () => {
           <div className="col-md-2 col-sm-12">
             <TextField
               label="State"
-              name="state"
+              name="stateId"
               select
-              value={formData.state}
+              value={formData.stateId}
               onChange={handleChange}
               fullWidth
             >
@@ -452,9 +471,9 @@ const CustomerForm = () => {
           <div className="col-md-2 col-sm-12">
             <TextField
               label="Children"
-              name="children"
+              name="childrenId"
               select
-              value={formData.children}
+              value={formData.childrenId}
               onChange={handleChange}
               fullWidth
             >
@@ -466,9 +485,9 @@ const CustomerForm = () => {
           <div className="col-md-2 col-sm-12">
             <TextField
               label="Children Under Age 11"
-              name="childrenAge"
+              name="childrenUnderAgeId"
               select
-              value={formData.childrenAge}
+              value={formData.childrenUnderAgeId}
               onChange={handleChange}
               fullWidth
             >
@@ -499,9 +518,9 @@ const CustomerForm = () => {
           <div className="col-md-2 col-sm-12">
             <TextField
               label="Where Have You Heard About Us"
-              name="heardAboutUs"
+              name="heardResourceId"
               select
-              value={formData.heardAboutUs}
+              value={formData.heardResourceId}
               onChange={handleChange}
               fullWidth
             >
@@ -510,7 +529,7 @@ const CustomerForm = () => {
               ))}
             </TextField>
           </div>
-          {formData.heardAboutUs === 2 && (
+          {formData.heardResourceId === 2 && (
             <div className="col-md-2 col-sm-12">
               <TextField
                 label="If other, Please Specify"

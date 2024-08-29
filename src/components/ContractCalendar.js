@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Box, Menu, MenuItem, TextField } from '@mui/material';
 import '../css/ContractCalendar.css';
 import { Navigate } from 'react-router-dom';
+import config from './Utils/config'
 
 const ContractCalendar = () => {
   const [dragging, setDragging] = useState(null);
@@ -22,7 +23,7 @@ const ContractCalendar = () => {
     // Fetch teams
     const fetchTeams = async () => {
       try {
-        const response = await fetch('http://localhost:5213/api/Teams', {
+        const response = await fetch(config.apiBaseUrl + 'Teams', {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -42,7 +43,7 @@ const ContractCalendar = () => {
     // Fetch time slots
     const fetchTimeSlots = async () => {
       try {
-        const response = await fetch('http://localhost:5213/api/TimeSlots', {
+        const response = await fetch(config.apiBaseUrl + 'TimeSlots', {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -63,7 +64,7 @@ const ContractCalendar = () => {
     // Fetch contract data
     const fetchContractData = async () => {
       try {
-        const response = await fetch(`http://localhost:5213/api/ContractTimeTeamInfoes/getAllContractsDateWise?date=${selectedDate}`, {
+        const response = await fetch(config.apiBaseUrl + `ContractTimeTeamInfoes/getAllContractsDateWise?date=${selectedDate}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -217,7 +218,8 @@ const ContractCalendar = () => {
           team: contextMenu.team,
           timeStart: finalSelection?.start,
           timeEnd: finalSelection?.end,
-          selectedTeam: contextMenu.team
+          selectedTeam: contextMenu.team,
+          selectedDate: selectedDate
         }}
       />
     );

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Box, TextField, MenuItem } from '@mui/material';
+import config from './Utils/config'
 
 const EventInfo = ({ formData, setFormData, states, teams, selectedTeam, time }) => {
 
@@ -53,8 +54,8 @@ const EventInfo = ({ formData, setFormData, states, teams, selectedTeam, time })
       }
     };
 
-    fetchDropdownData('http://localhost:5213/api/EventTypes', setEventType);
-    fetchDropdownData('http://localhost:5213/api/Venues', setVenues);
+    fetchDropdownData(config.apiBaseUrl + 'EventTypes', setEventType);
+    fetchDropdownData(config.apiBaseUrl + 'Venues', setVenues);
    }, []);
 
   useEffect(() => {
