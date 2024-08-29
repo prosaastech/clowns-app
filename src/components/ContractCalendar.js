@@ -54,7 +54,7 @@ const ContractCalendar = () => {
           throw new Error('Network response was not ok');
         }
         const data = await response.json();
-        console.log("timeslot " + data.map(slot => slot.time));
+       // console.log("timeslot " + data.map(slot => slot.time));
         setTimeSlots(data.map(slot => slot.time)); // Assuming the time property contains the time string
       } catch (error) {
         console.error('Error fetching time slots:', error);
@@ -84,7 +84,7 @@ const ContractCalendar = () => {
           if (teamNo && time) {
             acc[teamNo] = acc[teamNo] || [];
             if (!acc[teamNo].includes(time)) {
-              console.log(time);
+              //console.log(time);
               acc[teamNo].push(time);
             }
           }
@@ -117,7 +117,7 @@ const ContractCalendar = () => {
         end: updatedEnd
       }));
       setFinalSelection(activeSelection);
-      console.log('MouseOver - Active Selection:', { ...activeSelection, end: updatedEnd });
+     // console.log('MouseOver - Active Selection:', { ...activeSelection, end: updatedEnd });
     }
   };
 
@@ -155,7 +155,7 @@ const ContractCalendar = () => {
         return updatedRanges;
       });
     } else if (action === 'CreateContract') {
-      console.log('Active Selection on CreateContract:', finalSelection);
+    //  console.log('Active Selection on CreateContract:', finalSelection);
       //console.log('MouseOver - Active Selection:', { ...activeSelection });
 
       setNavigateToCustomer(true); // Trigger navigation
@@ -205,12 +205,12 @@ const ContractCalendar = () => {
   };
 
   if (navigateToCustomer) {
-    console.log('Navigating with:', {
-      team: contextMenu.team,
-      timeStart: activeSelection?.start,
-      timeEnd: activeSelection?.end,
-      selectedTeam: contextMenu.team
-    });
+    // console.log('Navigating with:', {
+    //   team: contextMenu.team,
+    //   timeStart: activeSelection?.start,
+    //   timeEnd: activeSelection?.end,
+    //   selectedTeam: contextMenu.team
+    // });
     return (
       <Navigate
         to="/Customer"

@@ -4,6 +4,7 @@ import '../css/CustomerForm.css';
 import EventInfo from './EventInfo';
 import { useLocation } from 'react-router-dom';
 import PackageInfo from './PackageInfo';
+import BookingPaymentInfo from './BookingPaymentInfo'
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Toastify from 'toastify-js'
@@ -61,7 +62,19 @@ const CustomerForm = () => {
     parkingFees: '',
     tollFees: '',
     deposit: '',
-    selectedDate:selectedDate
+    Tip2:0,
+    selectedDate:selectedDate,
+    cardNumber1: '',
+    cardType1: '',
+    expirationDate1: '',
+    cvv1: '',
+    cardNumber2: '',
+    cardType2: '',
+    expirationDate2: '',
+    cvv2: '',
+    paymentStatus: '',
+    address: '',
+    billingAddress: '',
   });
  
  
@@ -77,6 +90,7 @@ const CustomerForm = () => {
   const [heardAboutUsOptions, setHeardAboutUsOptions] = useState([]);
   const [relationships, setRelationships] = useState([]);
   const [otherRelationships, setOtherRelationships] = useState([]);
+  const [cardOptions, setCardOptions] = useState([]);
 
   useEffect(() => {
     // Fetch address types
@@ -106,6 +120,8 @@ const CustomerForm = () => {
     fetchDropdownData(config.apiBaseUrl + 'Relationships', setRelationships);
     fetchDropdownData(config.apiBaseUrl + 'Relationships', setOtherRelationships);
     fetchDropdownData(config.apiBaseUrl + 'Teams', setTeams);
+    fetchDropdownData(config.apiBaseUrl + 'CardOptions', setCardOptions);
+
   }, []);
 
   const handleChange = (event) => {
@@ -130,6 +146,7 @@ const CustomerForm = () => {
         // Only move to the next tab if the save was successful
         if (success) {
           setActiveTab((prev) => Math.min(prev + 1, 2));
+          return;
         }
     }
     else if  (activeTab === 1)
@@ -139,8 +156,22 @@ const CustomerForm = () => {
           // Only move to the next tab if the save was successful
           if (success) {
             setActiveTab((prev) => Math.min(prev + 1, 2));
+            return;
           }
       }
+      else if  (activeTab === 2)
+        {
+            const success = true;//await saveEventData();
+            
+            // Only move to the next tab if the save was successful
+            if (success) {
+              setActiveTab((prev) => Math.min(prev + 1, 3));
+              return;
+            }
+        }
+
+ 
+
   };
   function validateEmail(email) {
     const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -163,7 +194,7 @@ const CustomerForm = () => {
 
     try {
       // Make the API call to save the form data
-      console.log(JSON.stringify(formData));
+      //console.log(JSON.stringify(formData));
       const response = await fetch(config.apiBaseUrl + 'ContractEventInfoes/SaveEventInfo', {
         method: 'POST',
         headers: {
@@ -178,7 +209,7 @@ const CustomerForm = () => {
       }
   
       const result = await response.json();
-      console.log("Form data saved successfully:", result);
+      //console.log("Form data saved successfully:", result);
       
       let msg = "added";
       
@@ -248,7 +279,7 @@ const CustomerForm = () => {
 
     try {
       // Make the API call to save the form data
-      console.log(JSON.stringify(formData));
+     // console.log(JSON.stringify(formData));
       const response = await fetch(config.apiBaseUrl + 'CustomerInfoes/SaveCustomer', {
         method: 'POST',
         headers: {
@@ -263,7 +294,7 @@ const CustomerForm = () => {
       }
   
       const result = await response.json();
-      console.log("Form data saved successfully:", result);
+      //console.log("Form data saved successfully:", result);
       let msg = "added";
      if (formData.customerId !=0){
       msg = "updated";
@@ -332,6 +363,7 @@ const CustomerForm = () => {
         <Tab label="Customer Info" />
         <Tab label="Event Info" />
         <Tab label="Package Info" />
+        <Tab label="Booking & Payment Info" />
       </Tabs>
 
       <div className={`tab-content ${activeTab === 0 ? 'active' : ''}`}>
@@ -596,7 +628,23 @@ const CustomerForm = () => {
           <Button variant="contained" onClick={handlePrevious} disabled={activeTab === 0}>
             Previous
           </Button>
-          <Button variant="contained" onClick={handleSubmit} disabled={activeTab !== 2}>
+          <Button variant="contained" onClick={handleNext} disabled={activeTab === 3}>
+            Next
+          </Button>
+        </div>
+      </div>
+
+      <div className={`tab-content ${activeTab === 3 ? 'active' : ''}`}>
+        <h2>Booking & Payment Info</h2>
+       <BookingPaymentInfo
+        formData={formData} handleChange={handleChange} cardOptions={cardOptions} 
+        /> 
+ 
+        <div className="form-buttons">
+          <Button variant="contained" onClick={handlePrevious} disabled={activeTab === 0}>
+            Previous
+          </Button>
+          <Button variant="contained" onClick={handleSubmit} disabled={activeTab !== 3}>
             Submit
           </Button>
         </div>
