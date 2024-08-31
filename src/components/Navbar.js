@@ -4,6 +4,7 @@ import { AppBar, Toolbar, Typography, Button, Box, IconButton, Menu, MenuItem } 
 import { Link, useNavigate } from 'react-router-dom'; // Import useNavigate
 import Logo from '../Images/bg.jpg'; // Import your logo
 import { getUserFromToken } from './Utils/authUtils'; // Import the named export
+import config from './Utils/config'
 
 const Navbar = () => {
   const navigate = useNavigate(); // Initialize useNavigate
@@ -23,7 +24,7 @@ const Navbar = () => {
     
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:5213/api/Users/logout', {
+      const response = await fetch(config.apiBaseUrl + 'Users/logout', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

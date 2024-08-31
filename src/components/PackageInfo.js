@@ -69,6 +69,15 @@ const PackageInfo = ({ formData, setFormData }) => {
     }));
   };
 
+  const handleFieldChangeString = (field) => (event) => {
+    const { value } = event.target;
+
+    setFormData((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
+
   const handleMultipleSelectChange = (type, value) => {
     setFormData(prev => ({
       ...prev,
@@ -118,6 +127,7 @@ const PackageInfo = ({ formData, setFormData }) => {
   };
 
   return (
+    <>
     <Box>
       <Grid container spacing={2} mb={2}>
         <Grid item xs={12} md={4}>
@@ -196,7 +206,7 @@ const PackageInfo = ({ formData, setFormData }) => {
           <TextField
             label="Description"
             value={formData.description || ''}
-            onChange={handleFieldChange('description')}
+            onChange={handleFieldChangeString('description')}
             fullWidth
             multiline
             rows={4}
@@ -251,90 +261,15 @@ const PackageInfo = ({ formData, setFormData }) => {
         addons={addons}
         bounces={bounces}
         calculateTotalBalance={calculateTotalBalance}
+        setFormData={setFormData} // Pass setFormData here
+
       />
-      
       )}
 
       {/* New Fields Below Tabs */}
-      <Grid container spacing={2} mt={2}>
-        <Grid item xs={12} md={4}>
-          <TextField
-            label="Parking Fees"
-            value={formData.parkingFees || ''}
-            onChange={handleFieldChange('parkingFees')}
-            fullWidth
-            sx={{
-              '& .MuiInputBase-input': {
-                textAlign: 'right',
-              },
-            }}
-          />
-        </Grid>
-        <Grid item xs={12} md={4}>
-          <TextField
-            label="Tip"
-            value={formData.Tip2 || ''}
-            onChange={handleFieldChange('Tip2')}
-            fullWidth
-            sx={{
-              '& .MuiInputBase-input': {
-                textAlign: 'right',
-              },
-            }}
-          />
-        </Grid>
-        <Grid item xs={12} md={4}>
-          <TextField
-            label="Toll Fees"
-            value={formData.tollFees || ''}
-            onChange={handleFieldChange('tollFees')}
-            fullWidth
-            sx={{
-              '& .MuiInputBase-input': {
-                textAlign: 'right',
-              },
-            }}
-          />
-        </Grid>
-        <Grid item xs={12} md={4}>
-          <TextField
-            label="Subtract"
-            value={formData.subtract || ''}
-            onChange={handleFieldChange('subtract')}
-            fullWidth
-            sx={{
-              '& .MuiInputBase-input': {
-                textAlign: 'right',
-              },
-            }}
-          />
-        </Grid>
-        <Grid item xs={12} md={4}>
-          <TextField
-            label="Deposit"
-            value={formData.deposit || ''}
-            onChange={handleFieldChange('deposit')}
-            fullWidth
-            sx={{
-              '& .MuiInputBase-input': {
-                textAlign: 'right',
-              },
-            }}
-          />
-        </Grid>
-        <Grid item xs={12} md={4}>
-          <TextField
-            label="Total Balance"
-            value={calculateTotalBalance() || ''}
-            InputProps={{
-              readOnly: true,
-              style: { textAlign: 'right' },
-            }}
-            fullWidth
-          />
-        </Grid>
-      </Grid>
+     
     </Box>
+    </>
   );
 };
 

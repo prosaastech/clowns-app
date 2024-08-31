@@ -12,6 +12,7 @@ import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import PersonIcon from '@mui/icons-material/Person';
 import './Login.css'; // Import the CSS file
+import config from './Utils/config'
 
 export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
@@ -27,7 +28,7 @@ export default function Login() {
 
   const handleLogin = async (event) => {
     event.preventDefault();
-    const apiUrl = 'http://localhost:5213/api/Users/login-user'; 
+    const apiUrl = config.apiBaseUrl + 'Users/login-user'; 
     setEmailAddress(username)
     try {
       const response = await fetch(apiUrl, {

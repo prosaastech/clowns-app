@@ -1,7 +1,8 @@
 import React from 'react';
 import '../css/ReviewTab.css'; // Ensure you have a CSS file for styling
+import { Box, TextField, MenuItem, Button, Tabs, Tab, Grid } from '@mui/material';
 
-const ReviewTab = ({ formData, characters = [], addons = [], bounces = [] }) => {
+const ReviewTab = ({ formData, characters = [], addons = [], bounces = [],setFormData  }) => {
   const calculateTotalBalance = () => {
     const characterTotal = (formData.characters || []).reduce((sum, item) => {
       const id = typeof item === 'object' ? item.characterId : item;
@@ -23,7 +24,22 @@ const ReviewTab = ({ formData, characters = [], addons = [], bounces = [] }) => 
 
     return characterTotal + addonTotal + bounceTotal;
   };
+  const formatNumber = (value) => {
+    // Remove non-numeric characters except for comma
+    const numericValue = value.replace(/[^0-9]/g, '');
 
+    // Format as currency
+    return new Intl.NumberFormat().format(Number(numericValue));
+  };
+const handleFieldChange = (field) => (event) => {
+    const { value } = event.target;
+    const formattedValue = formatNumber(value);
+
+    setFormData((prev) => ({
+      ...prev,
+      [field]: formattedValue,
+    }));
+  };
   const renderItems = (items, array, type) => {
     return items.map(item => {
       const id = typeof item === 'object' ? item[`${type}Id`] : item;
@@ -41,6 +57,7 @@ const ReviewTab = ({ formData, characters = [], addons = [], bounces = [] }) => 
   };
 
   return (
+    <>
     <div className="review-tab">
       <h3>Review</h3>
       
@@ -72,7 +89,87 @@ const ReviewTab = ({ formData, characters = [], addons = [], bounces = [] }) => 
          
       </div>
     </div>
+    <Grid container spacing={2} mt={2}>
+        <Grid item xs={12} md={4}>
+          <TextField
+            label="Parking Fees"
+            value={formData.parkingFees || ''}
+            onChange={handleFieldChange('parkingFees')}
+            fullWidth
+            sx={{
+              '& .MuiInputBase-input': {
+                textAlign: 'right',
+              },
+            }}
+          />
+        </Grid>
+        <Grid item xs={12} md={4}>
+          <TextField
+            label="Tip"
+            value={formData.Tip2 || ''}
+            onChange={handleFieldChange('Tip2')}
+            fullWidth
+            sx={{
+              '& .MuiInputBase-input': {
+                textAlign: 'right',
+              },
+            }}
+          />
+        </Grid>
+        <Grid item xs={12} md={4}>
+          <TextField
+            label="Toll Fees"
+            value={formData.tollFees || ''}
+            onChange={handleFieldChange('tollFees')}
+            fullWidth
+            sx={{
+              '& .MuiInputBase-input': {
+                textAlign: 'right',
+              },
+            }}
+          />
+        </Grid>
+        <Grid item xs={12} md={4}>
+          <TextField
+            label="Subtract"
+            value={formData.subtract || ''}
+            onChange={handleFieldChange('subtract')}
+            fullWidth
+            sx={{
+              '& .MuiInputBase-input': {
+                textAlign: 'right',
+              },
+            }}
+          />
+        </Grid>
+        <Grid item xs={12} md={4}>
+          <TextField
+            label="Deposit"
+            value={formData.deposit || ''}
+            onChange={handleFieldChange('deposit')}
+            fullWidth
+            sx={{
+              '& .MuiInputBase-input': {
+                textAlign: 'right',
+              },
+            }}
+          />
+        </Grid>
+        <Grid item xs={12} md={4}>
+          <TextField
+            label="Total Balance"
+            value={calculateTotalBalance() || ''}
+            InputProps={{
+              readOnly: true,
+              style: { textAlign: 'right' },
+            }}
+            fullWidth
+          />
+        </Grid>
+      </Grid>
+</>
+    
   );
 };
 
-export default ReviewTab;
+export default ReviewTab; 

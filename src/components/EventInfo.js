@@ -30,7 +30,6 @@ const EventInfo = ({ formData, setFormData, states, teams, selectedTeam, time })
   
     return `${hours.padStart(2, '0')}:${minutes}`;
   };
-
   const [venues, setVenues] = useState([]);
   const [eventType, setEventType] = useState([]);
 
@@ -121,26 +120,28 @@ const EventInfo = ({ formData, setFormData, states, teams, selectedTeam, time })
           />
         </div>
         <div className="col-md-3 col-sm-12">
-          <TextField
+        <TextField
             label="Party Start Time"
             name="eventInfoPartyStartTime"
-            type="text"
-            placeholder="HH:MM AM/PM"
-            value={formData.eventInfoPartyStartTime || ''}
+            type="time"  // Using type="time"
+            value={convertTo24HourFormat(formData.eventInfoPartyStartTime) || ''}
             onChange={(e) => setFormData(prev => ({
               ...prev,
               eventInfoPartyStartTime: convertTo24HourFormat(e.target.value)
             }))}
             fullWidth
+            InputLabelProps={{
+              shrink: true,
+            }}
           />
         </div>
         <div className="col-md-3 col-sm-12">
           <TextField
             label="Party End Time"
             name="eventInfoPartyEndTime"
-            type="text"
+            type="time"
             placeholder="HH:MM AM/PM"
-            value={formData.eventInfoPartyEndTime || ''}
+            value={convertTo24HourFormat(formData.eventInfoPartyEndTime) || ''}
             onChange={(e) => setFormData(prev => ({
               ...prev,
               eventInfoPartyEndTime: convertTo24HourFormat(e.target.value)
