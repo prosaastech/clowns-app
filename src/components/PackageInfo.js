@@ -42,7 +42,7 @@ const PackageInfo = ({ formData, setFormData }) => {
 
   const handleCategoryChange = (event) => {
     const { value } = event.target;
-    setFormData((prev) => ({ ...prev, category: value }));
+    setFormData((prev) => ({ ...prev, categoryId: value }));
   };
 
   const handlePackageChange = (event) => {
@@ -51,7 +51,7 @@ const PackageInfo = ({ formData, setFormData }) => {
 
     setFormData((prev) => ({
       ...prev,
-      package: value,
+      partyPackageId: value,
       price: selectedPackage?.price || '',
       tax: selectedPackage?.tax || '',
       tip: selectedPackage?.tip || '',
@@ -134,7 +134,7 @@ const PackageInfo = ({ formData, setFormData }) => {
           <TextField
             label="Category"
             select
-            value={formData.category || ''}
+            value={formData.categoryId || ''}
             onChange={handleCategoryChange}
             fullWidth
           >
@@ -149,7 +149,7 @@ const PackageInfo = ({ formData, setFormData }) => {
           <TextField
             label="Party Package"
             select
-            value={formData.package || ''}
+            value={formData.partyPackageId || ''}
             onChange={handlePackageChange}
             fullWidth
           >

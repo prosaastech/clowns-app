@@ -159,6 +159,7 @@ const handleFieldChange = (field) => (event) => {
           <TextField
             label="Total Balance"
             value={calculateTotalBalance() || ''}
+            onChange={handleFieldChange('totalBalance')}
             InputProps={{
               readOnly: true,
               style: { textAlign: 'right' },

@@ -52,17 +52,22 @@ const CustomerForm = () => {
     eventInfoEventState: 0,
     eventInfoVenue: 0,
     eventInfoVenueDescription: '',
-    price: '',
-    tax: '',
-    tip: '',
+    PackageInfoId:0,
+    categoryId:0,
+    partyPackageId:0,
+    price: 0,
+    tax: 0,
+    tip: 0,
     description: '',
     characters: [],
     addons: [],
     bounces: [],
-    parkingFees: '',
-    tollFees: '',
-    deposit: '',
+    parkingFees: 0,
+    tollFees: 0,
+    deposit: 0,
     Tip2:0,
+    subtract:0,
+    totalBalance:0,
     selectedDate:selectedDate,
     cardNumber1: '',
     cardType1: '',
@@ -161,13 +166,13 @@ const CustomerForm = () => {
       }
       else if  (activeTab === 2)
         {
-            const success = true;//await saveEventData();
-            
-            // Only move to the next tab if the save was successful
-            if (success) {
-              setActiveTab((prev) => Math.min(prev + 1, 3));
-              return;
-            }
+          const success = await savePackageInfoData();
+          
+          // Only move to the next tab if the save was successful
+          if (success) {
+            setActiveTab((prev) => Math.min(prev + 1, 3));
+            return;
+          }
         }
 
  
@@ -332,7 +337,79 @@ const CustomerForm = () => {
       return false;
     }
   };
+  const savePackageInfoData = async () => {
+    const token = localStorage.getItem('token');
+
+    // if (formData.eventInfoEventDate == '') {
+    //   Toastify({
+    //     text: "Invalid Event Date.",
+    //     className: "error",
+    //     style: {
+    //       background: "linear-gradient(to right, #ff5f6d, #ffc371)",
+    //     }
+    //   }).showToast();
+    //   return false; // Return false to prevent moving to the next tab
+    // }
+
+    try {
+      // Make the API call to save the form data
+      console.log(JSON.stringify(formData));
+      const response = await fetch(config.apiBaseUrl + 'ContractPackageInfoes/SavePackageInfo', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`, // Include your Bearer token if needed
+        },
+        body: JSON.stringify(formData), // Send the form data as JSON
+      });
   
+      if (!response.ok) {
+        throw new Error(`Failed to save data: ${response.statusText}`);
+      }
+  
+      const result = await response.json();
+      //console.log("Form data saved successfully:", result);
+      
+      let msg = "added";
+      
+      if (formData.contractEventInfoId !=0){
+       msg = "updated";
+      }
+
+
+      Toastify({
+        text: "Event " + msg + " successfully!",
+        className: "info",
+        style: {
+          background: "linear-gradient(to right, #00b09b, #96c93d)",
+        }
+      }).showToast();
+
+      localStorage.setItem('contractEventInfoId', result.contractEventInfoId);
+      
+      setFormData(prevFormData => ({
+        ...prevFormData,
+        contractEventInfoId: result.contractEventInfoId
+      }));
+
+      // Return true to indicate success
+      return true;
+    } catch (error) {
+      console.error("Error saving form data:", error);
+      Toastify({
+        text: "An error occurred while saving the data. Please try again.",
+        className: "error",
+        style: {
+          background: "linear-gradient(to right, #00b09b, #96c93d)",
+        }
+      }).showToast();
+      //toast.error();
+      //alert("An error occurred while saving the data. Please try again.");
+      
+      // Return false to indicate failure
+      return false;
+    }
+  };
 
   const handlePrevious = () => {
     setActiveTab((prev) => Math.max(prev - 1, 0)); // Move to previous tab
