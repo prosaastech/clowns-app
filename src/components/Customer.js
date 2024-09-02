@@ -10,6 +10,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import Toastify from 'toastify-js'
 import "toastify-js/src/toastify.css"
 import config from './Utils/config'
+import { Category, Description } from '@mui/icons-material';
 
 const CustomerForm = () => {
   const location = useLocation();
@@ -353,14 +354,46 @@ const CustomerForm = () => {
 
     try {
       // Make the API call to save the form data
-      console.log(JSON.stringify(formData));
+      //console.log(JSON.stringify(formData));
+      console.log('FormData before API call:', JSON.stringify(formData, null, 2));
+      var characters = formData.characters.map((item) => ({
+            characterId:item.characterId,
+            price:item.price
+      }));
+
+
+      const requestBody = {
+        categoryId: formData.categoryId || 0,
+        price: formData.price || 0,
+        tax: formData.tax || 0,
+        tip: formData.tip || 0,
+        partyPackageId: formData.partyPackageId || 0,
+        description: formData.description || '',
+        parkingFees: formData.parkingFees || 0,
+        tip2: formData.Tip2 || 0,
+        tollFees: formData.tollFees || 0,
+        substract: formData.substract || 0,
+        deposit: formData.deposit || 0,
+        totalBalance: formData.totalBalance || 0,
+        characters: formData.characters || [],
+        addons: formData.addons || [],
+        bounces: formData.bounces || []
+
+        // ,Characters: formData.characters.map(character => ({
+        //   CharacterId: parseInt(character.characterId), // Ensure characterId is a number
+        //   Price: parseFloat(character.price) // Ensure price is a number
+        // }))
+       
+      };
+console.log("", requestBody,null,2);
+
       const response = await fetch(config.apiBaseUrl + 'ContractPackageInfoes/SavePackageInfo', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`, // Include your Bearer token if needed
         },
-        body: JSON.stringify(formData), // Send the form data as JSON
+        body: JSON.stringify(requestBody), // Send the form data as JSON
       });
   
       if (!response.ok) {
