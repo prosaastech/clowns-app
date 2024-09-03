@@ -53,7 +53,8 @@ const CustomerForm = () => {
     eventInfoEventState: 0,
     eventInfoVenue: 0,
     eventInfoVenueDescription: '',
-    PackageInfoId:0,
+    contractId:0,
+    packageInfoId:0,
     categoryId:0,
     partyPackageId:0,
     price: 0,
@@ -318,8 +319,10 @@ const CustomerForm = () => {
       
       setFormData(prevFormData => ({
         ...prevFormData,
-        customerId: result.customerId
+        customerId: result.customerId,
+        contractId: result.contractId
       }));
+      
       // Return true to indicate success
       return true;
     } catch (error) {
@@ -338,55 +341,70 @@ const CustomerForm = () => {
       return false;
     }
   };
+  function parseNumber(value) {
+    // Convert null or undefined to empty string
+    if (value == null || value === '') {
+      return '0';
+    }
+  
+    // Ensure value is a string
+    if (typeof value !== 'string') {
+      value = String(value);
+    }
+  
+    // Remove commas
+    const cleanedValue = value.replace(/,/g, '');
+  
+    // Parse the float
+    const parsedValue = parseFloat(cleanedValue);
+  
+    // Check if the result is a valid number
+    if (isNaN(parsedValue)) {
+      return '0'; // Return '0' if parsing fails
+    }
+  
+    // Remove trailing zeros
+    return parsedValue.toString().replace(/(\.\d*?[1-9])0+$|\.0*$/, '$1');
+  }
   const savePackageInfoData = async () => {
     const token = localStorage.getItem('token');
-
-    // if (formData.eventInfoEventDate == '') {
-    //   Toastify({
-    //     text: "Invalid Event Date.",
-    //     className: "error",
-    //     style: {
-    //       background: "linear-gradient(to right, #ff5f6d, #ffc371)",
-    //     }
-    //   }).showToast();
-    //   return false; // Return false to prevent moving to the next tab
-    // }
-
+  
     try {
-      // Make the API call to save the form data
-      //console.log(JSON.stringify(formData));
       console.log('FormData before API call:', JSON.stringify(formData, null, 2));
-      var characters = formData.characters.map((item) => ({
-            characterId:item.characterId,
-            price:item.price
-      }));
-
-
+  
+      // Parse numeric values to ensure no commas are included
       const requestBody = {
-        categoryId: formData.categoryId || 0,
-        price: formData.price || 0,
-        tax: formData.tax || 0,
-        tip: formData.tip || 0,
-        partyPackageId: formData.partyPackageId || 0,
+        customerId:formData.customerId,
+        contractId:formData.contractId,
+        categoryId: parseNumber(formData.categoryId) || 0,
+        price: parseNumber(formData.price) || 0,
+        tax: parseNumber(formData.tax) || 0,
+        tip: parseNumber(formData.tip) || 0,
+        partyPackageId: parseInt(formData.partyPackageId) || 0,
         description: formData.description || '',
-        parkingFees: formData.parkingFees || 0,
-        tip2: formData.Tip2 || 0,
-        tollFees: formData.tollFees || 0,
-        substract: formData.substract || 0,
-        deposit: formData.deposit || 0,
-        totalBalance: formData.totalBalance || 0,
-        characters: formData.characters || [],
-        addons: formData.addons || [],
-        bounces: formData.bounces || []
-
-        // ,Characters: formData.characters.map(character => ({
-        //   CharacterId: parseInt(character.characterId), // Ensure characterId is a number
-        //   Price: parseFloat(character.price) // Ensure price is a number
-        // }))
-       
+        parkingFees: parseNumber(formData.parkingFees) || 0,
+        tip2: parseNumber(formData.tip2) || 0, // Make sure 'tip2' is the correct case as per your API
+        tollFees: parseNumber(formData.tollFees) || 0,
+        substract: parseNumber(formData.substract) || 0,
+        deposit: parseNumber(formData.deposit) || 0,
+        totalBalance: parseNumber(formData.totalBalance) || 0,
+        characters: formData.characters.map(item => ({
+          characterId: parseInt(item.characterId),
+          price: parseFloat(item.price)
+        })) || [],
+        addons: formData.addons.map(item => ({
+          addonId: parseInt(item.addonId),
+          price: parseFloat(item.price)
+        })) || [],
+        bounces: formData.bounces.map(item => ({
+          bounceId: parseInt(item.bounceId),
+          price: parseFloat(item.price)
+        })) || [],
+        packageInfoId: parseInt(formData.packageInfoId) || 0
       };
-console.log("", requestBody,null,2);
-
+  
+      console.log("Request Body:", JSON.stringify(requestBody, null, 2));
+  
       const response = await fetch(config.apiBaseUrl + 'ContractPackageInfoes/SavePackageInfo', {
         method: 'POST',
         headers: {
@@ -401,15 +419,9 @@ console.log("", requestBody,null,2);
       }
   
       const result = await response.json();
-      //console.log("Form data saved successfully:", result);
-      
-      let msg = "added";
-      
-      if (formData.contractEventInfoId !=0){
-       msg = "updated";
-      }
-
-
+  
+      let msg = formData.packageInfoId != 0 ? "updated" : "added";
+  
       Toastify({
         text: "Event " + msg + " successfully!",
         className: "info",
@@ -417,33 +429,32 @@ console.log("", requestBody,null,2);
           background: "linear-gradient(to right, #00b09b, #96c93d)",
         }
       }).showToast();
-
-      localStorage.setItem('contractEventInfoId', result.contractEventInfoId);
-      
+  
+      // Save the packageInfoId in localStorage and update the state
+      localStorage.setItem('packageInfoId', result.packageInfoId);
       setFormData(prevFormData => ({
         ...prevFormData,
-        contractEventInfoId: result.contractEventInfoId
+        packageInfoId: result.packageInfoId
       }));
-
+  
       // Return true to indicate success
       return true;
     } catch (error) {
       console.error("Error saving form data:", error);
+  
       Toastify({
         text: "An error occurred while saving the data. Please try again.",
         className: "error",
         style: {
-          background: "linear-gradient(to right, #00b09b, #96c93d)",
+          background: "linear-gradient(to right, #ff5f6d, #ffc371)",
         }
       }).showToast();
-      //toast.error();
-      //alert("An error occurred while saving the data. Please try again.");
-      
+  
       // Return false to indicate failure
       return false;
     }
   };
-
+  
   const handlePrevious = () => {
     setActiveTab((prev) => Math.max(prev - 1, 0)); // Move to previous tab
   };
