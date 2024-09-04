@@ -67,7 +67,7 @@ const CustomerForm = () => {
     parkingFees: 0,
     tollFees: 0,
     deposit: 0,
-    Tip2:0,
+    tip2:0,
     subtract:0,
     totalBalance:0,
     selectedDate:selectedDate,
@@ -235,10 +235,22 @@ const CustomerForm = () => {
 
       localStorage.setItem('contractEventInfoId', result.contractEventInfoId);
       
-      setFormData(prevFormData => ({
-        ...prevFormData,
-        contractEventInfoId: result.contractEventInfoId
-      }));
+      if (formData.contractEventInfoId === 0){
+        console.log(result.contractId);
+        setFormData(prevFormData => ({
+          ...prevFormData,
+          contractEventInfoId: result.contractEventInfoId,
+          contractId: result.contractId
+        }));
+      }
+      else
+      {
+        setFormData(prevFormData => ({
+          ...prevFormData,
+          contractEventInfoId: result.contractEventInfoId,
+          contractId: result.contractId
+        }));
+      }
 
       // Return true to indicate success
       return true;
@@ -319,8 +331,7 @@ const CustomerForm = () => {
       
       setFormData(prevFormData => ({
         ...prevFormData,
-        customerId: result.customerId,
-        contractId: result.contractId
+        customerId: result.customerId
       }));
       
       // Return true to indicate success
@@ -385,7 +396,7 @@ const CustomerForm = () => {
         parkingFees: parseNumber(formData.parkingFees) || 0,
         tip2: parseNumber(formData.tip2) || 0, // Make sure 'tip2' is the correct case as per your API
         tollFees: parseNumber(formData.tollFees) || 0,
-        substract: parseNumber(formData.substract) || 0,
+        substract: parseNumber(formData.subtract) || 0,
         deposit: parseNumber(formData.deposit) || 0,
         totalBalance: parseNumber(formData.totalBalance) || 0,
         characters: formData.characters.map(item => ({

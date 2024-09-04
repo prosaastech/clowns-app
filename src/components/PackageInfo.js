@@ -15,6 +15,15 @@ const PackageInfo = ({ formData, setFormData }) => {
   const [tabIndex, setTabIndex] = useState(0);
 
   useEffect(() => {
+    const totalBalance = calculateTotalBalance();
+    setFormData(prev => ({
+      ...prev,
+      totalBalance,
+    }));
+  }, [formData.characters, formData.addons, formData.bounces, formData.price, formData.tax, formData.tip, formData.parkingFees, formData.tollFees, formData.deposit]);
+
+
+  useEffect(() => {
     const fetchDropdownData = async (url, setter) => {
       const token = localStorage.getItem('token');
       try {
@@ -99,29 +108,41 @@ const PackageInfo = ({ formData, setFormData }) => {
   };
 
   const calculateTotalBalance = () => {
-    const packagePrice = parseFloat(unformatNumber(formData.price || '')) || 0;
-    const charactersTax = formData.characters?.reduce((total, id) => {
-      const char = characters.find(c => c.characterId === id);
-      return total + (parseFloat(unformatNumber(char?.tax || '')) || 0);
-    }, 0) || 0;
-
-    const addonsTax = formData.addons?.reduce((total, id) => {
+    const characterTotal = (formData.characters || []).reduce((sum, item) => {
+      const id = typeof item === 'object' ? item.characterId : item;
+      const character = characters.find(c => c.characterId === id);
+      return sum + (character ? character.price : 0);
+    }, 0);
+  
+    const addonTotal = (formData.addons || []).reduce((sum, item) => {
+      const id = typeof item === 'object' ? item.addonId : item;
       const addon = addons.find(a => a.addonId === id);
-      return total + (parseFloat(unformatNumber(addon?.tax || '')) || 0);
-    }, 0) || 0;
-
-    const bouncesTax = formData.bounces?.reduce((total, id) => {
+      return sum + (addon ? addon.price : 0);
+    }, 0);
+  
+    const bounceTotal = (formData.bounces || []).reduce((sum, item) => {
+      const id = typeof item === 'object' ? item.bounceId : item;
       const bounce = bounces.find(b => b.bounceId === id);
-      return total + (parseFloat(unformatNumber(bounce?.tax || '')) || 0);
-    }, 0) || 0;
-
-    const parkingFees = parseFloat(unformatNumber(formData.parkingFees || '')) || 0;
-    const tollFees = parseFloat(unformatNumber(formData.tollFees || '')) || 0;
-    const deposit = parseFloat(unformatNumber(formData.deposit || '')) || 0;
-
-    return packagePrice + charactersTax + addonsTax + bouncesTax + parkingFees + tollFees - deposit;
+      return sum + (bounce ? bounce.price : 0);
+    }, 0);
+  
+    const additionalFees = 
+      Number(formData.price || 0) +
+      Number(formData.tax || 0) +
+      Number(formData.tip || 0) +
+      Number(formData.parkingFees || 0) +
+      Number(formData.tip2 || 0) +
+      Number(formData.tollFees || 0);
+  
+    const deductions = 
+      Number(formData.deposit || 0) +
+      Number(formData.subtract || 0);
+  
+    const totalBalance = characterTotal + addonTotal + bounceTotal + additionalFees - deductions;
+    
+    return totalBalance;
   };
-
+  
   const handleTabChange = (event, newValue) => {
     setTabIndex(newValue);
   };

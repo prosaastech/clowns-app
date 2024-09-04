@@ -1,29 +1,20 @@
-import React from 'react';
+import React,{useEffect} from 'react';
 import '../css/ReviewTab.css'; // Ensure you have a CSS file for styling
 import { Box, TextField, MenuItem, Button, Tabs, Tab, Grid } from '@mui/material';
 
-const ReviewTab = ({ formData, characters = [], addons = [], bounces = [],setFormData  }) => {
-  const calculateTotalBalance = () => {
-    const characterTotal = (formData.characters || []).reduce((sum, item) => {
-      const id = typeof item === 'object' ? item.characterId : item;
-      const character = characters.find(c => c.characterId === id);
-      return sum + (character ? character.price : 0);
-    }, 0);
+const ReviewTab = ({ formData, characters = [], addons = [], bounces = [],calculateTotalBalance,setFormData  }) => {
 
-    const addonTotal = (formData.addons || []).reduce((sum, item) => {
-      const id = typeof item === 'object' ? item.addonId : item;
-      const addon = addons.find(a => a.addonId === id);
-      return sum + (addon ? addon.price : 0);
-    }, 0);
+  useEffect(() => {
+    const totalBalance = calculateTotalBalance;
+    setFormData(prev => ({
+      ...prev,
+      totalBalance,
+    }));
+  }, [formData.characters, formData.addons, formData.bounces, formData.price, formData.tax, formData.tip, formData.parkingFees, formData.tollFees, formData.deposit]);
 
-    const bounceTotal = (formData.bounces || []).reduce((sum, item) => {
-      const id = typeof item === 'object' ? item.bounceId : item;
-      const bounce = bounces.find(b => b.bounceId === id);
-      return sum + (bounce ? bounce.price : 0);
-    }, 0);
 
-    return characterTotal + addonTotal + bounceTotal;
-  };
+ 
+
   const formatNumber = (value) => {
     // Remove non-numeric characters except for comma
     const numericValue = value.replace(/[^0-9]/g, '');

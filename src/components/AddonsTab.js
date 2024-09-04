@@ -2,7 +2,10 @@ import React, { useState } from 'react';
 import { Box, TextField, MenuItem, Button, Grid, Typography, IconButton } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
-
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import Toastify from 'toastify-js'
+import "toastify-js/src/toastify.css"
 const AddonTab = ({ addons, formData, setFormData }) => {
   const [selectedAddon, setSelectedAddon] = useState('');
   const [selectedPrice, setSelectedPrice] = useState('');
@@ -17,6 +20,16 @@ const AddonTab = ({ addons, formData, setFormData }) => {
   };
 
   const handleAddAddon = () => {
+    if (!selectedAddon) {
+      Toastify({
+        text: "Please select addon.",
+        className: "error",
+        style: {
+          background: "linear-gradient(to right, #ff5f6d, #ffc371)",
+        }
+      }).showToast();
+       return;
+    }
     const newAddon = {
       addonId: selectedAddon,
       price: selectedPrice,
