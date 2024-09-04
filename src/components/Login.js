@@ -13,6 +13,7 @@ import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import PersonIcon from '@mui/icons-material/Person';
 import './Login.css'; // Import the CSS file
 import config from './Utils/config'
+import Loader from './Utils/loader'; // Import Loader component
 
 export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
@@ -21,6 +22,7 @@ export default function Login() {
   const [emailAddress, setEmailAddress] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate(); // Initialize useNavigate
+  const [isLoading, setIsLoading] = useState(false); // Control loader visibility
 
   const handleClickShowPassword = () => {
     setShowPassword(!showPassword);
@@ -28,6 +30,8 @@ export default function Login() {
 
   const handleLogin = async (event) => {
     event.preventDefault();
+    setIsLoading(true); // Show loader before login starts
+
     const apiUrl = config.apiBaseUrl + 'Users/login-user'; 
     setEmailAddress(username)
     try {
@@ -51,10 +55,14 @@ export default function Login() {
     } catch (error) {
       setError('An error occurred. Please try again later.');
     }
+    finally {
+      setIsLoading(false); // Hide loader after login completes
+    }
   };
 
   return (
     <div className='login-container'>
+        <Loader isLoading={isLoading} />
       <Box
         component="form"
         onSubmit={handleLogin}

@@ -127,12 +127,12 @@ const PackageInfo = ({ formData, setFormData }) => {
     }, 0);
   
     const additionalFees = 
-      Number(formData.price || 0) +
-      Number(formData.tax || 0) +
-      Number(formData.tip || 0) +
-      Number(formData.parkingFees || 0) +
-      Number(formData.tip2 || 0) +
-      Number(formData.tollFees || 0);
+      Number(unformatNumber(formData.price) || 0) +
+      Number(unformatNumber(formData.tax) || 0) +
+      Number(unformatNumber(formData.tip) || 0) +
+      Number(unformatNumber(formData.parkingFees) || 0) +
+      Number(unformatNumber(formData.tip2) || 0) +
+      Number(unformatNumber(formData.tollFees) || 0);
   
     const deductions = 
       Number(formData.deposit || 0) +

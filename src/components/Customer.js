@@ -11,10 +11,16 @@ import Toastify from 'toastify-js'
 import "toastify-js/src/toastify.css"
 import config from './Utils/config'
 import { Category, Description } from '@mui/icons-material';
+import showToast from './Utils/showToast'
+import Loader from './Utils/loader'; // Import Loader component
+import { useNavigate } from 'react-router-dom';
+
 
 const CustomerForm = () => {
   const location = useLocation();
   const { team, timeStart, timeEnd, selectedTeam, selectedDate } = location.state || {}; // Destructure the values from location state
+  const [isLoading, setIsLoading] = useState(false); // Control loader visibility
+  const navigate = useNavigate(); // Used to redirect to the dashboard
 
   const [activeTab, setActiveTab] = useState(0);
   const [formData, setFormData] = useState({
@@ -104,6 +110,8 @@ const CustomerForm = () => {
     const fetchDropdownData = async (url, setter) => {
       const token = localStorage.getItem('token');
       try {
+        setIsLoading(true);
+
         const response = await fetch(url, {
           method: 'GET',
           headers: {
@@ -116,6 +124,9 @@ const CustomerForm = () => {
         setter(data);
       } catch (error) {
         console.error(`Error fetching data from ${url}:`, error);
+      } finally {
+        setIsLoading(false);
+
       }
     };
 
@@ -189,19 +200,19 @@ const CustomerForm = () => {
     const token = localStorage.getItem('token');
 
     if (formData.eventInfoEventDate == '') {
-      Toastify({
-        text: "Invalid Event Date.",
-        className: "error",
-        style: {
-          background: "linear-gradient(to right, #ff5f6d, #ffc371)",
-        }
-      }).showToast();
+    
+      showToast({
+        type: 'error',
+        message: 'Invalid Event Date.',
+      });
       return false; // Return false to prevent moving to the next tab
     }
 
     try {
       // Make the API call to save the form data
       //console.log(JSON.stringify(formData));
+      setIsLoading(true);
+
       const response = await fetch(config.apiBaseUrl + 'ContractEventInfoes/SaveEventInfo', {
         method: 'POST',
         headers: {
@@ -224,15 +235,11 @@ const CustomerForm = () => {
        msg = "updated";
       }
 
-
-      Toastify({
-        text: "Event " + msg + " successfully!",
-        className: "info",
-        style: {
-          background: "linear-gradient(to right, #00b09b, #96c93d)",
-        }
-      }).showToast();
-
+      showToast({
+        type: 'info',
+        message: "Event " + msg + " successfully!",
+      });
+      
       localStorage.setItem('contractEventInfoId', result.contractEventInfoId);
       
       if (formData.contractEventInfoId === 0){
@@ -256,18 +263,19 @@ const CustomerForm = () => {
       return true;
     } catch (error) {
       console.error("Error saving form data:", error);
-      Toastify({
-        text: "An error occurred while saving the data. Please try again.",
-        className: "error",
-        style: {
-          background: "linear-gradient(to right, #00b09b, #96c93d)",
-        }
-      }).showToast();
-      //toast.error();
-      //alert("An error occurred while saving the data. Please try again.");
+       
+
+      showToast({
+        type: 'error',
+        message: 'An error occurred while saving the data. Please try again.'
+      });
       
+       
       // Return false to indicate failure
       return false;
+    }finally {
+      setIsLoading(false);
+
     }
   };
   const saveCustomerData = async () => {
@@ -275,28 +283,27 @@ const CustomerForm = () => {
 
     if (formData.emailAddress !=""){
     if (!validateEmail(formData.emailAddress)) {
-      Toastify({
-        text: "Please provide valid email",
-        className: "error",
-        style: {
-          background: "linear-gradient(to right, #ff5f6d, #ffc371)",
-        }
-      }).showToast();
+      showToast({
+        type: 'error',
+        message: 'Please provide valid email',
+      });
+      
       return false; // Return false to prevent moving to the next tab
     }
   }
     if (!formData.firstName || !formData.lastName) {
-      Toastify({
-        text: "First Name and Last Name are required.",
-        className: "error",
-        style: {
-          background: "linear-gradient(to right, #ff5f6d, #ffc371)",
-        }
-      }).showToast();
+      
+      showToast({
+        type: 'error',
+        message: 'First Name and Last Name are required.',
+      });
+      
       return false; // Return false to prevent moving to the next tab
     }
 
     try {
+      setIsLoading(true);
+
       // Make the API call to save the form data
      // console.log(JSON.stringify(formData));
       const response = await fetch(config.apiBaseUrl + 'CustomerInfoes/SaveCustomer', {
@@ -319,13 +326,13 @@ const CustomerForm = () => {
       msg = "updated";
      }
 
-      Toastify({
-        text: "Customer " + msg + " successfully!",
-        className: "info",
-        style: {
-          background: "linear-gradient(to right, #00b09b, #96c93d)",
-        }
-      }).showToast();
+      
+
+      showToast({
+        type: 'info',
+        message: 'Customer ' + msg + ' successfully!',
+      });
+      
 
       localStorage.setItem('customerId', result.customerId);
       
@@ -336,20 +343,24 @@ const CustomerForm = () => {
       
       // Return true to indicate success
       return true;
-    } catch (error) {
+    } catch (error) 
+    {
       console.error("Error saving form data:", error);
-      Toastify({
-        text: "An error occurred while saving the data. Please try again.",
-        className: "error",
-        style: {
-          background: "linear-gradient(to right, #00b09b, #96c93d)",
-        }
-      }).showToast();
+     
+
+      showToast({
+        type: 'error',
+        message: 'An error occurred while saving the data. Please try again.',
+      });
+      
       //toast.error();
       //alert("An error occurred while saving the data. Please try again.");
       
       // Return false to indicate failure
       return false;
+    } finally {
+      setIsLoading(false);
+
     }
   };
   function parseNumber(value) {
@@ -381,6 +392,8 @@ const CustomerForm = () => {
     const token = localStorage.getItem('token');
   
     try {
+      setIsLoading(true);
+
       console.log('FormData before API call:', JSON.stringify(formData, null, 2));
   
       // Parse numeric values to ensure no commas are included
@@ -433,14 +446,13 @@ const CustomerForm = () => {
   
       let msg = formData.packageInfoId != 0 ? "updated" : "added";
   
-      Toastify({
-        text: "Event " + msg + " successfully!",
-        className: "info",
-        style: {
-          background: "linear-gradient(to right, #00b09b, #96c93d)",
-        }
-      }).showToast();
+      
   
+      showToast({
+        type: 'info',
+        message: "PackageInfo " + msg + " successfully!",
+      });
+      
       // Save the packageInfoId in localStorage and update the state
       localStorage.setItem('packageInfoId', result.packageInfoId);
       setFormData(prevFormData => ({
@@ -452,17 +464,18 @@ const CustomerForm = () => {
       return true;
     } catch (error) {
       console.error("Error saving form data:", error);
-  
-      Toastify({
-        text: "An error occurred while saving the data. Please try again.",
-        className: "error",
-        style: {
-          background: "linear-gradient(to right, #ff5f6d, #ffc371)",
-        }
-      }).showToast();
-  
+   
+      showToast({
+        type: 'error',
+        message: 'An error occurred while saving the data. Please try again.',
+      });
+      
       // Return false to indicate failure
       return false;
+    }
+    finally {
+      setIsLoading(false);
+
     }
   };
   
@@ -470,6 +483,20 @@ const CustomerForm = () => {
     setActiveTab((prev) => Math.max(prev - 1, 0)); // Move to previous tab
   };
 
+  const handleSaveAndClose = async () => {
+    let success = false;
+    if (activeTab === 0) {
+      success = await saveCustomerData();
+    } else if (activeTab === 1) {
+      success = await saveEventData();
+    } else if (activeTab === 2) {
+      success = await savePackageInfoData();
+    }
+
+    if (success) {
+      navigate('/dashboard'); // Redirect to the dashboard after saving
+    }
+  };
   const handleSubmit = async () => {
     const token = localStorage.getItem('token');
     try {
@@ -490,7 +517,8 @@ const CustomerForm = () => {
 
   return (
     <Box>
-     
+             <Loader isLoading={isLoading} />
+
       <Tabs value={activeTab} onChange={handleTabChange} aria-label="form tabs">
         <Tab label="Customer Info" />
         <Tab label="Event Info" />
@@ -723,7 +751,10 @@ const CustomerForm = () => {
           </Button>
           <Button variant="contained" onClick={handleNext} disabled={activeTab === 2}>
             Next
+          </Button><Button variant="contained" color="primary" onClick={handleSaveAndClose} disabled={isLoading}>
+            Save and close
           </Button>
+
         </div>
       </div>
 
@@ -745,6 +776,9 @@ const CustomerForm = () => {
           <Button variant="contained" onClick={handleNext} disabled={activeTab === 2}>
             Next
           </Button>
+           <Button variant="contained" color="primary" onClick={handleSaveAndClose} disabled={isLoading}>
+            Save and close
+          </Button>
         </div>
       </div>
 
@@ -763,6 +797,9 @@ const CustomerForm = () => {
           <Button variant="contained" onClick={handleNext} disabled={activeTab === 3}>
             Next
           </Button>
+          <Button variant="contained" color="primary" onClick={handleSaveAndClose} disabled={isLoading}>
+            Save and close
+          </Button>
         </div>
       </div>
 
@@ -779,6 +816,7 @@ const CustomerForm = () => {
           <Button variant="contained" onClick={handleSubmit} disabled={activeTab !== 3}>
             Submit
           </Button>
+          
         </div>
       </div>
     </Box>

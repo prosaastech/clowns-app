@@ -4,6 +4,7 @@ import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Box, 
 import '../css/ContractCalendar.css';
 import { Navigate } from 'react-router-dom';
 import config from './Utils/config'
+import Loader from './Utils/loader'; // Import Loader component
 
 const ContractCalendar = () => {
   const [dragging, setDragging] = useState(null);
@@ -16,13 +17,16 @@ const ContractCalendar = () => {
   const [timeSlots, setTimeSlots] = useState([]);
   const [selectedDate, setSelectedDate] = useState('2024-08-12'); // Default date
   const [navigateToCustomer, setNavigateToCustomer] = useState(false); // New state for navigation
+  const [isLoading, setIsLoading] = useState(false); // Control loader visibility
 
   useEffect(() => {
     const token = localStorage.getItem('token');
 
     // Fetch teams
     const fetchTeams = async () => {
+
       try {
+        setIsLoading(true);
         const response = await fetch(config.apiBaseUrl + 'Teams', {
           method: 'GET',
           headers: {
@@ -37,12 +41,16 @@ const ContractCalendar = () => {
         setTeams(data);
       } catch (error) {
         console.error('Error fetching teams:', error);
+      }finally{
+        setIsLoading(false);
       }
     };
 
     // Fetch time slots
     const fetchTimeSlots = async () => {
       try {
+        setIsLoading(true);
+
         const response = await fetch(config.apiBaseUrl + 'TimeSlots', {
           method: 'GET',
           headers: {
@@ -58,12 +66,17 @@ const ContractCalendar = () => {
         setTimeSlots(data.map(slot => slot.time)); // Assuming the time property contains the time string
       } catch (error) {
         console.error('Error fetching time slots:', error);
+      } finally {
+        setIsLoading(false);
+
       }
     };
 
     // Fetch contract data
     const fetchContractData = async () => {
       try {
+        setIsLoading(true);
+
         const response = await fetch(config.apiBaseUrl + `ContractTimeTeamInfoes/getAllContractsDateWise?date=${selectedDate}`, {
           method: 'GET',
           headers: {
@@ -95,6 +108,9 @@ const ContractCalendar = () => {
       } catch (error) {
         console.error('Error fetching contract data:', error);
         setSelectedRanges({});
+      } finally {
+        setIsLoading(false);
+
       }
     };
 
@@ -227,6 +243,8 @@ const ContractCalendar = () => {
   
   return (
     <Box>
+              <Loader isLoading={isLoading} />
+
       <TextField
         type="date"
         value={selectedDate}
