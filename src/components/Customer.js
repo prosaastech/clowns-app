@@ -504,17 +504,17 @@ const CustomerForm = () => {
         customerId:formData.customerId,
         contractId:formData.contractId,
         bookingPaymentInfoId:parseInt(formData.bookingPaymentInfoId) || 0,
-        cardNumber:formData.cardNumber1,
+        cardNumber:formData.cardNumber1 || '',
         cardTypeId:parseInt(formData.cardType1) || 0,
-        expireMonthYear:formData.expirationDate1,
-        cvv:formData.cvv1,
-        cardNumber2:formData.cardNumber2,
+        expireMonthYear:formData.expirationDate1 || '',
+        cvv:formData.cvv1 || 0,
+        cardNumber2:formData.cardNumber2 || '',
         cardTypeId2:parseInt(formData.cardType2) || 0,
-        expireMonthYear2:formData.expirationDate2,
-        cvv2:formData.cvv2,
+        expireMonthYear2:formData.expirationDate2 || '',
+        cvv2:formData.cvv2 || 0,
         paymentStatusId:parseInt(formData.paymentStatus) || 0,
-        useAddress:false,//formData.useAddress,
-        billingAddress:formData.billingAddress
+        useAddress:formData.useAddress,
+        billingAddress:formData.billingAddress || ''
        };
   
     console.log("Adding Booking PaymentInfo:", requestBody, null,2)
@@ -904,6 +904,7 @@ const CustomerForm = () => {
         <h2>Booking & Payment Info</h2>
        <BookingPaymentInfo
         formData={formData} handleChange={handleChange} cardOptions={cardOptions} paymentOptions={paymentStatusOptions}
+        setFormData={setFormData}
         /> 
  
         <div className="form-buttons">

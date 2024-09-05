@@ -1,5 +1,3 @@
-// src/components/PaymentInfo.js
-
 import React, { useState, useEffect } from 'react';
 import TextField from '@mui/material/TextField';
 import MenuItem from '@mui/material/MenuItem';
@@ -11,10 +9,10 @@ import CardHeader from '@mui/material/CardHeader';
 import InputMask from 'react-input-mask'; // Import react-input-mask
 import '../css/PaymentInfo.css'; // Import the CSS file
 
-const PaymentInfo = ({ formData, handleChange, cardOptions,paymentOptions }) => {
+const PaymentInfo = ({ formData, handleChange, cardOptions, paymentOptions, setFormData }) => {
   const [useAddress, setUseAddress] = useState(false);
   const [billingAddress, setBillingAddress] = useState(formData.address);
-console.log('cardoption' + cardOptions);
+
   useEffect(() => {
     // Update billingAddress if useAddress is checked and formData.address changes
     if (useAddress) {
@@ -24,6 +22,13 @@ console.log('cardoption' + cardOptions);
 
   const handleCheckboxChange = (event) => {
     setUseAddress(event.target.checked);
+
+    const { name, checked } = event.target;
+    setFormData((prev) => {
+      const updatedFormData = { ...prev, [name]: checked };
+      return updatedFormData;
+    });
+
     if (event.target.checked) {
       setBillingAddress(formData.address);
     } else {
@@ -35,20 +40,30 @@ console.log('cardoption' + cardOptions);
     setBillingAddress(event.target.value);
     handleChange(event);
   };
+
   return (
     <div className="payment-info">
       <Card className="payment-card" variant="outlined">
         <CardHeader title="Primary Card" className="payment-card-header" />
         <CardContent>
           <div className="payment-fields">
-            <TextField
-              label="Card Number"
-              name="cardNumber1"
+            {/* Credit card number with numeric mask */}
+            <InputMask
+              mask="9999 9999 9999 9999" // 16-digit card number format
               value={formData.cardNumber1}
               onChange={handleChange}
-              fullWidth
-              margin="normal"
-            />
+              alwaysShowMask={true}
+            >
+              {() => (
+                <TextField
+                  label="Card Number"
+                  name="cardNumber1"
+                  fullWidth
+                  margin="normal"
+                />
+              )}
+            </InputMask>
+
             <TextField
               select
               label="Card Type"
@@ -64,6 +79,7 @@ console.log('cardoption' + cardOptions);
                 </MenuItem>
               ))}
             </TextField>
+
             <InputMask
               mask="99/99"
               value={formData.expirationDate1}
@@ -78,14 +94,22 @@ console.log('cardoption' + cardOptions);
                 />
               )}
             </InputMask>
-            <TextField
-              label="CVV"
-              name="cvv1"
+
+            {/* CVV with 3-digit numeric mask */}
+            <InputMask
+              mask="999" // CVV format (3 digits)
               value={formData.cvv1}
               onChange={handleChange}
-              fullWidth
-              margin="normal"
-            />
+            >
+              {() => (
+                <TextField
+                  label="CVV"
+                  name="cvv1"
+                  fullWidth
+                  margin="normal"
+                />
+              )}
+            </InputMask>
           </div>
         </CardContent>
       </Card>
@@ -94,14 +118,23 @@ console.log('cardoption' + cardOptions);
         <CardHeader title="Secondary Card" className="payment-card-header" />
         <CardContent>
           <div className="payment-fields">
-            <TextField
-              label="Card Number"
-              name="cardNumber2"
+            {/* Credit card number with numeric mask */}
+            <InputMask
+              mask="9999 9999 9999 9999" // 16-digit card number format
               value={formData.cardNumber2}
               onChange={handleChange}
-              fullWidth
-              margin="normal"
-            />
+              alwaysShowMask={true}
+            >
+              {() => (
+                <TextField
+                  label="Card Number"
+                  name="cardNumber2"
+                  fullWidth
+                  margin="normal"
+                />
+              )}
+            </InputMask>
+
             <TextField
               select
               label="Card Type"
@@ -117,6 +150,7 @@ console.log('cardoption' + cardOptions);
                 </MenuItem>
               ))}
             </TextField>
+
             <InputMask
               mask="99/99"
               value={formData.expirationDate2}
@@ -131,14 +165,22 @@ console.log('cardoption' + cardOptions);
                 />
               )}
             </InputMask>
-            <TextField
-              label="CVV"
-              name="cvv2"
+
+            {/* CVV with 3-digit numeric mask */}
+            <InputMask
+              mask="999" // CVV format (3 digits)
               value={formData.cvv2}
               onChange={handleChange}
-              fullWidth
-              margin="normal"
-            />
+            >
+              {() => (
+                <TextField
+                  label="CVV"
+                  name="cvv2"
+                  fullWidth
+                  margin="normal"
+                />
+              )}
+            </InputMask>
           </div>
         </CardContent>
       </Card>
@@ -154,11 +196,11 @@ console.log('cardoption' + cardOptions);
           sx={{ width: '300px' }} // Adjust the width as needed
         >
           {paymentOptions.map((option) => (
-                <MenuItem key={option.value} value={option.paymentStatusId}>
-                  {option.paymentStatusName}
-                </MenuItem>
-              ))}
-         </TextField>
+            <MenuItem key={option.value} value={option.paymentStatusId}>
+              {option.paymentStatusName}
+            </MenuItem>
+          ))}
+        </TextField>
 
         <div className="address-checkbox">
           <FormControlLabel
@@ -173,25 +215,14 @@ console.log('cardoption' + cardOptions);
           />
         </div>
 
-        {useAddress ? (
-          <TextField
-            label="Billing Address"
-            name="billingAddress"
-            value={billingAddress}
-            onChange={handleBillingAddressChange}
-            fullWidth
-            margin="normal"
-          />
-        ) : (
-          <TextField
-            label="Billing Address"
-            name="billingAddress"
-            value={billingAddress}
-            onChange={handleBillingAddressChange}
-            fullWidth
-            margin="normal"
-          />
-        )}
+        <TextField
+          label="Billing Address"
+          name="billingAddress"
+          value={billingAddress}
+          onChange={handleBillingAddressChange}
+          fullWidth
+          margin="normal"
+        />
       </div>
     </div>
   );

@@ -62,8 +62,8 @@ const Navbar = () => {
           <Button color="inherit" component={Link} to="/Contract" sx={{ mr: 2 }}>
             Contract
           </Button>
-          <Button color="inherit" component={Link} to="/Test" sx={{ mr: 2 }}>
-            Test
+          <Button color="inherit" component={Link} to="/SearchForm" sx={{ mr: 2 }}>
+            Search Form
           </Button>
           {user ? (
             <>

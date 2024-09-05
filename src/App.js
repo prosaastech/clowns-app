@@ -8,6 +8,7 @@ import ProtectedRoute from './components/Utils/ProtectedRoute'; // Import the Pr
 import Test from './components/Test';
 import Customer from './components/Customer';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import SearchForm from './components/SearchForm';
 
 const App = () => {
     return (
@@ -40,6 +41,15 @@ const App = () => {
                         <ProtectedRoute>
                             <Navbar /> {/* Navbar will be displayed on the Contract page */}
                             <Customer />
+                         </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/SearchForm"
+                    element={
+                        <ProtectedRoute>
+                            <Navbar /> {/* Navbar will be displayed on the Contract page */}
+                            <SearchForm />
                          </ProtectedRoute>
                     }
                 />
