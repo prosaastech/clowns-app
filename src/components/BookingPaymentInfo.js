@@ -11,7 +11,7 @@ import CardHeader from '@mui/material/CardHeader';
 import InputMask from 'react-input-mask'; // Import react-input-mask
 import '../css/PaymentInfo.css'; // Import the CSS file
 
-const PaymentInfo = ({ formData, handleChange, cardOptions }) => {
+const PaymentInfo = ({ formData, handleChange, cardOptions,paymentOptions }) => {
   const [useAddress, setUseAddress] = useState(false);
   const [billingAddress, setBillingAddress] = useState(formData.address);
 console.log('cardoption' + cardOptions);
@@ -153,10 +153,12 @@ console.log('cardoption' + cardOptions);
           margin="normal"
           sx={{ width: '300px' }} // Adjust the width as needed
         >
-          <MenuItem value="Pending">Pending</MenuItem>
-          <MenuItem value="Completed">Completed</MenuItem>
-          <MenuItem value="Failed">Failed</MenuItem>
-        </TextField>
+          {paymentOptions.map((option) => (
+                <MenuItem key={option.value} value={option.paymentStatusId}>
+                  {option.paymentStatusName}
+                </MenuItem>
+              ))}
+         </TextField>
 
         <div className="address-checkbox">
           <FormControlLabel

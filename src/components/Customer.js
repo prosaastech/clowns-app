@@ -77,6 +77,7 @@ const CustomerForm = () => {
     subtract:0,
     totalBalance:0,
     selectedDate:selectedDate,
+    bookingPaymentInfoId:0,
     cardNumber1: '',
     cardType1: '',
     expirationDate1: '',
@@ -104,6 +105,7 @@ const CustomerForm = () => {
   const [relationships, setRelationships] = useState([]);
   const [otherRelationships, setOtherRelationships] = useState([]);
   const [cardOptions, setCardOptions] = useState([]);
+  const [paymentStatusOptions, setPaymentStatusOptions] = useState([]);
 
   useEffect(() => {
     // Fetch address types
@@ -139,6 +141,7 @@ const CustomerForm = () => {
     fetchDropdownData(config.apiBaseUrl + 'Relationships', setOtherRelationships);
     fetchDropdownData(config.apiBaseUrl + 'Teams', setTeams);
     fetchDropdownData(config.apiBaseUrl + 'CardOptions', setCardOptions);
+    fetchDropdownData(config.apiBaseUrl + 'PaymentStatus', setPaymentStatusOptions);
 
   }, []);
 
@@ -187,7 +190,17 @@ const CustomerForm = () => {
             return;
           }
         }
-
+        else if  (activeTab === 3)
+          {
+            const success = await saveBookingPaymentInfoData();
+            
+            // Only move to the next tab if the save was successful
+            if (success) {
+              //setActiveTab((prev) => Math.min(prev + 1, 3));
+              navigate('/dashboard'); 
+              return;
+            }
+          }
  
 
   };
@@ -478,6 +491,82 @@ const CustomerForm = () => {
 
     }
   };
+
+  const saveBookingPaymentInfoData = async () => {
+    const token = localStorage.getItem('token');
+  
+    try {
+      setIsLoading(true);
+
+   
+      // Parse numeric values to ensure no commas are included
+      const requestBody = {
+        customerId:formData.customerId,
+        contractId:formData.contractId,
+        bookingPaymentInfoId:parseInt(formData.bookingPaymentInfoId) || 0,
+        cardNumber:formData.cardNumber1,
+        cardTypeId:parseInt(formData.cardType1) || 0,
+        expireMonthYear:formData.expirationDate1,
+        cvv:formData.cvv1,
+        cardNumber2:formData.cardNumber2,
+        cardTypeId2:parseInt(formData.cardType2) || 0,
+        expireMonthYear2:formData.expirationDate2,
+        cvv2:formData.cvv2,
+        paymentStatusId:parseInt(formData.paymentStatus) || 0,
+        useAddress:false,//formData.useAddress,
+        billingAddress:formData.billingAddress
+       };
+  
+    console.log("Adding Booking PaymentInfo:", requestBody, null,2)
+      const response = await fetch(config.apiBaseUrl + 'ContractBookingPaymentInfoes/SaveBookingPaymentInfo', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`, // Include your Bearer token if needed
+        },
+        body: JSON.stringify(requestBody), // Send the form data as JSON
+      });
+  
+      if (!response.ok) {
+        throw new Error(`Failed to save data: ${response.statusText}`);
+      }
+  
+      const result = await response.json();
+  
+      let msg = formData.bookingPaymentInfoId != 0 ? "updated" : "added";
+  
+      
+  
+      showToast({
+        type: 'info',
+        message: "Booking payment info " + msg + " successfully!",
+      });
+      
+      // Save the packageInfoId in localStorage and update the state
+      localStorage.setItem('bookingPaymentInfoId', result.bookingPaymentInfoId);
+      setFormData(prevFormData => ({
+        ...prevFormData,
+        bookingPaymentInfoId: result.bookingPaymentInfoId
+      }));
+  
+      // Return true to indicate success
+      return true;
+    } catch (error) {
+      console.error("Error saving form data:", error);
+   
+      showToast({
+        type: 'error',
+        message: 'An error occurred while saving the data. Please try again.',
+      });
+      
+      // Return false to indicate failure
+      return false;
+    }
+    finally {
+      setIsLoading(false);
+
+    }
+  };
   
   const handlePrevious = () => {
     setActiveTab((prev) => Math.max(prev - 1, 0)); // Move to previous tab
@@ -498,21 +587,29 @@ const CustomerForm = () => {
     }
   };
   const handleSubmit = async () => {
-    const token = localStorage.getItem('token');
-    try {
-      const response = await fetch('SubmitForm', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify(formData),
-      });
-      if (!response.ok) throw new Error('Failed to submit form');
-      alert('Form submitted successfully!');
-    } catch (error) {
-      console.error('Error submitting form:', error);
-    }
+    // const token = localStorage.getItem('token');
+    // try {
+    //   const response = await fetch('SubmitForm', {
+    //     method: 'POST',
+    //     headers: {
+    //       'Content-Type': 'application/json',
+    //       'Authorization': `Bearer ${token}`,
+    //     },
+    //     body: JSON.stringify(formData),
+    //   });
+    //   if (!response.ok) throw new Error('Failed to submit form');
+    //   alert('Form submitted successfully!');
+    // } catch (error) {
+    //   console.error('Error submitting form:', error);
+    // }
+    const success = await saveBookingPaymentInfoData();
+            
+            // Only move to the next tab if the save was successful
+            if (success) {
+              //setActiveTab((prev) => Math.min(prev + 1, 3));
+              navigate('/dashboard'); 
+              return;
+            }
   };
 
   return (
@@ -806,7 +903,7 @@ const CustomerForm = () => {
       <div className={`tab-content ${activeTab === 3 ? 'active' : ''}`}>
         <h2>Booking & Payment Info</h2>
        <BookingPaymentInfo
-        formData={formData} handleChange={handleChange} cardOptions={cardOptions} 
+        formData={formData} handleChange={handleChange} cardOptions={cardOptions} paymentOptions={paymentStatusOptions}
         /> 
  
         <div className="form-buttons">
