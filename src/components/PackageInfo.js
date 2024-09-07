@@ -5,6 +5,7 @@ import AddonsTab from './AddonsTab';
 import BouncesTab from './BouncesTab';
 import ReviewTab from './ReviewTab';
 import '../css/PackageInfo.css';
+import config from './Utils/config'
 
 const PackageInfo = ({ formData, setFormData }) => {
   const [categories, setCategories] = useState([]);
@@ -42,11 +43,11 @@ const PackageInfo = ({ formData, setFormData }) => {
       }
     };
 
-    fetchDropdownData('http://localhost:5213/api/Categories', setCategories);
-    fetchDropdownData('http://localhost:5213/api/PartyPackages', setPackages);
-    fetchDropdownData('http://localhost:5213/api/Characters', setCharacters);
-    fetchDropdownData('http://localhost:5213/api/Addons', setAddons);
-    fetchDropdownData('http://localhost:5213/api/Bounces', setBounces);
+    fetchDropdownData(config.apiBaseUrl + 'Categories', setCategories);
+    fetchDropdownData(config.apiBaseUrl + 'PartyPackages', setPackages);
+    fetchDropdownData(config.apiBaseUrl + 'Characters', setCharacters);
+    fetchDropdownData(config.apiBaseUrl + 'Addons', setAddons);
+    fetchDropdownData(config.apiBaseUrl + 'Bounces', setBounces);
   }, []);
 
   const handleCategoryChange = (event) => {
