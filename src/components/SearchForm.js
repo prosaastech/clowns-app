@@ -1,47 +1,12 @@
-import React, { useState,useEffect } from 'react';
-import { TextField, Button, Grid, Checkbox, FormControlLabel, Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, MenuItem, Select, InputLabel, FormControl } from '@mui/material';
+import React, { useState, useEffect } from 'react';
+import {
+  Pagination,
+  Stack, TextField, Button, Grid, Checkbox, FormControlLabel, Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, MenuItem, Select, InputLabel, FormControl
+} from '@mui/material';
 import config from './Utils/config'
+import '../css/SearchForm.css'
 
 // Example data (can be replaced with actual search results from API)
-const exampleData = [
-  {
-    firstName: 'Marisa',
-    lastName: 'Kodos',
-    userId: '1',
-    contractNumber: '04112023N186766',
-    contractDate: '04/11/2023',
-    eventDate: '06/24/2023',
-    email: 'marisa.kodes@gmail.com',
-    state: 'NY',
-    city: 'Scarsdale',
-    partyPackage: 'Character Platinum Entertainment Package',
-    approval: 'No',
-    confirmation: 'Yes',
-    primaryHonoree: 'Marisa',
-    characters: 'Clown, Superhero',
-    bounces: 'Bounce House',
-    addOns: 'Extra Time',
-  },
-  {
-    firstName: 'Winnie',
-    lastName: 'Chan',
-    userId: '2',
-    contractNumber: '04112023N186765',
-    contractDate: '04/11/2023',
-    eventDate: '04/29/2023',
-    email: 'wdwedding2016@gmail.com',
-    state: 'NY',
-    city: 'Manhattan',
-    partyPackage: 'Princess Silver Entertainment Package',
-    approval: 'No',
-    confirmation: 'No',
-    primaryHonoree: 'Winnie',
-    characters: 'Princess',
-    bounces: 'None',
-    addOns: 'None',
-  },
-  // Add more rows as needed
-];
 
 const SearchForm = () => {
   const [searchData, setSearchData] = useState({
@@ -69,8 +34,10 @@ const SearchForm = () => {
   const [bounces, setBounces] = useState([]);
   const [addons, setAddons] = useState([]);
   const [paymentStatus, setPaymentStatus] = useState([]);
-  const [venue,setVenues] = useState([]);
-
+  const [venue, setVenues] = useState([]);
+  const [totalCount, setTotalCount] = useState(0); // To store total number of results
+  const [currentPage, setCurrentPage] = useState(1);
+  const rowsPerPage = 5;
   useEffect(() => {
     const fetchDropdownData = async (url, setter) => {
       const token = localStorage.getItem('token');
@@ -112,31 +79,46 @@ const SearchForm = () => {
 
   const [results, setResults] = useState([]); // To store API results
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handlePageChange = (event, page) => {
+    setCurrentPage(page);
+    console.log("Page:"+ page);
+    fetchSearchResults(page); // Fetch results for the new page
+  };
+  const paginatedResults = results.slice(
+    (currentPage - 1) * rowsPerPage,
+    currentPage * rowsPerPage
+  );  
+  const fetchSearchResults = async (page = 1) => {
     const token = localStorage.getItem('token');
+    const searchParams = {
+      ...searchData,
+      page,
+      pageSize: rowsPerPage,
+    };
+    if (searchParams.eventDate === '') searchParams.eventDate = '1009-01-01';
 
     try {
-      console.log("json:" + JSON.stringify(searchData));
-      const response = await fetch(`${config.apiBaseUrl}SearchContract/search`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify(searchData),
-      });
+        const response = await fetch(`${config.apiBaseUrl}SearchContract/search`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`,
+            },
+            body: JSON.stringify(searchParams),
+        });
 
-      if (!response.ok) {
-        throw new Error('Error fetching search results');
-      }
-
-      const data = await response.json();
-      console.log("search result:", data, null,2);
-      setResults(data); // Set the fetched data to state
+        if (!response.ok) throw new Error('Error fetching search results');
+        const data = await response.json();
+        setResults(data.data);
+        setTotalCount(data.totalCount);
     } catch (error) {
-      console.error('Error:', error);
+        console.error('Error:', error);
     }
+};
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    fetchSearchResults(); // Fetch results for the first page
   };
 
   const handleReset = () => {
@@ -152,14 +134,14 @@ const SearchForm = () => {
   };
 
   return (
-    <Box sx={{ p: 4 }}>
-        <h1>
-            Search Form
-        </h1>
-        <br></br>
+    <Box sx={{ p: 4 }} className="search-container">
+      <h1>
+        Search Form
+      </h1>
+      <br></br>
       {/* Search Form */}
       <form onSubmit={handleSubmit}>
-        <Grid container spacing={2}>
+        <Grid container spacing={2} className="form-grid">
           <Grid item xs={12} md={3}>
             <TextField
               label="First Name"
@@ -224,7 +206,7 @@ const SearchForm = () => {
               }}
             />
           </Grid>
-          <Grid item xs={12}>
+          <Grid item xs={12} className="advanced-search">
             <FormControlLabel
               control={
                 <Checkbox
@@ -239,8 +221,8 @@ const SearchForm = () => {
           {/* Advanced Search Fields */}
           {searchData.advancedSearch && (
             <>
-              <Grid item xs={12} md={3}>
-              <FormControl fullWidth variant="outlined">
+              <Grid item xs={12} md={3} className="advanced-search-section">
+                <FormControl fullWidth variant="outlined">
                   <InputLabel>State</InputLabel>
                   <Select
                     value={searchData.state}
@@ -256,7 +238,7 @@ const SearchForm = () => {
                   </Select>
                 </FormControl>
               </Grid>
-              <Grid item xs={12} md={3}>
+              <Grid item xs={12} md={3} className="advanced-search-section">
                 <TextField
                   label="City"
                   variant="outlined"
@@ -266,7 +248,7 @@ const SearchForm = () => {
                   onChange={handleInputChange}
                 />
               </Grid>
-              <Grid item xs={12} md={3}>
+              <Grid item xs={12} md={3} className="advanced-search-section">
                 <TextField
                   label="Primary Honoree"
                   variant="outlined"
@@ -276,8 +258,8 @@ const SearchForm = () => {
                   onChange={handleInputChange}
                 />
               </Grid>
-              <Grid item xs={12} md={3}>
-              <FormControl fullWidth variant="outlined">
+              <Grid item xs={12} md={3} className="advanced-search-section">
+                <FormControl fullWidth variant="outlined">
                   <InputLabel>Category</InputLabel>
                   <Select
                     value={searchData.category}
@@ -293,8 +275,8 @@ const SearchForm = () => {
                   </Select>
                 </FormControl>
               </Grid>
-              <Grid item xs={12} md={3}>
-              <FormControl fullWidth variant="outlined">
+              <Grid item xs={12} md={3} className="advanced-search-section">
+                <FormControl fullWidth variant="outlined">
                   <InputLabel>Party Package</InputLabel>
                   <Select
                     value={searchData.partyPackage}
@@ -310,8 +292,8 @@ const SearchForm = () => {
                   </Select>
                 </FormControl>
               </Grid>
-              <Grid item xs={12} md={3}>
-              <FormControl fullWidth variant="outlined">
+              <Grid item xs={12} md={3} className="advanced-search-section">
+                <FormControl fullWidth variant="outlined">
                   <InputLabel>Characters</InputLabel>
                   <Select
                     value={searchData.characters}
@@ -327,8 +309,8 @@ const SearchForm = () => {
                   </Select>
                 </FormControl>
               </Grid>
-              <Grid item xs={12} md={3}>
-              <FormControl fullWidth variant="outlined">
+              <Grid item xs={12} md={3} className="advanced-search-section">
+                <FormControl fullWidth variant="outlined">
                   <InputLabel>Bounces</InputLabel>
                   <Select
                     value={searchData.bounces}
@@ -344,8 +326,8 @@ const SearchForm = () => {
                   </Select>
                 </FormControl>
               </Grid>
-              <Grid item xs={12} md={3}>
-              <FormControl fullWidth variant="outlined">
+              <Grid item xs={12} md={3} className="advanced-search-section">
+                <FormControl fullWidth variant="outlined">
                   <InputLabel>Add-ons</InputLabel>
                   <Select
                     value={searchData.addOns}
@@ -361,8 +343,8 @@ const SearchForm = () => {
                   </Select>
                 </FormControl>
               </Grid>
-              <Grid item xs={12} md={3}>
-              <FormControl fullWidth variant="outlined">
+              <Grid item xs={12} md={3} className="advanced-search-section">
+                <FormControl fullWidth variant="outlined">
                   <InputLabel>Venus</InputLabel>
                   <Select
                     value={searchData.venue}
@@ -378,8 +360,8 @@ const SearchForm = () => {
                   </Select>
                 </FormControl>
               </Grid>
-              <Grid item xs={12} md={3}>
-              <FormControl fullWidth variant="outlined">
+              <Grid item xs={12} md={3} className="advanced-search-section">
+                <FormControl fullWidth variant="outlined">
                   <InputLabel>Payment Status</InputLabel>
                   <Select
                     value={searchData.paymentStatus}
@@ -395,7 +377,7 @@ const SearchForm = () => {
                   </Select>
                 </FormControl>
               </Grid>
-              <Grid item xs={12} md={3}>
+              <Grid item xs={12} md={3} className="advanced-search-section">
                 <TextField
                   label="Approval"
                   variant="outlined"
@@ -405,7 +387,7 @@ const SearchForm = () => {
                   onChange={handleInputChange}
                 />
               </Grid>
-              <Grid item xs={12} md={3}>
+              <Grid item xs={12} md={3} className="advanced-search-section">
                 <TextField
                   label="Confirmation"
                   variant="outlined"
@@ -428,55 +410,69 @@ const SearchForm = () => {
         </Box>
       </form>
 
-      {/* Results Table */}
-      <Box sx={{ mt: 4 }}>
-        <TableContainer component={Paper}>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>First Name</TableCell>
-                <TableCell>Last Name</TableCell>
-                <TableCell>User ID</TableCell>
-                <TableCell>Contract Number</TableCell>
-                <TableCell>Contract Date</TableCell>
-                <TableCell>Event Date</TableCell>
-                <TableCell>Email</TableCell>
-                <TableCell>State</TableCell>
-                <TableCell>City</TableCell>
-                <TableCell>Party Package</TableCell>
-                <TableCell>Approval</TableCell>
-                <TableCell>Confirmation</TableCell>
-                <TableCell>Primary Honoree</TableCell>
-                <TableCell>Characters</TableCell>
-                <TableCell>Bounces</TableCell>
-                <TableCell>Add-ons</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {results.map((row) => (
-                <TableRow key={row.userId}>
-                  <TableCell>{row.firstName}</TableCell>
-                  <TableCell>{row.lastName}</TableCell>
-                  <TableCell>{row.userId}</TableCell>
-                  <TableCell>{row.contractNumber}</TableCell>
-                  <TableCell>{row.contractDate}</TableCell>
-                  <TableCell>{row.eventDate}</TableCell>
-                  <TableCell>{row.email}</TableCell>
-                  <TableCell>{row.state}</TableCell>
-                  <TableCell>{row.city}</TableCell>
-                  <TableCell>{row.partyPackage}</TableCell>
-                  <TableCell>{row.approval}</TableCell>
-                  <TableCell>{row.confirmation}</TableCell>
-                  <TableCell>{row.primaryHonoree}</TableCell>
-                  <TableCell>{row.characters}</TableCell>
-                  <TableCell>{row.bounces}</TableCell>
-                  <TableCell>{row.addOns}</TableCell>
+      {/* Displaying Results */}
+      {results.length > 0 && (
+        <Box sx={{ mt: 4 }}>
+          <h2>Search Results</h2>
+          <TableContainer component={Paper}>
+            <Table>
+              <TableHead className="result-table">
+                <TableRow>
+                  <TableCell>First Name</TableCell>
+                  <TableCell>Last Name</TableCell>
+                  <TableCell>Contract Number</TableCell>
+                  <TableCell>Contract Date</TableCell>
+                  <TableCell>Event Date</TableCell>
+                  <TableCell>Email</TableCell>
+                  <TableCell>State</TableCell>
+                  <TableCell>City</TableCell>
+                  <TableCell>Party Package</TableCell>
+                  <TableCell>Approval</TableCell>
+                  <TableCell>Confirmation</TableCell>
+                  <TableCell>Primary Honoree</TableCell>
+                  <TableCell>Characters</TableCell>
+                  <TableCell>Bounces</TableCell>
+                  <TableCell>Add-ons</TableCell>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </Box>
+              </TableHead>
+              <TableBody>
+                {results.map((row) => (
+                  <TableRow key={row.userId}>
+                    <TableCell>{row.firstName}</TableCell>
+                    <TableCell>{row.lastName}</TableCell>
+                    <TableCell>{row.contractNumber}</TableCell>
+                    <TableCell>{row.contractDate}</TableCell>
+                    <TableCell>{row.eventDate}</TableCell>
+                    <TableCell>{row.emailAddress}</TableCell>
+                    <TableCell>{row.state}</TableCell>
+                    <TableCell>{row.city}</TableCell>
+                    <TableCell>{row.partyPackage}</TableCell>
+                    <TableCell>{row.approval}</TableCell>
+                    <TableCell>{row.confirmation}</TableCell>
+                    <TableCell>{row.primaryHonoree}</TableCell>
+                    <TableCell>{row.characters}</TableCell>
+                    <TableCell>{row.bounces}</TableCell>
+                    <TableCell>{row.addOns}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+
+          {/* Pagination */}
+
+          <Stack spacing={2} style={{ marginTop: '20px' }}>
+            <Pagination
+              className="pagination"
+
+              count={Math.ceil(totalCount / rowsPerPage)} // Total pages
+              page={currentPage}
+              onChange={handlePageChange}
+              color="primary"
+            />
+          </Stack>
+        </Box>
+      )}
     </Box>
   );
 };
