@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import {
   Pagination,
-  Stack, TextField, Button, Grid, Checkbox, FormControlLabel, Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, MenuItem, Select, InputLabel, FormControl
+  Stack,Typography, TextField, Button, Grid, Checkbox, FormControlLabel, Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, MenuItem, Select, InputLabel, FormControl
 } from '@mui/material';
 import config from './Utils/config'
 import '../css/SearchForm.css'
-
+import Loader from './Utils/loader'; // Import Loader component
+import ContractStatus from './ContractStatus'
 // Example data (can be replaced with actual search results from API)
 
 const SearchForm = () => {
@@ -18,13 +19,17 @@ const SearchForm = () => {
     eventDate: '',
     advancedSearch: false,
     state: 0,
+    city:'',
+    primaryHonoree:'',
     category: 0,
     partyPackage: 0,
     characters: 0,
     bounces: 0,
     addOns: 0,
     venue: 0,
-    paymentStatus: 0
+    paymentStatus: 0,
+    approval: false, // Added for checkbox
+    confirmation: false, // Added for checkbox
   });
 
   const [states, setStates] = useState([]);
@@ -37,11 +42,15 @@ const SearchForm = () => {
   const [venue, setVenues] = useState([]);
   const [totalCount, setTotalCount] = useState(0); // To store total number of results
   const [currentPage, setCurrentPage] = useState(1);
+  const [isLoading, setIsLoading] = useState(false); // Control loader visibility
+
+
   const rowsPerPage = 5;
   useEffect(() => {
     const fetchDropdownData = async (url, setter) => {
       const token = localStorage.getItem('token');
-      try {
+      setIsLoading(true);
+       try {
         const response = await fetch(url, {
           method: 'GET',
           headers: {
@@ -54,6 +63,9 @@ const SearchForm = () => {
         setter(data);
       } catch (error) {
         console.error(`Error fetching data from ${url}:`, error);
+      }
+      finally{
+        setIsLoading(false);
       }
     };
 
@@ -69,8 +81,8 @@ const SearchForm = () => {
   }, []);
 
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setSearchData({ ...searchData, [name]: value });
+    const { name, value, type, checked } = e.target;
+    setSearchData({ ...searchData, [name]: type === 'checkbox' ? checked : value });
   };
 
   const handleCheckboxChange = (e) => {
@@ -90,6 +102,7 @@ const SearchForm = () => {
   );  
   const fetchSearchResults = async (page = 1) => {
     const token = localStorage.getItem('token');
+    setIsLoading(true);
     const searchParams = {
       ...searchData,
       page,
@@ -114,6 +127,9 @@ const SearchForm = () => {
     } catch (error) {
         console.error('Error:', error);
     }
+    finally{
+      setIsLoading(false);
+    }
 };
 
   const handleSubmit = async (e) => {
@@ -134,7 +150,9 @@ const SearchForm = () => {
   };
 
   return (
-    <Box sx={{ p: 4 }} className="search-container">
+    <Box sx={{ p: 4 }} className="search-container">             
+    <Loader isLoading={isLoading} />
+
       <h1>
         Search Form
       </h1>
@@ -378,23 +396,29 @@ const SearchForm = () => {
                 </FormControl>
               </Grid>
               <Grid item xs={12} md={3} className="advanced-search-section">
-                <TextField
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={searchData.approval}
+                      onChange={handleInputChange}
+                      name="approval"
+                    />
+                  }
                   label="Approval"
-                  variant="outlined"
-                  fullWidth
-                  name="approval"
-                  value={searchData.approval}
-                  onChange={handleInputChange}
                 />
               </Grid>
+
+              {/* Checkbox for Confirmation */}
               <Grid item xs={12} md={3} className="advanced-search-section">
-                <TextField
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={searchData.confirmation}
+                      onChange={handleInputChange}
+                      name="confirmation"
+                    />
+                  }
                   label="Confirmation"
-                  variant="outlined"
-                  fullWidth
-                  name="confirmation"
-                  value={searchData.confirmation}
-                  onChange={handleInputChange}
                 />
               </Grid>
             </>
@@ -411,9 +435,12 @@ const SearchForm = () => {
       </form>
 
       {/* Displaying Results */}
+
       {results.length > 0 && (
-        <Box sx={{ mt: 4 }}>
-          <h2>Search Results</h2>
+        <>
+        <ContractStatus/>
+                <Box sx={{ mt: 4 }}>
+       <h2>Search Results</h2>
           <TableContainer component={Paper}>
             <Table>
               <TableHead className="result-table">
@@ -444,9 +471,9 @@ const SearchForm = () => {
                     <TableCell>{row.contractDate}</TableCell>
                     <TableCell>{row.eventDate}</TableCell>
                     <TableCell>{row.emailAddress}</TableCell>
-                    <TableCell>{row.state}</TableCell>
+                    <TableCell>{row.stateName}</TableCell>
                     <TableCell>{row.city}</TableCell>
-                    <TableCell>{row.partyPackage}</TableCell>
+                    <TableCell>{row.packageName}</TableCell>
                     <TableCell>{row.approval}</TableCell>
                     <TableCell>{row.confirmation}</TableCell>
                     <TableCell>{row.primaryHonoree}</TableCell>
@@ -472,7 +499,19 @@ const SearchForm = () => {
             />
           </Stack>
         </Box>
+
+
+        </>
+
       )}
+      {!results.length && (
+        <>
+                <ContractStatus/>
+
+  <Typography>No results found</Typography>
+  </>
+)}
+
     </Box>
   );
 };

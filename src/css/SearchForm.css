@@ -162,3 +162,23 @@ h1 {
     }
   }
   
+
+  .status-container {
+    display: flex;
+    align-items: center;
+    background-color: #d3e6c7; /* Light green background similar to the image */
+    padding: 10px;
+}
+
+.status-box {
+    width: 20px;
+    height: 20px;
+    margin-right: 5px;
+    border: 1px solid black; /* To match the image */
+}
+
+span {
+    margin-right: 15px;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+}
