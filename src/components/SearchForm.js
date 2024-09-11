@@ -148,7 +148,10 @@ const SearchForm = () => {
       advancedSearch: false,
     });
   };
-
+  const formatDate = (dateString) => {
+    const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
+    return new Intl.DateTimeFormat('en-US', options).format(new Date(dateString));
+  };
   return (
     <Box sx={{ p: 4 }} className="search-container">             
     <Loader isLoading={isLoading} />
@@ -441,50 +444,87 @@ const SearchForm = () => {
         <ContractStatus/>
                 <Box sx={{ mt: 4 }}>
        <h2>Search Results</h2>
-          <TableContainer component={Paper}>
-            <Table>
-              <TableHead className="result-table">
-                <TableRow>
-                  <TableCell>First Name</TableCell>
-                  <TableCell>Last Name</TableCell>
-                  <TableCell>Contract Number</TableCell>
-                  <TableCell>Contract Date</TableCell>
-                  <TableCell>Event Date</TableCell>
-                  <TableCell>Email</TableCell>
-                  <TableCell>State</TableCell>
-                  <TableCell>City</TableCell>
-                  <TableCell>Party Package</TableCell>
-                  <TableCell>Approval</TableCell>
-                  <TableCell>Confirmation</TableCell>
-                  <TableCell>Primary Honoree</TableCell>
-                  <TableCell>Characters</TableCell>
-                  <TableCell>Bounces</TableCell>
-                  <TableCell>Add-ons</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {results.map((row) => (
-                  <TableRow key={row.userId}>
-                    <TableCell>{row.firstName}</TableCell>
-                    <TableCell>{row.lastName}</TableCell>
-                    <TableCell>{row.contractNumber}</TableCell>
-                    <TableCell>{row.contractDate}</TableCell>
-                    <TableCell>{row.eventDate}</TableCell>
-                    <TableCell>{row.emailAddress}</TableCell>
-                    <TableCell>{row.stateName}</TableCell>
-                    <TableCell>{row.city}</TableCell>
-                    <TableCell>{row.packageName}</TableCell>
-                    <TableCell>{row.approval}</TableCell>
-                    <TableCell>{row.confirmation}</TableCell>
-                    <TableCell>{row.primaryHonoree}</TableCell>
-                    <TableCell>{row.characters}</TableCell>
-                    <TableCell>{row.bounces}</TableCell>
-                    <TableCell>{row.addOns}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
+       <TableContainer component={Paper}>
+  <Table>
+    <TableHead className="result-table">
+      <TableRow>
+        <TableCell>First Name</TableCell>
+        <TableCell>Last Name</TableCell>
+        <TableCell>Contract Number</TableCell>
+        <TableCell>Contract Date</TableCell>
+        <TableCell>Event Date</TableCell>
+        <TableCell>Email</TableCell>
+        <TableCell>State</TableCell>
+        <TableCell>City</TableCell>
+        <TableCell>Party Package</TableCell>
+        <TableCell>Approval</TableCell>
+        <TableCell>Confirmation</TableCell>
+        <TableCell>Primary Honoree</TableCell>
+        <TableCell>Characters</TableCell>
+        <TableCell>Bounces</TableCell>
+        <TableCell>Add-ons</TableCell>
+      </TableRow>
+    </TableHead>
+    <TableBody>
+      {results.map((row) => {
+        let backgroundColor = '';
+        let color = 'black';
+
+        switch (row.contractStatusId) {
+          case 1:
+            backgroundColor = 'green';
+            color='white;'
+            break;
+          case 2:
+            backgroundColor = 'lightblue';
+            break;
+          case 3:
+            backgroundColor = 'white';
+            break;
+          case 4:
+            backgroundColor = 'yellow';
+            break;
+          case 5:
+            backgroundColor = 'red';
+            color='white;'
+            break;
+          default:
+            backgroundColor = ''; // Default background color if ContractStatusId doesn't match
+        }
+
+        return (
+<TableRow
+  sx={{
+    backgroundColor: backgroundColor,
+    color: color,
+    fontWeight: 'bold',
+    // Add hover effect and other styles if necessary
+    '&:hover': {
+      backgroundColor: 'lightgray',
+    },
+  }}
+>            <TableCell sx={{color:color}}>{row.firstName}</TableCell>
+            <TableCell sx={{color:color}}>{row.lastName}</TableCell>
+            <TableCell sx={{color:color}}>{row.contractNumber}</TableCell>
+            <TableCell sx={{color:color}}>{formatDate(row.contractDate)}</TableCell>
+            <TableCell sx={{color:color}}>{formatDate(row.eventDate)}</TableCell>
+            <TableCell sx={{color:color}}>{row.emailAddress}</TableCell>
+            <TableCell sx={{color:color}}>{row.stateName}</TableCell>
+            <TableCell sx={{color:color}}>{row.city}</TableCell>
+            <TableCell sx={{color:color}}>{row.packageName}</TableCell>
+            <TableCell sx={{color:color}}>{row.approval ? 'Yes' : 'No'}</TableCell>
+            <TableCell sx={{color:color}}>{row.confirmation ? 'Yes' : 'No'}</TableCell>
+            <TableCell sx={{color:color}}>{row.primaryHonoree}</TableCell>
+            <TableCell sx={{color:color}}>{row.characters}</TableCell>
+            <TableCell sx={{color:color}}>{row.bounces}</TableCell>
+            <TableCell sx={{color:color}}>{row.addOns}</TableCell>
+          </TableRow>
+        );
+      })}
+    </TableBody>
+  </Table>
+</TableContainer>
+
 
           {/* Pagination */}
 
