@@ -19,6 +19,11 @@ const EventInfo = ({ formData, setFormData, states, teams, selectedTeam, time })
 
   // Convert 12-hour format to 24-hour format
   const convertTo24HourFormat = (time) => {
+
+    if (time === null || time === '' || time === undefined)
+      return '';
+
+    console.log('time' + time);
     const [timeString, modifier] = time.split(' ');
     let [hours, minutes] = timeString.split(':');
   

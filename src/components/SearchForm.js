@@ -8,6 +8,7 @@ import '../css/SearchForm.css'
 import Loader from './Utils/loader'; // Import Loader component
 import ContractStatus from './ContractStatus'
 // Example data (can be replaced with actual search results from API)
+import { useNavigate } from 'react-router-dom';
 
 const SearchForm = () => {
   const [searchData, setSearchData] = useState({
@@ -43,6 +44,7 @@ const SearchForm = () => {
   const [totalCount, setTotalCount] = useState(0); // To store total number of results
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false); // Control loader visibility
+  const navigate = useNavigate(); // Call useNavigate at the top level
 
 
   const rowsPerPage = 5;
@@ -146,6 +148,32 @@ const SearchForm = () => {
       customerPhone: '',
       eventDate: '',
       advancedSearch: false,
+    });
+  };
+  // const ClickOnCustomer = (customerId,contractId)=>{
+  //   //navigate(`/customer/${customerId}/contract/${contractId}`)
+  //   console.log(customerId + contractId);
+  // //   <navigate
+  // //   to="/Customer"
+  // //   state={{
+  // //     team: [],
+  // //     timeStart: '12:00 AM',
+  // //     timeEnd: '12:00 AM',
+  // //     selectedTeam: 0,
+  // //     selectedDate: Date
+  // //   }}
+  // // />
+  // };
+
+  const ClickOnCustomer = (customerId, contractId) => {
+    navigate(`/customer/${customerId}/contract/${contractId}`, {
+      state: {
+        team: [],
+        timeStart: '12:00 AM',
+        timeEnd: '12:00 AM',
+        selectedTeam: 0,
+        selectedDate: new Date()
+      }
     });
   };
   const formatDate = (dateString) => {
@@ -467,13 +495,15 @@ const SearchForm = () => {
     </TableHead>
     <TableBody>
       {results.map((row) => {
+       // const navigate = useNavigate();  // useNavigate hook
+
         let backgroundColor = '';
         let color = 'black';
 
         switch (row.contractStatusId) {
           case 1:
             backgroundColor = 'green';
-            color='white;'
+            color = 'white';
             break;
           case 2:
             backgroundColor = 'lightblue';
@@ -486,38 +516,41 @@ const SearchForm = () => {
             break;
           case 5:
             backgroundColor = 'red';
-            color='white;'
+            color = 'white';
             break;
           default:
             backgroundColor = ''; // Default background color if ContractStatusId doesn't match
         }
 
         return (
-<TableRow
-  sx={{
-    backgroundColor: backgroundColor,
-    color: color,
-    fontWeight: 'bold',
-    // Add hover effect and other styles if necessary
-    '&:hover': {
-      backgroundColor: 'lightgray',
-    },
-  }}
->            <TableCell sx={{color:color}}>{row.firstName}</TableCell>
-            <TableCell sx={{color:color}}>{row.lastName}</TableCell>
-            <TableCell sx={{color:color}}>{row.contractNumber}</TableCell>
-            <TableCell sx={{color:color}}>{formatDate(row.contractDate)}</TableCell>
-            <TableCell sx={{color:color}}>{formatDate(row.eventDate)}</TableCell>
-            <TableCell sx={{color:color}}>{row.emailAddress}</TableCell>
-            <TableCell sx={{color:color}}>{row.stateName}</TableCell>
-            <TableCell sx={{color:color}}>{row.city}</TableCell>
-            <TableCell sx={{color:color}}>{row.packageName}</TableCell>
-            <TableCell sx={{color:color}}>{row.approval ? 'Yes' : 'No'}</TableCell>
-            <TableCell sx={{color:color}}>{row.confirmation ? 'Yes' : 'No'}</TableCell>
-            <TableCell sx={{color:color}}>{row.primaryHonoree}</TableCell>
-            <TableCell sx={{color:color}}>{row.characters}</TableCell>
-            <TableCell sx={{color:color}}>{row.bounces}</TableCell>
-            <TableCell sx={{color:color}}>{row.addOns}</TableCell>
+          <TableRow
+            key={row.userId}
+            sx={{
+              backgroundColor: backgroundColor,
+              color: color,
+              fontWeight: 'bold',
+              cursor: 'pointer',  // Add cursor pointer to indicate clickability
+              '&:hover': {
+                backgroundColor: 'lightgray',
+              },
+            }}
+            onClick={() =>ClickOnCustomer(row.customerId,row.contractId)}  // Navigate to customer.js with row.userId
+          >
+            <TableCell sx={{ color: color }}>{row.firstName}</TableCell>
+            <TableCell sx={{ color: color }}>{row.lastName}</TableCell>
+            <TableCell sx={{ color: color }}>{row.contractNumber}</TableCell>
+            <TableCell sx={{ color: color }}>{formatDate(row.contractDate)}</TableCell>
+            <TableCell sx={{ color: color }}>{formatDate(row.eventDate)}</TableCell>
+            <TableCell sx={{ color: color }}>{row.emailAddress}</TableCell>
+            <TableCell sx={{ color: color }}>{row.stateName}</TableCell>
+            <TableCell sx={{ color: color }}>{row.city}</TableCell>
+            <TableCell sx={{ color: color }}>{row.packageName}</TableCell>
+            <TableCell sx={{ color: color }}>{row.approval ? 'Yes' : 'No'}</TableCell>
+            <TableCell sx={{ color: color }}>{row.confirmation ? 'Yes' : 'No'}</TableCell>
+            <TableCell sx={{ color: color }}>{row.primaryHonoree}</TableCell>
+            <TableCell sx={{ color: color }}>{row.characters}</TableCell>
+            <TableCell sx={{ color: color }}>{row.bounces}</TableCell>
+            <TableCell sx={{ color: color }}>{row.addOns}</TableCell>
           </TableRow>
         );
       })}

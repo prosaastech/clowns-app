@@ -36,7 +36,16 @@ const App = () => {
                     }
                 />
                 <Route
-                    path="/Customer"
+                    path="/customer/:customerId/contract/:contractId"
+                    element={
+                        <ProtectedRoute>
+                            <Navbar /> {/* Navbar will be displayed on the Contract page */}
+                            <Customer />
+                         </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/customer"
                     element={
                         <ProtectedRoute>
                             <Navbar /> {/* Navbar will be displayed on the Contract page */}
