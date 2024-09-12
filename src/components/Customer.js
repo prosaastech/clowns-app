@@ -97,6 +97,31 @@ const CustomerForm = () => {
  
  useEffect(() => {
   if (customerId > 0) {
+    const fetchDropdownData = async (url, setter) => {
+      const token = localStorage.getItem('token');
+      try {
+        setIsLoading(true);
+  
+        const response = await fetch(url, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+        if (!response.ok) throw new Error('Failed to fetch data');
+        const data = await response.json();
+        console.log("formData:" ,data,null,2);
+
+
+        setter(data);
+      } catch (error) {
+        console.error(`Error fetching data from ${url}:`, error);
+      } finally {
+        setIsLoading(false);
+  
+      }
+    };
     // Use backticks for template literals
     fetchDropdownData(`${config.apiBaseUrl}ContractTimeTeamInfoes/getContractData?CustomerId=${customerId}&contractId=${contractId}`, setFormData);
   }
@@ -116,31 +141,32 @@ const CustomerForm = () => {
   const [cardOptions, setCardOptions] = useState([]);
   const [paymentStatusOptions, setPaymentStatusOptions] = useState([]);
 
-  const fetchDropdownData = async (url, setter) => {
-    const token = localStorage.getItem('token');
-    try {
-      setIsLoading(true);
 
-      const response = await fetch(url, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-      });
-      if (!response.ok) throw new Error('Failed to fetch data');
-      const data = await response.json();
-      setter(data);
-    } catch (error) {
-      console.error(`Error fetching data from ${url}:`, error);
-    } finally {
-      setIsLoading(false);
-
-    }
-  };
   useEffect(() => {
     // Fetch address types
-   
+    const fetchDropdownData = async (url, setter) => {
+      const token = localStorage.getItem('token');
+      try {
+        setIsLoading(true);
+  
+        const response = await fetch(url, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+        if (!response.ok) throw new Error('Failed to fetch data');
+        const data = await response.json();
+      //  console.log("formData:",data,null,2);
+        setter(data);
+      } catch (error) {
+        console.error(`Error fetching data from ${url}:`, error);
+      } finally {
+        setIsLoading(false);
+  
+      }
+    };
 
     fetchDropdownData(config.apiBaseUrl + 'AddressTypes', setAddressTypes);
     fetchDropdownData(config.apiBaseUrl + 'States', setStates);

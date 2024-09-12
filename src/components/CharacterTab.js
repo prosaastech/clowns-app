@@ -36,14 +36,23 @@ const CharacterTab = ({ characters, formData, setFormData }) => {
       price: selectedPrice,
     };
 
+    // setFormData(prev => ({
+    //   ...prev,
+    //   characters: editIndex === null
+    //     ? [...(prev.characters || []), newCharacter]
+    //     : prev.characters.map((char, index) =>
+    //         index === editIndex ? newCharacter : char
+    //       ),
+    // }));
     setFormData(prev => ({
       ...prev,
       characters: editIndex === null
-        ? [...(prev.characters || []), newCharacter]
+        ? [...(prev.characters || []), newCharacter] // Safely handle undefined characters array
         : prev.characters.map((char, index) =>
             index === editIndex ? newCharacter : char
           ),
     }));
+
 
     setSelectedCharacter('');
     setSelectedPrice('');
@@ -79,7 +88,7 @@ const CharacterTab = ({ characters, formData, setFormData }) => {
               <MenuItem
                 key={char.characterId}
                 value={char.characterId}
-                disabled={formData.characters.some(c => c.characterId === char.characterId && c.characterId !== selectedCharacter)}
+                disabled={formData.characters?.some(c => c.characterId === char.characterId && c.characterId !== selectedCharacter)}
               >
                 {char.characterName}
               </MenuItem>
