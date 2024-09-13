@@ -78,7 +78,7 @@ const AddonTab = ({ addons, formData, setFormData }) => {
               <MenuItem
                 key={char.addonId}
                 value={char.addonId}
-                disabled={formData.addons.some(c => c.addonId === char.addonId && c.addonId !== selectedAddon)}
+                disabled={formData.addons?.some(c => c.addonId === char.addonId && c.addonId !== selectedAddon)}
               >
                 {char.addonName}
               </MenuItem>
