@@ -97,7 +97,7 @@ const CustomerForm = () => {
  
  useEffect(() => {
   if (customerId > 0) {
-    const fetchDropdownData = async (url, setter) => {
+    const fetchData = async (url, setter) => {
       const token = localStorage.getItem('token');
       try {
         setIsLoading(true);
@@ -111,19 +111,20 @@ const CustomerForm = () => {
         });
         if (!response.ok) throw new Error('Failed to fetch data');
         const data = await response.json();
-        console.log("formData:" ,data,null,2);
+        //console.log("formData:" ,data,null,2);
 
 
         setter(data);
+        setIsLoading(false);
       } catch (error) {
         console.error(`Error fetching data from ${url}:`, error);
       } finally {
-        setIsLoading(false);
+        
   
       }
     };
     // Use backticks for template literals
-    fetchDropdownData(`${config.apiBaseUrl}ContractTimeTeamInfoes/getContractData?CustomerId=${customerId}&contractId=${contractId}`, setFormData);
+    fetchData(`${config.apiBaseUrl}ContractTimeTeamInfoes/getContractData?CustomerId=${customerId}&contractId=${contractId}`, setFormData);
   }
 }, [contractId, customerId]);
 

@@ -46,7 +46,7 @@ const SearchForm = () => {
   const [isLoading, setIsLoading] = useState(false); // Control loader visibility
   const navigate = useNavigate(); // Call useNavigate at the top level
 
-
+  
   const rowsPerPage = 5;
   useEffect(() => {
     const fetchDropdownData = async (url, setter) => {

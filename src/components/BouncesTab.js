@@ -78,7 +78,7 @@ const BounceTab = ({ bounces, formData, setFormData }) => {
               <MenuItem
                 key={char.bounceId}
                 value={char.bounceId}
-                disabled={formData.bounces.some(c => c.bounceId === char.bounceId && c.bounceId !== selectedBounce)}
+                disabled={formData.bounces?.some(c => c.bounceId === char.bounceId && c.bounceId !== selectedBounce)}
               >
                 {char.bounceName}
               </MenuItem>
