@@ -10,8 +10,15 @@ import InputMask from 'react-input-mask'; // Import react-input-mask
 import '../css/PaymentInfo.css'; // Import the CSS file
 
 const PaymentInfo = ({ formData, handleChange, cardOptions, paymentOptions, setFormData }) => {
-  const [useAddress, setUseAddress] = useState(false);
-  const [billingAddress, setBillingAddress] = useState(formData.address);
+  const [useAddress, setUseAddress] = useState(formData.useAddress);
+  const [billingAddress, setBillingAddress] = useState(formData.billingAddress);
+
+  useEffect(() => {
+    if (formData) {
+      setUseAddress(formData.useAddress || false);
+      setBillingAddress(formData.billingAddress || '');
+    }
+  }, [formData]);
 
   useEffect(() => {
     // Update billingAddress if useAddress is checked and formData.address changes
@@ -30,6 +37,10 @@ const PaymentInfo = ({ formData, handleChange, cardOptions, paymentOptions, setF
     });
 
     if (event.target.checked) {
+      // setFormData((prev) => {
+      //   const updatedFormData = { ...prev, [billingAddress]: formData.address };
+      //   return updatedFormData;
+      // });
       setBillingAddress(formData.address);
     } else {
       setBillingAddress('');

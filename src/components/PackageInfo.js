@@ -21,7 +21,7 @@ const PackageInfo = ({ formData, setFormData }) => {
       ...prev,
       totalBalance,
     }));
-  }, [formData.characters, formData.addons, formData.bounces, formData.price, formData.tax, formData.tip, formData.parkingFees, formData.tollFees, formData.deposit]);
+  }, [formData.characters, formData.addons, formData.bounces, formData.price, formData.tax, formData.tip, formData.parkingFees, formData.tollFees, formData.deposit, formData.subtract, formData.tip2]);
 
 
   useEffect(() => {
@@ -103,12 +103,30 @@ const PackageInfo = ({ formData, setFormData }) => {
     return new Intl.NumberFormat().format(Number(numericValue));
   };
 
+  // const unformatNumber = (formattedValue) => {
+  //   if (typeof formattedValue !== 'string') return '';
+  //   return formattedValue.replace(/,/g, '');
+  // };
   const unformatNumber = (formattedValue) => {
-    if (typeof formattedValue !== 'string') return '';
-    return formattedValue.replace(/,/g, '');
+    if (typeof formattedValue === 'number') {
+      return formattedValue;  // If it's already a number, return it as is
+    }
+  
+    if (typeof formattedValue !== 'string') {
+      return '';  // Return empty string for invalid input
+    }
+  
+    const unformattedValue = formattedValue.replace(/,/g, '');
+    
+    // Convert the unformatted string back to a number
+    const result = parseFloat(unformattedValue);
+  
+    return isNaN(result) ? '' : result;  // Return the number or empty string if invalid
   };
+  
 
   const calculateTotalBalance = () => {
+    console.log("Call calculateTotalBalance");
     const characterTotal = (formData.characters || []).reduce((sum, item) => {
       const id = typeof item === 'object' ? item.characterId : item;
       const character = characters.find(c => c.characterId === id);
@@ -135,6 +153,7 @@ const PackageInfo = ({ formData, setFormData }) => {
       Number(unformatNumber(formData.tip2) || 0) +
       Number(unformatNumber(formData.tollFees) || 0);
   
+      console.log(`price:${unformatNumber(formData.price)}, tax:${formData.tax},tip:${formData.tip},parkingFees:${formData.parkingFees},tip2:${formData.tip2},tollFees:${formData.tollFees}`)
     const deductions = 
       Number(formData.deposit || 0) +
       Number(formData.subtract || 0);

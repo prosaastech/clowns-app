@@ -97,8 +97,8 @@ const handleFieldChange = (field) => (event) => {
         <Grid item xs={12} md={4}>
           <TextField
             label="Tip"
-            value={formData.Tip2 || ''}
-            onChange={handleFieldChange('Tip2')}
+            value={formData.tip2 || ''}
+            onChange={handleFieldChange('tip2')}
             fullWidth
             sx={{
               '& .MuiInputBase-input': {

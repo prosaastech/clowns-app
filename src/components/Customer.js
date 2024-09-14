@@ -113,11 +113,9 @@ const CustomerForm = () => {
         if (!response.ok) throw new Error('Failed to fetch data');
         const data = await response.json();
         //console.log("formData:" ,data,null,2);
-
-
-        setter(data);
+         setter(data);
         setIsLoading(false);
-      } catch (error) {
+       } catch (error) {
         console.error(`Error fetching data from ${url}:`, error);
       } finally {
         
@@ -198,6 +196,8 @@ const CustomerForm = () => {
 
   const handleNext = async () => {
     // Attempt to save the form data
+    console.log(`search data2:`,formData,null,2);
+
     if (activeTab === 0)
     {
         const success = await saveCustomerData();
