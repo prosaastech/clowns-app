@@ -92,6 +92,7 @@ const CustomerForm = () => {
     paymentStatus: '',
     address: '',
     billingAddress: '',
+    useAddress:false
   });
  
  
