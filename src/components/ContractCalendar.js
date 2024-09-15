@@ -17,6 +17,13 @@ const ContractCalendar = () => {
   const [timeSlots, setTimeSlots] = useState([]);
   const [selectedDate, setSelectedDate] = useState('2024-08-12'); // Default date
   const [navigateToCustomer, setNavigateToCustomer] = useState(false); // New state for navigation
+  const [navigateToCustomerEdit, setNavigateToCustomerEdit] = useState(false); // New state for navigation
+
+  const [contractData, setContractData] = useState({
+    contractId: 0,
+    customerId: 0
+  });
+
   const [isLoading, setIsLoading] = useState(false); // Control loader visibility
 
   useEffect(() => {
@@ -90,19 +97,38 @@ const ContractCalendar = () => {
 
         const result = await response.json();
         const data = result.contracts || [];
-
+        console.log("Data of Contract:", data,null,2);
         // Map the fetched data to the selected ranges
         const ranges = data.reduce((acc, contract) => {
-          const { teamNo, time } = contract;
+          const { teamNo, time, customerId, contractId } = contract;
           if (teamNo && time) {
             acc[teamNo] = acc[teamNo] || [];
             if (!acc[teamNo].includes(time)) {
               //console.log(time);
-              acc[teamNo].push(time);
+              acc[teamNo].push(time,customerId,contractId);
             }
           }
           return acc;
         }, {});
+
+        // const ranges = data.reduce((acc, contract) => {
+        //   const { teamNo, time, customerId, contractId } = contract;
+        //   console.log({ teamNo, time, customerId, contractId }); // Debugging
+        //   if (teamNo && time) {
+        //     acc[teamNo] = acc[teamNo] || [];
+        //     if (!acc[teamNo].includes(time)) {
+
+        //     acc[teamNo].push({
+        //       time,        // Store the time
+        //       customerId,  // Store customerId
+        //       contractId   // Store contractId
+        //     });
+        //   }
+        //   }
+        //   return acc;
+        // }, {});
+        
+         
 
         setSelectedRanges(ranges);
       } catch (error) {
@@ -175,11 +201,51 @@ const ContractCalendar = () => {
       //console.log('MouseOver - Active Selection:', { ...activeSelection });
 
       setNavigateToCustomer(true); // Trigger navigation
-    }
+    } 
+    else if (action === 'EditContract') {
+      console.log('edit call1:', selectedRanges[contextMenu.team]);
 
+      const selectedRange = selectedRanges[contextMenu.team]?.find(
+        range => range[0] && contextMenu?.time && 
+                 normalizeTime(range[0]) === normalizeTime(contextMenu.time)[0]
+      );
+    
+      const customerId = selectedRanges[contextMenu.team]?.[1] || 0;
+      const contractId = selectedRanges[contextMenu.team]?.[2] || 0;
+      
+      setContractData(prevData => ({
+        ...prevData,
+        contractId: contractId,
+        customerId: customerId
+      }));
+      
+      // console.log('selectedRange:', selectedRange);
+      // console.log(`CustomerId:${customerId}:ContractId:${contractId}`);
+      setNavigateToCustomerEdit(true);
+     
+    }
+    
+    
     setAnchorEl(null);
   };
-
+  const normalizeTime = (timeStr) => {
+    if (!timeStr) {
+      return null; // Return null or handle it based on your logic
+    }
+    
+    const [time, modifier] = timeStr.split(' ');
+    let [hours, minutes] = time.split(':');
+    
+    if (modifier === 'PM' && hours !== '12') {
+      hours = parseInt(hours, 10) + 12;
+    }
+    if (modifier === 'AM' && hours === '12') {
+      hours = '00';
+    }
+  
+    return `${hours}:${minutes}`;
+  };
+  
   useEffect(() => {
     const handleMouseMove = (event) => {
       if (dragging) {
@@ -240,7 +306,26 @@ const ContractCalendar = () => {
       />
     );
   }
-  
+
+  if (navigateToCustomerEdit) {
+   
+  console.log(`accessing before navigate: ${contractData.customerId}:${contractData.contractId}`)
+    return (
+      <Navigate
+        to="/Customer"
+        state={{
+          team: contextMenu.team,
+          timeStart: finalSelection?.start,
+          timeEnd: finalSelection?.end,
+          selectedTeam: contextMenu.team,
+          selectedDate: selectedDate,
+          newCustomerId: contractData.customerId,
+          newContractId: contractData.contractId
+        }}
+      />
+    );
+    
+  }
   return (
     <Box>
               <Loader isLoading={isLoading} />
@@ -296,6 +381,7 @@ const ContractCalendar = () => {
           onClose={() => setAnchorEl(null)}
         >
           <MenuItem onClick={() => handleMenuClick('CreateContract')}>Create Contract</MenuItem>
+          <MenuItem onClick={() => handleMenuClick('EditContract')}>Edit Contract</MenuItem>
           <MenuItem onClick={() => handleMenuClick('cancel')}>Cancel</MenuItem>
         </Menu>
       </TableContainer>

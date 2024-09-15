@@ -18,12 +18,33 @@ import { useNavigate,useParams } from 'react-router-dom';
 
 const CustomerForm = () => {
   const location = useLocation();
-  const { team, timeStart, timeEnd, selectedTeam, selectedDate } = location.state || {}; // Destructure the values from location state
+  const { team, timeStart, timeEnd, selectedTeam, selectedDate,newCustomerId,newContractId } = location.state || {}; // Destructure the values from location state
   const [isLoading, setIsLoading] = useState(false); // Control loader visibility
   const navigate = useNavigate(); // Used to redirect to the dashboard
-  const { customerId, contractId } = useParams();
+  const { customerId: paramCustomerId, contractId: paramContractId } = useParams();
+  
+  console.log('URL Params:', { paramCustomerId, paramContractId });
+  console.log('Props:', { newCustomerId, newContractId });
 
-  console.log(`CustomerId: ${customerId}, ContractId: ${contractId}`);
+  // Initialize state from URL params or props
+  const [customerId, setCustomerId] = useState(paramCustomerId || newCustomerId || '');
+  const [contractId, setContractId] = useState(paramContractId || newContractId || '');
+
+  useEffect(() => {
+    // Log state values before setting them
+    console.log('Before Update - CustomerId:', customerId, 'ContractId:', contractId);
+
+    // Update state if newCustomerId or newContractId are available and different from current state
+    if (newCustomerId && newCustomerId !== customerId) {
+      setCustomerId(newCustomerId);
+    }
+    if (newContractId && newContractId !== contractId) {
+      setContractId(newContractId);
+    }
+
+    // Log updated state values
+    console.log('Updated - CustomerId:', customerId, 'ContractId:', contractId);
+  }, [newCustomerId, newContractId, customerId, contractId]);
 
   const [activeTab, setActiveTab] = useState(0);
   const [formData, setFormData] = useState({
