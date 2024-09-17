@@ -75,10 +75,7 @@ const handleFieldChange = (field) => (event) => {
         </div>
       </div>
 
-      <div className="total-balance">
-        <h4>Total Balance:${calculateTotalBalance()}</h4>
-         
-      </div>
+     
     </div>
     <Grid container spacing={2} mt={2}>
         <Grid item xs={12} md={4}>
@@ -94,7 +91,7 @@ const handleFieldChange = (field) => (event) => {
             }}
           />
         </Grid>
-        <Grid item xs={12} md={4}>
+        {/* <Grid item xs={12} md={4}>
           <TextField
             label="Tip"
             value={formData.tip2 || ''}
@@ -106,7 +103,7 @@ const handleFieldChange = (field) => (event) => {
               },
             }}
           />
-        </Grid>
+        </Grid> */}
         <Grid item xs={12} md={4}>
           <TextField
             label="Toll Fees"
@@ -147,7 +144,7 @@ const handleFieldChange = (field) => (event) => {
           />
         </Grid>
         <Grid item xs={12} md={4}>
-          <TextField
+          {/* <TextField
             label="Total Balance"
             value={calculateTotalBalance() || ''}
             onChange={handleFieldChange('totalBalance')}
@@ -156,7 +153,11 @@ const handleFieldChange = (field) => (event) => {
               style: { textAlign: 'right' },
             }}
             fullWidth
-          />
+          /> */}
+           <div className="total-balance">
+        <h4>Total Balance:${calculateTotalBalance()}</h4>
+         
+      </div>
         </Grid>
       </Grid>
 </>
