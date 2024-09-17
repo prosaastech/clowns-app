@@ -60,6 +60,11 @@ export default function Login() {
     }
   };
 
+  const handleFocus = (e) => {
+    e.target.value = '';
+  };
+  
+
   return (
     <div className='login-container'>
         <Loader isLoading={isLoading} />
@@ -90,10 +95,17 @@ export default function Login() {
           onChange={(e) => setUsername(e.target.value)}
           InputProps={{
             startAdornment: (
-              <InputAdornment position="start">
-                <PersonIcon />
+              <InputAdornment position="center"              
+               sx={{ display: 'flex', width:'65px'}}>
+                <PersonIcon sx={{ paddingLeft: '5px', width:'40px' }} />
+
               </InputAdornment>
             ),
+            sx: {
+              '& input': {
+                paddingLeft: '10px', // Add padding inside the text input field
+              },
+            },
           }}
         />
         <FormControl sx={{ m: 1, width: '100%' }} variant="outlined">
@@ -103,17 +115,25 @@ export default function Login() {
             type={showPassword ? 'text' : 'password'}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            endAdornment={
-              <InputAdornment position="end">
+            onFocus={handleFocus} // Clear value on focus
+            startAdornment={
+              <InputAdornment position="center"
+              sx={{ display: 'flex', alignItems: 'left', width:'65px'}}>
                 <IconButton
                   aria-label="toggle password visibility"
                   edge="end"
                   onClick={handleClickShowPassword}
-                >
+ 
+ >
                   {showPassword ? <VisibilityOff /> : <Visibility />}
                 </IconButton>
               </InputAdornment>
             }
+            sx={{
+              '& input': {
+                paddingLeft: '10px', // Adjust padding for the text input inside the field
+              },
+            }}
             label="Password"
           />
         </FormControl>

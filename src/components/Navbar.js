@@ -5,6 +5,7 @@ import { Link, useNavigate } from 'react-router-dom'; // Import useNavigate
 import Logo from '../Images/bg.jpg'; // Import your logo
 import { getUserFromToken } from './Utils/authUtils'; // Import the named export
 import config from './Utils/config'
+import AccountCircle from '@mui/icons-material/AccountCircle'; // Import the user icon
 
 const Navbar = () => {
   const navigate = useNavigate(); // Initialize useNavigate
@@ -67,9 +68,14 @@ const Navbar = () => {
           </Button>
           {user ? (
             <>
-              <Button color="inherit" onClick={handleMenuClick} sx={{ mr: 2 }}>
-                {user}
-              </Button>
+              <IconButton
+                color="inherit"
+                onClick={handleMenuClick}
+                sx={{ display: 'flex', alignItems: 'center' }}
+              >
+                <AccountCircle sx={{ mr: 1 }} /> {/* User icon next to the username */}
+                <Typography>{user}</Typography> {/* Display username */}
+              </IconButton>
               <Menu
                 anchorEl={anchorEl}
                 open={Boolean(anchorEl)}
