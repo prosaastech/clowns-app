@@ -9,7 +9,7 @@ import CardHeader from '@mui/material/CardHeader';
 import InputMask from 'react-input-mask'; // Import react-input-mask
 import '../css/PaymentInfo.css'; // Import the CSS file
 
-const PaymentInfo = ({ formData, handleChange, cardOptions, paymentOptions, setFormData }) => {
+const PaymentInfo = ({ formData, handleChange, cardOptions, paymentOptions,contractStatusOptions, setFormData }) => {
   const [useAddress, setUseAddress] = useState(formData.useAddress);
   const [billingAddress, setBillingAddress] = useState(formData.billingAddress);
 
@@ -25,6 +25,10 @@ const PaymentInfo = ({ formData, handleChange, cardOptions, paymentOptions, setF
     if (useAddress) {
       setBillingAddress(formData.address);
     }
+    setFormData(prevFormData => ({
+      ...prevFormData,
+      billingAddress: billingAddress
+    }));
   }, [formData.address, useAddress]);
 
   const handleCheckboxChange = (event) => {
@@ -49,6 +53,10 @@ const PaymentInfo = ({ formData, handleChange, cardOptions, paymentOptions, setF
 
   const handleBillingAddressChange = (event) => {
     setBillingAddress(event.target.value);
+    setFormData(prevFormData => ({
+      ...prevFormData,
+      billingAddress: billingAddress
+    }));
     handleChange(event);
   };
 
@@ -212,7 +220,21 @@ const PaymentInfo = ({ formData, handleChange, cardOptions, paymentOptions, setF
             </MenuItem>
           ))}
         </TextField>
-
+        <TextField
+          select
+          label="Contract Status"
+          name="contractStatusId"
+          value={formData.contractStatusId}
+          onChange={handleChange}
+          margin="normal"
+          sx={{ width: '500px' }} // Adjust the width as needed
+        >
+          {contractStatusOptions.map((option) => (
+            <MenuItem key={option.value} value={option.contractStatusId}>
+              {option.contractStatusName}
+            </MenuItem>
+          ))}
+        </TextField>
         <div className="address-checkbox">
           <FormControlLabel
             control={

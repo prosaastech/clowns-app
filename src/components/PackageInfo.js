@@ -155,8 +155,8 @@ const PackageInfo = ({ formData, setFormData }) => {
   
       console.log(`price:${unformatNumber(formData.price)}, tax:${formData.tax},tip:${formData.tip},parkingFees:${formData.parkingFees},tip2:${formData.tip2},tollFees:${formData.tollFees}`)
     const deductions = 
-      Number(formData.deposit || 0) +
-      Number(formData.subtract || 0);
+      Number(unformatNumber(formData.deposit) || 0) +
+      Number(unformatNumber(formData.subtract) || 0);
   
     const totalBalance = characterTotal + addonTotal + bounceTotal + additionalFees - deductions;
     

@@ -145,13 +145,15 @@ const EventInfo = ({ formData, setFormData, states, teams, selectedTeam, time })
             label="Party End Time"
             name="eventInfoPartyEndTime"
             type="time"
-            placeholder="HH:MM AM/PM"
             value={convertTo24HourFormat(formData.eventInfoPartyEndTime) || ''}
             onChange={(e) => setFormData(prev => ({
               ...prev,
               eventInfoPartyEndTime: convertTo24HourFormat(e.target.value)
             }))}
             fullWidth
+            InputLabelProps={{
+              shrink: true,
+            }}
           />
         </div>
         <div className="col-md-3 col-sm-12">

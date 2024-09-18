@@ -15,7 +15,8 @@ const ContractCalendar = () => {
   const [contextMenu, setContextMenu] = useState({ time: null, team: null });
   const [teams, setTeams] = useState([]);
   const [timeSlots, setTimeSlots] = useState([]);
-  const [selectedDate, setSelectedDate] = useState('2024-08-12'); // Default date
+  // const [selectedDate, setSelectedDate] = useState('2024-08-12'); // Default date
+  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]); // Default date is the current date
   const [navigateToCustomer, setNavigateToCustomer] = useState(false); // New state for navigation
   const [navigateToCustomerEdit, setNavigateToCustomerEdit] = useState(false); // New state for navigation
 

@@ -110,10 +110,12 @@ const CustomerForm = () => {
     cardType2: '',
     expirationDate2: '',
     cvv2: '',
-    paymentStatus: '',
+    paymentStatus: 0,
     address: '',
     billingAddress: '',
-    useAddress:false
+    useAddress:false,
+    contractStatusId: '',
+
   });
  
  
@@ -161,6 +163,7 @@ const CustomerForm = () => {
   const [otherRelationships, setOtherRelationships] = useState([]);
   const [cardOptions, setCardOptions] = useState([]);
   const [paymentStatusOptions, setPaymentStatusOptions] = useState([]);
+  const [contractStatusOptions, setContractStatusOptions] = useState([]);
 
 
   useEffect(() => {
@@ -199,6 +202,7 @@ const CustomerForm = () => {
     fetchDropdownData(config.apiBaseUrl + 'Teams', setTeams);
     fetchDropdownData(config.apiBaseUrl + 'CardOptions', setCardOptions);
     fetchDropdownData(config.apiBaseUrl + 'PaymentStatus', setPaymentStatusOptions);
+    fetchDropdownData(config.apiBaseUrl + 'ContractStatus', setContractStatusOptions);
 
   }, []);
 
@@ -271,7 +275,9 @@ const CustomerForm = () => {
   const saveEventData = async () => {
     const token = localStorage.getItem('token');
 
-    if (formData.eventInfoEventDate == '') {
+console.log('formData EventInfo:', formData,null,2);
+
+    if (formData.eventInfoEventDate === '' || formData.eventInfoEventDate === null) {
     
       showToast({
         type: 'error',
@@ -279,6 +285,33 @@ const CustomerForm = () => {
       });
       return false; // Return false to prevent moving to the next tab
     }
+
+    if (formData.eventInfoPartyStartTime === '' || formData.eventInfoPartyStartTime === null) {
+    
+      showToast({
+        type: 'error',
+        message: 'Invalid Party Start Time.',
+      });
+      return false; // Return false to prevent moving to the next tab
+    }
+
+    if (formData.eventInfoPartyEndTime === '' || formData.eventInfoPartyEndTime === null) {
+    
+      showToast({
+        type: 'error',
+        message: 'Invalid Party End Time.',
+      });
+      return false; // Return false to prevent moving to the next tab
+    }
+    if (formData.eventInfoTeamAssigned === 0 || formData.eventInfoTeamAssigned === null) {
+    
+      showToast({
+        type: 'error',
+        message: 'Invalid Team Assigned.',
+      });
+      return false; // Return false to prevent moving to the next tab
+    }
+
 
     try {
       // Make the API call to save the form data
@@ -964,7 +997,7 @@ const CustomerForm = () => {
       <div className={`tab-content ${activeTab === 3 ? 'active' : ''}`}>
         <h2>Booking & Payment Info</h2>
        <BookingPaymentInfo
-        formData={formData} handleChange={handleChange} cardOptions={cardOptions} paymentOptions={paymentStatusOptions}
+        formData={formData} handleChange={handleChange} cardOptions={cardOptions} paymentOptions={paymentStatusOptions} contractStatusOptions={contractStatusOptions}
         setFormData={setFormData}
         /> 
  
