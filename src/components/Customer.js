@@ -284,7 +284,9 @@ const CustomerForm = () => {
       // Make the API call to save the form data
       //console.log(JSON.stringify(formData));
       setIsLoading(true);
-
+      formData.eventInfoStartClownHour = formData.eventInfoStartClownHour ?? '';
+      formData.eventInfoEndClownHour = formData.eventInfoEndClownHour ?? '';
+      
       const response = await fetch(config.apiBaseUrl + 'ContractEventInfoes/SaveEventInfo', {
         method: 'POST',
         headers: {
