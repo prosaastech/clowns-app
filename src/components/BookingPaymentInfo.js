@@ -220,21 +220,26 @@ const PaymentInfo = ({ formData, handleChange, cardOptions, paymentOptions,contr
             </MenuItem>
           ))}
         </TextField>
-        <TextField
-          select
-          label="Contract Status"
-          name="contractStatusId"
-          value={formData.contractStatusId}
-          onChange={handleChange}
-          margin="normal"
-          sx={{ width: '500px' }} // Adjust the width as needed
-        >
-          {contractStatusOptions.map((option) => (
-            <MenuItem key={option.value} value={option.contractStatusId}>
-              {option.contractStatusName}
-            </MenuItem>
-          ))}
-        </TextField>
+        {formData.customerId !== 0 && formData.contractId !== 0 && (formData.contractStatusId === 2 ||
+        formData.contractStatusId === 1 || formData.contractStatusId === 5) && 
+        (
+  <TextField
+    select
+    label="Contract Status"
+    name="contractStatusId"
+    value={formData.contractStatusId}
+    onChange={handleChange}
+    margin="normal"
+    sx={{ width: '500px' }} // Adjust the width as needed
+  >
+    {contractStatusOptions.map((option) => (
+      <MenuItem key={option.value} value={option.contractStatusId}>
+        {option.contractStatusName}
+      </MenuItem>
+    ))}
+  </TextField>
+)}
+
         <div className="address-checkbox">
           <FormControlLabel
             control={

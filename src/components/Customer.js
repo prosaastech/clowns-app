@@ -114,7 +114,7 @@ const CustomerForm = () => {
     address: '',
     billingAddress: '',
     useAddress:false,
-    contractStatusId: '',
+    contractStatusId: 0,
 
   });
  
@@ -208,6 +208,7 @@ const CustomerForm = () => {
 
   const handleChange = (event) => {
     const { name, value } = event.target;
+    console.log(`Data checking ContractStatusId:${[name]} : ${value}`)
     setFormData((prev) => {
       const updatedFormData = { ...prev, [name]: value };
       return updatedFormData;
@@ -531,7 +532,9 @@ console.log('formData EventInfo:', formData,null,2);
           bounceId: parseInt(item.bounceId),
           price: parseFloat(item.price)
         })) || [],
-        packageInfoId: parseInt(formData.packageInfoId) || 0
+        packageInfoId: parseInt(formData.packageInfoId) || 0,
+        emailAddress: formData.emailAddress || '',
+
       };
   
       console.log("Request Body:", JSON.stringify(requestBody, null, 2));
@@ -608,7 +611,9 @@ console.log('formData EventInfo:', formData,null,2);
         cvv2:formData.cvv2 || 0,
         paymentStatusId:parseInt(formData.paymentStatus) || 0,
         useAddress:formData.useAddress,
-        billingAddress:formData.billingAddress || ''
+        billingAddress:formData.billingAddress || '',
+        contractStatusId:parseInt(formData.contractStatusId) || 0,
+
        };
   
     console.log("Adding Booking PaymentInfo:", requestBody, null,2)

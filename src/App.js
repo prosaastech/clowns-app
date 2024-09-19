@@ -9,6 +9,7 @@ import Test from './components/Test';
 import Customer from './components/Customer';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import SearchForm from './components/SearchForm';
+import ClientVerification from './components/Customer/ClientVerification';
 
 const App = () => {
     return (
@@ -61,6 +62,13 @@ const App = () => {
                             <SearchForm />
                          </ProtectedRoute>
                     }
+                />
+                 <Route
+                    path="/ClientVerification/:customerId/contract/:contractId"
+                    element={
+                       
+                            <ClientVerification />
+                     }
                 />
             </Routes>
         </Router>
