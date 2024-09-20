@@ -5,6 +5,10 @@ import '../css/ContractCalendar.css';
 import { Navigate } from 'react-router-dom';
 import config from './Utils/config'
 import Loader from './Utils/loader'; // Import Loader component
+import toast from './Utils/showToast'
+import { isObject } from 'chart.js/helpers';
+import Swal from 'sweetalert2';
+
 
 const ContractCalendar = () => {
   const [dragging, setDragging] = useState(null);
@@ -49,7 +53,7 @@ const ContractCalendar = () => {
         setTeams(data);
       } catch (error) {
         console.error('Error fetching teams:', error);
-      }finally{
+      } finally {
         setIsLoading(false);
       }
     };
@@ -70,7 +74,7 @@ const ContractCalendar = () => {
           throw new Error('Network response was not ok');
         }
         const data = await response.json();
-       // console.log("timeslot " + data.map(slot => slot.time));
+        // console.log("timeslot " + data.map(slot => slot.time));
         setTimeSlots(data.map(slot => slot.time)); // Assuming the time property contains the time string
       } catch (error) {
         console.error('Error fetching time slots:', error);
@@ -98,7 +102,7 @@ const ContractCalendar = () => {
 
         const result = await response.json();
         const data = result.contracts || [];
-        console.log("Data of Contract:", data,null,2);
+        console.log("Data of Contract:", data, null, 2);
         // Map the fetched data to the selected ranges
         const ranges = data.reduce((acc, contract) => {
           const { teamNo, time, customerId, contractId } = contract;
@@ -106,7 +110,7 @@ const ContractCalendar = () => {
             acc[teamNo] = acc[teamNo] || [];
             if (!acc[teamNo].includes(time)) {
               //console.log(time);
-              acc[teamNo].push(time,customerId,contractId);
+              acc[teamNo].push(time, customerId, contractId);
             }
           }
           return acc;
@@ -128,8 +132,8 @@ const ContractCalendar = () => {
         //   }
         //   return acc;
         // }, {});
-        
-         
+
+
 
         setSelectedRanges(ranges);
       } catch (error) {
@@ -160,7 +164,7 @@ const ContractCalendar = () => {
         end: updatedEnd
       }));
       setFinalSelection(activeSelection);
-     // console.log('MouseOver - Active Selection:', { ...activeSelection, end: updatedEnd });
+      // console.log('MouseOver - Active Selection:', { ...activeSelection, end: updatedEnd });
     }
   };
 
@@ -185,6 +189,34 @@ const ContractCalendar = () => {
     setContextMenu({ time, team });
   };
 
+  const cancelFromServer = async (customerId,contractId) => {
+    try {
+      const token = localStorage.getItem('token');
+
+      const payload = { };
+      console.log('Sending Payload:', payload);  // Log the payload
+
+      const response = await fetch(config.apiBaseUrl + 'Utils/CancelContract?CustomerId=' + customerId + '&ContractId=' + contractId, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`, // Include the token in the header
+
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Email sent successfully:', data);
+      } else {
+        console.error('Failed to send email:', response.statusText);
+      }
+    } catch (error) {
+      console.error('Error sending request:', error);
+    }
+  };
+
   const handleMenuClick = (action) => {
     if (action === 'cancel') {
       setSelectedRanges(prev => {
@@ -197,56 +229,116 @@ const ContractCalendar = () => {
         }
         return updatedRanges;
       });
+
+      const selectedRange = selectedRanges[contextMenu.team]?.find(
+        range => range[0] && contextMenu?.time &&
+          normalizeTime(range[0]) === normalizeTime(contextMenu.time)[0]
+      );
+
+      const customerId = selectedRanges[contextMenu.team]?.[1] || 0;
+      const contractId = selectedRanges[contextMenu.team]?.[2] || 0;
+
+
+      if (customerId > 0) {
+        setAnchorEl(null);
+        // Show SweetAlert confirmation modal
+        Swal.fire({
+          title: 'Are you sure?',
+          text: "You won't be able to cancel this contract!",
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonText: 'Yes, I want to cancel!',
+          cancelButtonText: 'No, cancel!',
+          reverseButtons: true,
+        }).then((result) => {
+          if (result.isConfirmed) {
+            // User confirmed with "Yes"
+            console.log(`User chose to edit the contract:${customerId}:${contractId}`);
+            cancelFromServer(customerId,contractId);
+            // Continue with the logic, if needed
+          } else if (result.dismiss === Swal.DismissReason.cancel) {
+            // User clicked "No"
+            console.log('User cancelled the edit');
+            // Cancel further actions
+          }
+        });
+
+        return false;
+      }
+
+
     } else if (action === 'CreateContract') {
-    //  console.log('Active Selection on CreateContract:', finalSelection);
+      //  console.log('Active Selection on CreateContract:', finalSelection);
       //console.log('MouseOver - Active Selection:', { ...activeSelection });
+      const selectedRange = selectedRanges[contextMenu.team]?.find(
+        range => range[0] && contextMenu?.time &&
+          normalizeTime(range[0]) === normalizeTime(contextMenu.time)[0]
+      );
+
+      const customerId = selectedRanges[contextMenu.team]?.[1] || 0;
+      const contractId = selectedRanges[contextMenu.team]?.[2] || 0;
+
+      if (customerId > 0) {
+        toast({
+          type: 'error',
+          message: 'You can only edit this contract.',
+        });
+        return false;
+
+      }
 
       setNavigateToCustomer(true); // Trigger navigation
-    } 
+    }
     else if (action === 'EditContract') {
       console.log('edit call1:', selectedRanges[contextMenu.team]);
 
       const selectedRange = selectedRanges[contextMenu.team]?.find(
-        range => range[0] && contextMenu?.time && 
-                 normalizeTime(range[0]) === normalizeTime(contextMenu.time)[0]
+        range => range[0] && contextMenu?.time &&
+          normalizeTime(range[0]) === normalizeTime(contextMenu.time)[0]
       );
-    
+
       const customerId = selectedRanges[contextMenu.team]?.[1] || 0;
       const contractId = selectedRanges[contextMenu.team]?.[2] || 0;
-      
+
+
+      if (isObject(customerId)) {
+        toast({
+          type: 'error',
+          message: 'Edit is disabled for new contract.',
+        });
+        return false;
+
+      }
       setContractData(prevData => ({
         ...prevData,
         contractId: contractId,
         customerId: customerId
       }));
-      
+
       // console.log('selectedRange:', selectedRange);
       // console.log(`CustomerId:${customerId}:ContractId:${contractId}`);
       setNavigateToCustomerEdit(true);
-     
     }
-    
-    
     setAnchorEl(null);
   };
   const normalizeTime = (timeStr) => {
     if (!timeStr) {
       return null; // Return null or handle it based on your logic
     }
-    
+
     const [time, modifier] = timeStr.split(' ');
     let [hours, minutes] = time.split(':');
-    
+
     if (modifier === 'PM' && hours !== '12') {
       hours = parseInt(hours, 10) + 12;
     }
     if (modifier === 'AM' && hours === '12') {
       hours = '00';
     }
-  
+
     return `${hours}:${minutes}`;
   };
-  
+
   useEffect(() => {
     const handleMouseMove = (event) => {
       if (dragging) {
@@ -309,8 +401,8 @@ const ContractCalendar = () => {
   }
 
   if (navigateToCustomerEdit) {
-   
-  console.log(`accessing before navigate: ${contractData.customerId}:${contractData.contractId}`)
+
+    console.log(`accessing before navigate: ${contractData.customerId}:${contractData.contractId}`)
     return (
       <Navigate
         to="/Customer"
@@ -325,11 +417,11 @@ const ContractCalendar = () => {
         }}
       />
     );
-    
+
   }
   return (
     <Box>
-              <Loader isLoading={isLoading} />
+      <Loader isLoading={isLoading} />
 
       <TextField
         type="date"

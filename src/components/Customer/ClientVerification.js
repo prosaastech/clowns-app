@@ -66,12 +66,16 @@ export default function ClientVerification() {
 
   const validateToken = async (customerId, token) => {
     try {
+      const token = localStorage.getItem('token');
+
       setIsLoading(true); // Show loader before login starts
 
       const response = await fetch(config.apiBaseUrl + `Utils/ValidateToken?CustomerId=` + customerId + '&token=' + token, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`, // Include the token in the header
+
         },
         body: JSON.stringify({ customerId, token }),
       });
@@ -100,6 +104,8 @@ export default function ClientVerification() {
 
   const sendRequestToServer = async () => {
     try {
+      const token = localStorage.getItem('token');
+
       const payload = { customerId, contractId };
       console.log('Sending Payload:', payload);  // Log the payload
 
@@ -107,6 +113,8 @@ export default function ClientVerification() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`, // Include the token in the header
+
         },
         body: JSON.stringify(payload),
       });
