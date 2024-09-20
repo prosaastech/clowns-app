@@ -10,6 +10,7 @@ import Customer from './components/Customer';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import SearchForm from './components/SearchForm';
 import ClientVerification from './components/Customer/ClientVerification';
+import ClientView from './components/ClientView';
 
 const App = () => {
     return (
@@ -68,6 +69,13 @@ const App = () => {
                     element={
                        
                             <ClientVerification />
+                     }
+                />
+                <Route
+                    path="/ClientView/:customerId/contract/:contractId"
+                    element={
+                       
+                      <ClientView />
                      }
                 />
             </Routes>
