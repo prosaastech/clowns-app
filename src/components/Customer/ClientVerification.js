@@ -66,7 +66,7 @@ export default function ClientVerification() {
 
   const validateToken = async (customerId, token) => {
     try {
-      const token = localStorage.getItem('token');
+      const token1 = localStorage.getItem('token');
 
       setIsLoading(true); // Show loader before login starts
 
@@ -74,7 +74,7 @@ export default function ClientVerification() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`, // Include the token in the header
+          'Authorization': `Bearer ${token1}`, // Include the token in the header
 
         },
         body: JSON.stringify({ customerId, token }),
