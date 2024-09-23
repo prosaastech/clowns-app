@@ -77,7 +77,7 @@ const ContractCalendar = () => {
           throw new Error('Network response was not ok');
         }
         const data = await response.json();
-        // ////console.log("timeslot " + data.map(slot => slot.time));
+        // //////console.log("timeslot " + data.map(slot => slot.time));
         setTimeSlots(data.map(slot => slot.time)); // Assuming the time property contains the time string
       } catch (error) {
         console.error('Error fetching time slots:', error);
@@ -105,47 +105,6 @@ const ContractCalendar = () => {
 
         const result = await response.json();
         const data = result.contracts || [];
-        ////console.log("Data of Contract:", data, null, 2);
-
-        // Map the fetched data to the selected ranges
-        // const ranges = data.reduce((acc, contract) => {
-        //   const { teamNo, time, customerId, contractId } = contract;
-        //   if (teamNo && time) {
-        //     acc[teamNo] = acc[teamNo] || [];
-        //     if (!acc[teamNo].includes(time)) {
-        //       //////console.log(time);
-        //       acc[teamNo].push(time, customerId, contractId);
-        //     }
-        //   }
-        //   return acc;
-        // }, {});
-        // const ranges = data.reduce((acc, contract) => {
-        //   const { teamNo, time, customerId, contractId } = contract;
-
-        //   if (teamNo) {
-        //     // Initialize array for team if it doesn't exist
-        //     acc[teamNo] = acc[teamNo] || [];
-
-        //     // Handle case where time is an object with start and end properties
-        //     if (typeof time === 'object' && time.start && time.end) {
-        //       const timeRange = `${time.start} - ${time.end}`;
-        //       // Check if this time range already exists
-        //       if (!acc[teamNo].some(item => item.timeRange === timeRange)) {
-        //         acc[teamNo].push({ timeRange, customerId, contractId });
-        //       }
-        //     } 
-        //     // Handle simple time string (e.g., "08:00 AM")
-        //     else if (typeof time === 'string') {
-        //       if (!acc[teamNo].some(item => item.time === time)) {
-        //         acc[teamNo].push({ time, customerId, contractId });
-        //       }
-        //     }
-        //   }
-
-        //   return acc;
-        // }, {});
-
-        // ////console.log(ranges);
 
         const ranges = data.reduce((acc, contract) => {
           const { teamNo, time, customerId, contractId } = contract;
@@ -196,31 +155,8 @@ const ContractCalendar = () => {
           return acc;
         }, {});
 
-        ////console.log(ranges);
-
-
-
-        // const ranges = data.reduce((acc, contract) => {
-        //   const { teamNo, time, customerId, contractId } = contract;
-        //   ////console.log({ teamNo, time, customerId, contractId }); // Debugging
-        //   if (teamNo && time) {
-        //     acc[teamNo] = acc[teamNo] || [];
-        //     if (!acc[teamNo].includes(time)) {
-
-        //     acc[teamNo].push({
-        //       time,        // Store the time
-        //       customerId,  // Store customerId
-        //       contractId   // Store contractId
-        //     });
-        //   }
-        //   }
-        //   return acc;
-        // }, {});
-
-
 
         setSelectedRanges(ranges);
-        ////console.log("Ranges:", ranges);
       } catch (error) {
         console.error('Error fetching contract data:', error);
         setSelectedRanges({});
@@ -238,20 +174,13 @@ const ContractCalendar = () => {
   const handleMouseDown = (event, time, team) => {
     event.preventDefault();
     setDragging(team);
+    //console.log("Before Mouse up", currentSelection)
+
     setActiveSelection({ team, startTime: time, endTime: time, customerId: 0, contractId: 0 });
+    //console.log("Before Mouse up1", currentSelection)
+
   };
 
-  // const handleMouseOver = (event, time, team) => {
-  //   if (dragging === team && activeSelection) {
-  //     const updatedEnd = time;
-  //     setActiveSelection(prev => ({
-  //       ...prev,
-  //       end: updatedEnd
-  //     }));
-  //     setFinalSelection(activeSelection);
-  //     // ////console.log('MouseOver - Active Selection:', { ...activeSelection, end: updatedEnd });
-  //   }
-  // };
   const handleMouseOver = (event, time, team) => {
     if (dragging === team && activeSelection) {
       // Update the end time of the active selection as you drag
@@ -259,55 +188,74 @@ const ContractCalendar = () => {
     }
   };
 
+  // const handleMouseOver = (event, time, team) => {
+  //   if (dragging && activeSelection) {
+  //     // Update activeSelection with new endTime during drag
+  //     setActiveSelection(prevSelection => ({
+  //       ...prevSelection,
+  //       endTime: time // Update to the current hovered time
+  //     }));
+
+  //     console.log("Active selection during drag:", activeSelection);
+  //   }
+  // };
+
+
   const handleMouseUp = () => {
-    
+
     if (activeSelection) {
       const { team, startTime, endTime, customerId, contractId } = activeSelection;
-
+     // console.log("before mmouseup", currentSelection)
+      console.log("Before Mouse up Range",selectedRanges)
       setSelectedRanges(prev => {
         const teamRanges = prev[team] || [];
         const isOverlapping = teamRanges.some(range =>
           (range.startTime <= endTime && range.endTime >= startTime)
         );
 
+        //const newRange = { endTime };
         const newRange = { startTime, endTime, customerId, contractId };
 
-        // If no overlapping range exists, add a new range
         if (isOverlapping) {
-          // console.log(currentSelection.customerId);
-          if (currentSelection?.customerId !=0) {
-            console.log("overlapping:", isOverlapping)
+          console.log('1');
+          if (currentSelection?.customerId != 0) {
+            console.log('2');
+
+            //console.log("overlapping:", isOverlapping)
             const overlappingRange = teamRanges.find(range =>
               (range.startTime <= endTime && range.endTime >= startTime)
             );
-            const currentRangeUpdate = { team: team, startTime: startTime, endTime: endTime, customerId: overlappingRange.customerId, contractId: overlappingRange.contractId };
-            setCurrentSelection(currentRangeUpdate);
-            console.log("ccustid:",newRange);
 
+            
+            const currentRangeUpdate =
+            {
+              team: team, startTime: startTime, endTime: endTime,
+              customerId: overlappingRange.customerId, contractId: overlappingRange.contractId
+            };
+            setCurrentSelection(currentRangeUpdate);
+            console.log(selectedRanges);
           }
         }
-
-
         if (!isOverlapping) {
-          setCurrentSelection(activeSelection);
-          console.log("new:", activeSelection);
+          if (currentSelection === null){
+            console.log('updated1');
+             setCurrentSelection(activeSelection);
+          }
           return {
             ...prev,
             [team]: [...teamRanges, newRange],
           };
         }
-        return prev; // No changes made if overlapping
+        return prev;
       });
 
-      // Optionally accumulate to final selections
       setFinalSelection(prevSelections => [
         ...(Array.isArray(prevSelections) ? prevSelections : []),
         activeSelection,
       ]);
 
-
-
-
+      console.log("current selection Checking", currentSelection)
+      //setCurrentSelection(activeSelection);
 
       setActiveSelection(null); // Reset active selection after confirming
     }
@@ -315,32 +263,14 @@ const ContractCalendar = () => {
     setDragging(null);
   };
 
-  // const handleMouseUp = () => {
-  //   //console.log("Active selection",activeSelection);
-  //   if (activeSelection) {
-  //     setSelectedRanges(prev => {
-  //       const { team, startTime, endTime,customerId,contractId } = activeSelection;
-
-  //       const newRange = { startTime, endTime,customerId,contractId };
-  //       return {
-  //         ...prev,
-  //         [team]: [...(prev[team] || []), newRange]
-  //       };
-  //     });
-  //     setActiveSelection(null);
-  //   }
-  //   setDragging(null);
-  // };
-
-
-
+ 
 
   const handleContextMenu = (event, time, team) => {
     event.preventDefault();
     setAnchorEl({ top: event.clientY, left: event.clientX });
     setContextMenu({ time, team });
     setIsRightClick(true); // Set right-click flag
-    console.log("Right-click detected"); // Debug log
+    //console.log("Right-click detected"); // Debug log
 
   };
 
@@ -349,7 +279,7 @@ const ContractCalendar = () => {
       const token = localStorage.getItem('token');
 
       const payload = {};
-      ////console.log('Sending Payload:', payload);  // Log the payload
+      //////console.log('Sending Payload:', payload);  // Log the payload
 
       const response = await fetch(config.apiBaseUrl + 'Utils/CancelContract?CustomerId=' + customerId + '&ContractId=' + contractId, {
         method: 'POST',
@@ -363,7 +293,7 @@ const ContractCalendar = () => {
 
       if (response.ok) {
         const data = await response.json();
-        ////console.log('Email sent successfully:', data);
+        //////console.log('Email sent successfully:', data);
       } else {
         console.error('Failed to send email:', response.statusText);
       }
@@ -407,14 +337,11 @@ const ContractCalendar = () => {
           reverseButtons: true,
         }).then((result) => {
           if (result.isConfirmed) {
-            // User confirmed with "Yes"
-            ////console.log(`User chose to edit the contract:${customerId}:${contractId}`);
+
             cancelFromServer(customerId, contractId);
-            // Continue with the logic, if needed
+
           } else if (result.dismiss === Swal.DismissReason.cancel) {
-            // User clicked "No"
-            ////console.log('User cancelled the edit');
-            // Cancel further actions
+
           }
         });
 
@@ -427,9 +354,9 @@ const ContractCalendar = () => {
 
       const customerId = currentSelection.customerId || 0;
       const contractId = currentSelection.contractId || 0;
-      // console.log("active", activeSelection);
-      // console.log("current", currentSelection);
-
+      // //console.log("active", activeSelection);
+      console.log("currentSelection", currentSelection);
+      //console.log("activeSelection", activeSelection);
 
       if (customerId > 0) {
         toast({
@@ -439,8 +366,7 @@ const ContractCalendar = () => {
         return false;
 
       }
-      //console.log(currentSelection);
-
+      setCurrentSelection(null);
        setNavigateToCustomer(true); // Trigger navigation
     }
     else if (action === 'EditContract') {
@@ -459,9 +385,6 @@ const ContractCalendar = () => {
         contractId: currentSelection.contractId,
         customerId: currentSelection.customerId
       }));
-
-      // ////console.log('selectedRange:', selectedRange);
-      // ////console.log(`CustomerId:${customerId}:ContractId:${contractId}`);
       setNavigateToCustomerEdit(true);
     }
     setAnchorEl(null);
@@ -484,53 +407,59 @@ const ContractCalendar = () => {
     return `${hours}:${minutes}`;
   };
 
+  // useEffect(() => {
+  //   const handleMouseMove = (event) => {
+  //     if (dragging) {
+  //       const cell = event.target;
+  //       const time = cell.dataset.time;
+  //       const team = cell.dataset.team;
+  //       handleMouseOver(event, time, team);
+  //     }
+  //   };
+  //   document.addEventListener('mousemove', handleMouseMove);
+  //   document.addEventListener('mouseup', handleMouseUp);
+  //   return () => {
+  //     document.removeEventListener('mousemove', handleMouseMove);
+  //     document.removeEventListener('mouseup', handleMouseUp);
+  //   };
+  // }, [dragging, activeSelection]);
+
   useEffect(() => {
     const handleMouseMove = (event) => {
       if (dragging) {
-        const cell = event.target;
-        const time = cell.dataset.time;
-        const team = cell.dataset.team;
-        handleMouseOver(event, time, team);
+        const cell = event.target; // Directly use event.target
+        const time = cell.dataset.time; // Access data-time directly
+        const team = cell.dataset.team; // Access data-team directly
+
+        if (time && team) {
+          handleMouseOver(event, time, team);
+        } else {
+          console.log("No valid time or team found for hovering.");
+        }
       }
     };
+
     document.addEventListener('mousemove', handleMouseMove);
     document.addEventListener('mouseup', handleMouseUp);
+
     return () => {
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseup', handleMouseUp);
     };
   }, [dragging, activeSelection]);
 
-  // const isSelected = (time, team) => {
-  //   const ranges = Array.isArray(selectedRanges[team]) ? selectedRanges[team] : [];
-  //   const currentTimeIndex = timeSlots.indexOf(time);
-
-  //   return ranges.some(range => {
-  //     if (typeof range === 'string') {
-  //       return range === time;
-  //     } else if (typeof range === 'object' && range.start && range.end) {
-  //       const startTimeIndex = timeSlots.indexOf(range.start);
-  //       const endTimeIndex = timeSlots.indexOf(range.end);
-  //       const minTimeIndex = Math.min(startTimeIndex, endTimeIndex);
-  //       const maxTimeIndex = Math.max(startTimeIndex, endTimeIndex);
-
-  //       return currentTimeIndex >= minTimeIndex && currentTimeIndex <= maxTimeIndex;
-  //     }
-  //     return false;
-  //   });
-  // };
   const isSelected = (time, team) => {
     const ranges = Array.isArray(selectedRanges[team]) ? selectedRanges[team] : [];
     const currentTimeIndex = timeSlots.indexOf(time);
 
     if (currentTimeIndex === -1) {
-      ////console.log('Time not found in timeSlots:', time);
+      //////console.log('Time not found in timeSlots:', time);
       return false;
     }
 
     return ranges.some(range => {
       // Debug logs
-      ////console.log('Checking range:', range);
+      //////console.log('Checking range:', range);
 
       // Case 1: Object with startTime and endTime
       if (typeof range === 'object' && range.startTime) {
@@ -538,7 +467,7 @@ const ContractCalendar = () => {
         const endTimeIndex = range.endTime ? timeSlots.indexOf(range.endTime) : startTimeIndex;
 
         if (startTimeIndex === -1) {
-          ////console.log('StartTime not found in timeSlots:', range.startTime);
+          //////console.log('StartTime not found in timeSlots:', range.startTime);
           return false;
         }
 
@@ -547,14 +476,14 @@ const ContractCalendar = () => {
 
         // Check if the current time falls within the range
         const isInRange = currentTimeIndex >= minTimeIndex && currentTimeIndex <= maxTimeIndex;
-        ////console.log(`Time ${time} is in range: ${isInRange}`);
+        //////console.log(`Time ${time} is in range: ${isInRange}`);
         return isInRange;
       }
 
       // Case 2: Simple time string
       if (typeof range === 'string') {
         const isSelected = range === time;
-        ////console.log(`Time ${time} is equal to range ${range}: ${isSelected}`);
+        //////console.log(`Time ${time} is equal to range ${range}: ${isSelected}`);
         return isSelected;
       }
       else if (typeof range === 'object' && range.start && range.end) {
@@ -575,20 +504,15 @@ const ContractCalendar = () => {
   };
 
   if (navigateToCustomer) {
-    // ////console.log('Navigating with:', {
-    //   team: contextMenu.team,
-    //   timeStart: activeSelection?.start,
-    //   timeEnd: activeSelection?.end,
-    //   selectedTeam: contextMenu.team
-    // });
+
     return (
       <Navigate
         to="/Customer"
         state={{
-          team: contextMenu.team,
+          team: currentSelection?.team,
           timeStart: currentSelection?.startTime,
           timeEnd: currentSelection?.endTime,
-          selectedTeam: currentSelection.team,
+          selectedTeam: currentSelection?.team,
           selectedDate: selectedDate
         }}
       />
@@ -596,8 +520,6 @@ const ContractCalendar = () => {
   }
 
   if (navigateToCustomerEdit) {
-
-    ////console.log(`accessing before navigate: ${contractData.customerId}:${contractData.contractId}`)
     return (
       <Navigate
         to="/Customer"
