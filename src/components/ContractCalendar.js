@@ -206,7 +206,7 @@ const ContractCalendar = () => {
     if (activeSelection) {
       const { team, startTime, endTime, customerId, contractId } = activeSelection;
      // console.log("before mmouseup", currentSelection)
-      console.log("Before Mouse up Range",selectedRanges)
+      console.log("Before Mouse up ranges",selectedRanges)
       setSelectedRanges(prev => {
         const teamRanges = prev[team] || [];
         const isOverlapping = teamRanges.some(range =>
@@ -217,10 +217,9 @@ const ContractCalendar = () => {
         const newRange = { startTime, endTime, customerId, contractId };
 
         if (isOverlapping) {
-          console.log('1');
+           
           if (currentSelection?.customerId != 0) {
-            console.log('2');
-
+            
             //console.log("overlapping:", isOverlapping)
             const overlappingRange = teamRanges.find(range =>
               (range.startTime <= endTime && range.endTime >= startTime)
@@ -238,7 +237,7 @@ const ContractCalendar = () => {
         }
         if (!isOverlapping) {
           if (currentSelection === null){
-            console.log('updated1');
+          
              setCurrentSelection(activeSelection);
           }
           return {
@@ -254,7 +253,7 @@ const ContractCalendar = () => {
         activeSelection,
       ]);
 
-      console.log("current selection Checking", currentSelection)
+     // console.log("current selection Checking", currentSelection)
       //setCurrentSelection(activeSelection);
 
       setActiveSelection(null); // Reset active selection after confirming
@@ -355,7 +354,6 @@ const ContractCalendar = () => {
       const customerId = currentSelection.customerId || 0;
       const contractId = currentSelection.contractId || 0;
       // //console.log("active", activeSelection);
-      console.log("currentSelection", currentSelection);
       //console.log("activeSelection", activeSelection);
 
       if (customerId > 0) {
@@ -366,10 +364,13 @@ const ContractCalendar = () => {
         return false;
 
       }
-      setCurrentSelection(null);
+     
        setNavigateToCustomer(true); // Trigger navigation
+       //setCurrentSelection(null);
     }
     else if (action === 'EditContract') {
+      console.log("currentSelection", currentSelection);
+      console.log("ContractData", contractData);
 
 
       if (currentSelection.customerId === 0) {
@@ -504,12 +505,12 @@ const ContractCalendar = () => {
   };
 
   if (navigateToCustomer) {
-
+    console.log("before navigate customer",currentSelection);
     return (
       <Navigate
         to="/Customer"
         state={{
-          team: currentSelection?.team,
+          team: contextMenu.team,
           timeStart: currentSelection?.startTime,
           timeEnd: currentSelection?.endTime,
           selectedTeam: currentSelection?.team,

@@ -23,16 +23,16 @@ const CustomerForm = () => {
   const navigate = useNavigate(); // Used to redirect to the dashboard
   const { customerId: paramCustomerId, contractId: paramContractId } = useParams();
 
-  console.log('URL Params:', { paramCustomerId, paramContractId });
-  console.log('Props:', { newCustomerId, newContractId });
-
+  // console.log('URL Params:', { paramCustomerId, paramContractId });
+  // console.log('Props:', { newCustomerId, newContractId });
+  console.log(timeStart);
   // Initialize state from URL params or props
   const [customerId, setCustomerId] = useState(paramCustomerId || newCustomerId || '');
   const [contractId, setContractId] = useState(paramContractId || newContractId || '');
 
   useEffect(() => {
     // Log state values before setting them
-    console.log('Before Update - CustomerId:', customerId, 'ContractId:', contractId);
+    //console.log('Before Update - CustomerId:', customerId, 'ContractId:', contractId);
 
     // Update state if newCustomerId or newContractId are available and different from current state
     if (newCustomerId && newCustomerId !== customerId) {
@@ -43,7 +43,7 @@ const CustomerForm = () => {
     }
 
     // Log updated state values
-    console.log('Updated - CustomerId:', customerId, 'ContractId:', contractId);
+   // console.log('Updated - CustomerId:', customerId, 'ContractId:', contractId);
   }, [newCustomerId, newContractId, customerId, contractId]);
 
   const [activeTab, setActiveTab] = useState(0);
