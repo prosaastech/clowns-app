@@ -301,6 +301,20 @@ const ContractCalendar = () => {
     }
   };
 
+  function convertToTime(dateString) {
+    const today = new Date();
+    const [time, modifier] = dateString.split(' ');
+    let [hours, minutes] = time.split(':');
+
+    if (hours === '12') {
+        hours = '00';
+    }
+    if (modifier === 'PM') {
+        hours = parseInt(hours, 10) + 12;
+    }
+
+    return new Date(today.getFullYear(), today.getMonth(), today.getDate(), hours, minutes);
+}
   const handleMenuClick = (action) => {
     if (action === 'cancel') {
       setSelectedRanges(prev => {
@@ -369,11 +383,69 @@ const ContractCalendar = () => {
        //setCurrentSelection(null);
     }
     else if (action === 'EditContract') {
-      console.log("currentSelection", currentSelection);
-      console.log("ContractData", contractData);
+       console.log("currentSelection", currentSelection);
+       console.log("selectedRanges", selectedRanges);
+       
+      // console.log("ContractData", contractData);
+      // const filteredRanges = Object.entries(selectedRanges).flatMap(([team, ranges]) =>
+      //   ranges.filter(range => 
+      //     range.startTime <= currentSelection.startTime &&
+      //     (range.endTime >= currentSelection.startTime || range.endTime === null) && // Include null if it's not set
+      //     team === currentSelection.team &&
+      //     range.customerId !== 0 &&
+      //     range.contractId !== 0
+      //   )
+      // );
+      
+     // Assuming currentSelection and setCurrentSelection are from useState
+// const [currentSelection, setCurrentSelection] = useState({ ... });
 
+const filteredRangesObject = Object.entries(selectedRanges).reduce((acc, [team, ranges]) => {
+  const filteredRanges = ranges.filter(range => {
+      // Convert the time strings to Date objects for comparison
+      const rangeStartTime = convertToTime(range.startTime);
+      const rangeEndTime = convertToTime(range.endTime);
+      const currentStartTime = convertToTime(currentSelection.startTime);
 
-      if (currentSelection.customerId === 0) {
+      // Perform the time and customerId/contractId checks
+      return (
+          rangeStartTime <= currentStartTime &&
+          (rangeEndTime >= currentStartTime || range.endTime === null) &&
+          range.customerId > 0 && // Check if customerId is greater than 0
+          range.contractId > 0 // Check if contractId is greater than 0
+      );
+  });
+
+  if (filteredRanges.length > 0) {
+      acc[team] = filteredRanges;
+  }
+
+  return acc;
+}, {});
+
+console.log("Filtered Ranges Object:", filteredRangesObject);
+
+// Extract the first matching range from filteredRangesObject
+const firstMatchingRange = Object.values(filteredRangesObject)
+  .flat() // Flatten all ranges across teams into a single array
+  .find(range => range.customerId > 0 && range.contractId > 0); // Find the first valid range
+console.log("firstMatchingRange",firstMatchingRange)
+// Update currentSelection using setCurrentSelection if a matching range is found
+if (firstMatchingRange) {
+  setCurrentSelection(prevSelection => ({
+      ...prevSelection, // Keep the other properties
+      startTime: firstMatchingRange.startTime,
+      endTime: firstMatchingRange.endTime,
+      customerId: firstMatchingRange.customerId,
+      contractId: firstMatchingRange.contractId
+  }));
+} else {
+  console.log('No matching range found.');
+}
+
+console.log("Updated Current Selection:", currentSelection);
+
+      if (firstMatchingRange.customerId === 0) {
         toast({
           type: 'error',
           message: 'Edit is disabled for new contract.',
@@ -383,8 +455,8 @@ const ContractCalendar = () => {
       }
       setContractData(prevData => ({
         ...prevData,
-        contractId: currentSelection.contractId,
-        customerId: currentSelection.customerId
+        contractId: firstMatchingRange.contractId,
+        customerId: firstMatchingRange.customerId
       }));
       setNavigateToCustomerEdit(true);
     }
@@ -530,8 +602,8 @@ const ContractCalendar = () => {
           timeEnd: finalSelection?.end,
           selectedTeam: contextMenu.team,
           selectedDate: selectedDate,
-          newCustomerId: currentSelection.customerId,
-          newContractId: currentSelection.contractId
+          newCustomerId: contractData.customerId,
+          newContractId: contractData.contractId
         }}
       />
     );
