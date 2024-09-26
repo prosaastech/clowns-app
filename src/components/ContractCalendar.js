@@ -365,12 +365,42 @@ const ContractCalendar = () => {
     } else if (action === 'CreateContract') {
 
 
-      const customerId = currentSelection.customerId || 0;
-      const contractId = currentSelection.contractId || 0;
+      const filteredRangesObject = Object.entries(selectedRanges).reduce((acc, [team, ranges]) => {
+        const filteredRanges = ranges.filter(range => {
+            // Convert the time strings to Date objects for comparison
+            const rangeStartTime = convertToTime(range.startTime);
+            const rangeEndTime = convertToTime(range.endTime);
+            const currentStartTime = convertToTime(currentSelection.startTime);
+      
+            // Perform the time and customerId/contractId checks
+            return (
+                rangeStartTime <= currentStartTime &&
+                (rangeEndTime >= currentStartTime || range.endTime === null) &&
+                range.customerId > 0 && // Check if customerId is greater than 0
+                range.contractId > 0 // Check if contractId is greater than 0
+            );
+        });
+      
+        if (filteredRanges.length > 0) {
+            acc[team] = filteredRanges;
+        }
+      
+        return acc;
+      }, {});
+      
+      console.log("Filtered Ranges Object:", filteredRangesObject);
+      
+      // Extract the first matching range from filteredRangesObject
+           //console.log("CurrentSelection",currentSelection)
+      const customerId = filteredRangesObject?.customerId || 0;
+      const contractId = filteredRangesObject?.contractId || 0;
       // //console.log("active", activeSelection);
-      //console.log("activeSelection", activeSelection);
+      console.log("currentSelection", currentSelection);
+      const firstTeam = Object.keys(filteredRangesObject)[0]; // Get the first team
+const firstRangeArray = filteredRangesObject[firstTeam]; // Get the array of ranges for that team
 
-      if (customerId > 0) {
+      console.log("customerId", firstRangeArray[0].customerId)
+       if (customerId > 0) {
         toast({
           type: 'error',
           message: 'You can only edit this contract.',
@@ -379,27 +409,14 @@ const ContractCalendar = () => {
 
       }
      
-       setNavigateToCustomer(true); // Trigger navigation
+       //setNavigateToCustomer(true); // Trigger navigation
        //setCurrentSelection(null);
     }
     else if (action === 'EditContract') {
-       console.log("currentSelection", currentSelection);
-       console.log("selectedRanges", selectedRanges);
+      //  console.log("currentSelection", currentSelection);
+      //  console.log("selectedRanges", selectedRanges);
        
-      // console.log("ContractData", contractData);
-      // const filteredRanges = Object.entries(selectedRanges).flatMap(([team, ranges]) =>
-      //   ranges.filter(range => 
-      //     range.startTime <= currentSelection.startTime &&
-      //     (range.endTime >= currentSelection.startTime || range.endTime === null) && // Include null if it's not set
-      //     team === currentSelection.team &&
-      //     range.customerId !== 0 &&
-      //     range.contractId !== 0
-      //   )
-      // );
-      
-     // Assuming currentSelection and setCurrentSelection are from useState
-// const [currentSelection, setCurrentSelection] = useState({ ... });
-
+ 
 const filteredRangesObject = Object.entries(selectedRanges).reduce((acc, [team, ranges]) => {
   const filteredRanges = ranges.filter(range => {
       // Convert the time strings to Date objects for comparison
@@ -429,6 +446,7 @@ console.log("Filtered Ranges Object:", filteredRangesObject);
 const firstMatchingRange = Object.values(filteredRangesObject)
   .flat() // Flatten all ranges across teams into a single array
   .find(range => range.customerId > 0 && range.contractId > 0); // Find the first valid range
+
 console.log("firstMatchingRange",firstMatchingRange)
 // Update currentSelection using setCurrentSelection if a matching range is found
 if (firstMatchingRange) {
