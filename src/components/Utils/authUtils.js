@@ -13,4 +13,5 @@ export const getUserFromToken = () => {
     console.error('Invalid token:', error);
     return null;
   }
+  
 };
