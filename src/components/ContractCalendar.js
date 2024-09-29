@@ -205,8 +205,8 @@ const ContractCalendar = () => {
 
     if (activeSelection) {
       const { team, startTime, endTime, customerId, contractId } = activeSelection;
-     // console.log("before mmouseup", currentSelection)
-      console.log("Before Mouse up ranges",selectedRanges)
+      // console.log("before mmouseup", currentSelection)
+      console.log("Before Mouse up ranges", selectedRanges)
       setSelectedRanges(prev => {
         const teamRanges = prev[team] || [];
         const isOverlapping = teamRanges.some(range =>
@@ -217,15 +217,15 @@ const ContractCalendar = () => {
         const newRange = { startTime, endTime, customerId, contractId };
 
         if (isOverlapping) {
-           
+
           if (currentSelection?.customerId != 0) {
-            
+
             //console.log("overlapping:", isOverlapping)
             const overlappingRange = teamRanges.find(range =>
               (range.startTime <= endTime && range.endTime >= startTime)
             );
 
-            
+
             const currentRangeUpdate =
             {
               team: team, startTime: startTime, endTime: endTime,
@@ -236,9 +236,9 @@ const ContractCalendar = () => {
           }
         }
         if (!isOverlapping) {
-          if (currentSelection === null){
-          
-             setCurrentSelection(activeSelection);
+          if (currentSelection === null) {
+
+            setCurrentSelection(activeSelection);
           }
           return {
             ...prev,
@@ -253,7 +253,7 @@ const ContractCalendar = () => {
         activeSelection,
       ]);
 
-     // console.log("current selection Checking", currentSelection)
+      // console.log("current selection Checking", currentSelection)
       //setCurrentSelection(activeSelection);
 
       setActiveSelection(null); // Reset active selection after confirming
@@ -262,7 +262,7 @@ const ContractCalendar = () => {
     setDragging(null);
   };
 
- 
+
 
   const handleContextMenu = (event, time, team) => {
     event.preventDefault();
@@ -307,14 +307,14 @@ const ContractCalendar = () => {
     let [hours, minutes] = time.split(':');
 
     if (hours === '12') {
-        hours = '00';
+      hours = '00';
     }
     if (modifier === 'PM') {
-        hours = parseInt(hours, 10) + 12;
+      hours = parseInt(hours, 10) + 12;
     }
 
     return new Date(today.getFullYear(), today.getMonth(), today.getDate(), hours, minutes);
-}
+  }
   const handleMenuClick = (action) => {
     if (action === 'cancel') {
       setSelectedRanges(prev => {
@@ -364,43 +364,42 @@ const ContractCalendar = () => {
 
     } else if (action === 'CreateContract') {
 
-
       const filteredRangesObject = Object.entries(selectedRanges).reduce((acc, [team, ranges]) => {
         const filteredRanges = ranges.filter(range => {
-            // Convert the time strings to Date objects for comparison
-            const rangeStartTime = convertToTime(range.startTime);
-            const rangeEndTime = convertToTime(range.endTime);
-            const currentStartTime = convertToTime(currentSelection.startTime);
-      
-            // Perform the time and customerId/contractId checks
-            return (
-                rangeStartTime <= currentStartTime &&
-                (rangeEndTime >= currentStartTime || range.endTime === null) &&
-                range.customerId > 0 && // Check if customerId is greater than 0
-                range.contractId > 0 // Check if contractId is greater than 0
-            );
+          // Convert the time strings to Date objects for comparison
+          const rangeStartTime = convertToTime(range.startTime);
+          const rangeEndTime = convertToTime(range.endTime);
+          const currentStartTime = convertToTime(currentSelection.startTime);
+
+          // Perform the time and customerId/contractId checks
+          return (
+            rangeStartTime <= currentStartTime &&
+            (rangeEndTime >= currentStartTime || range.endTime === null) &&
+            range.customerId > 0 && // Check if customerId is greater than 0
+            range.contractId > 0 // Check if contractId is greater than 0
+          );
         });
-      
+
         if (filteredRanges.length > 0) {
-            acc[team] = filteredRanges;
+          acc[team] = filteredRanges;
         }
-      
+
         return acc;
       }, {});
-      
-      console.log("Filtered Ranges Object:", filteredRangesObject);
-      
-      // Extract the first matching range from filteredRangesObject
-           //console.log("CurrentSelection",currentSelection)
-      const customerId = filteredRangesObject?.customerId || 0;
-      const contractId = filteredRangesObject?.contractId || 0;
-      // //console.log("active", activeSelection);
-      console.log("currentSelection", currentSelection);
-      const firstTeam = Object.keys(filteredRangesObject)[0]; // Get the first team
-const firstRangeArray = filteredRangesObject[firstTeam]; // Get the array of ranges for that team
 
-      console.log("customerId", firstRangeArray[0].customerId)
-       if (customerId > 0) {
+      //console.log("filteredRangesObject", filteredRangesObject);
+
+      const team = currentSelection.team;
+      const teamRanges = filteredRangesObject[team] || []; // Get ranges for the selected team, or an empty array if not found
+
+      const firstMatchingRange = teamRanges.find(
+        range => range.customerId > 0 && range.contractId > 0
+      );
+
+       console.log("currentSelection123", currentSelection);
+console.log("firstMatchingRange",firstMatchingRange);
+
+      if (firstMatchingRange?.customerId > 0) {
         toast({
           type: 'error',
           message: 'You can only edit this contract.',
@@ -408,62 +407,58 @@ const firstRangeArray = filteredRangesObject[firstTeam]; // Get the array of ran
         return false;
 
       }
-     
-       //setNavigateToCustomer(true); // Trigger navigation
-       //setCurrentSelection(null);
+
+      //setNavigateToCustomer(true); // Trigger navigation
+      //it was commented for testing
+      setCurrentSelection(null);
     }
     else if (action === 'EditContract') {
-      //  console.log("currentSelection", currentSelection);
-      //  console.log("selectedRanges", selectedRanges);
-       
- 
-const filteredRangesObject = Object.entries(selectedRanges).reduce((acc, [team, ranges]) => {
-  const filteredRanges = ranges.filter(range => {
-      // Convert the time strings to Date objects for comparison
-      const rangeStartTime = convertToTime(range.startTime);
-      const rangeEndTime = convertToTime(range.endTime);
-      const currentStartTime = convertToTime(currentSelection.startTime);
+      
 
-      // Perform the time and customerId/contractId checks
-      return (
-          rangeStartTime <= currentStartTime &&
-          (rangeEndTime >= currentStartTime || range.endTime === null) &&
-          range.customerId > 0 && // Check if customerId is greater than 0
-          range.contractId > 0 // Check if contractId is greater than 0
+      const filteredRangesObject = Object.entries(selectedRanges).reduce((acc, [team, ranges]) => {
+        const filteredRanges = ranges.filter(range => {
+          // Convert the time strings to Date objects for comparison
+          const rangeStartTime = convertToTime(range.startTime);
+          const rangeEndTime = convertToTime(range.endTime);
+          const currentStartTime = convertToTime(currentSelection.startTime);
+
+          // Perform the time and customerId/contractId checks
+          return (
+            rangeStartTime <= currentStartTime &&
+            (rangeEndTime >= currentStartTime || range.endTime === null) &&
+            range.customerId > 0 && // Check if customerId is greater than 0
+            range.contractId > 0 // Check if contractId is greater than 0
+          );
+        });
+
+        if (filteredRanges.length > 0) {
+          acc[team] = filteredRanges;
+        }
+
+        return acc;
+      }, {});
+
+      const team = currentSelection.team;
+      const teamRanges = filteredRangesObject[team] || []; // Get ranges for the selected team, or an empty array if not found
+
+      const firstMatchingRange = teamRanges.find(
+        range => range.customerId > 0 && range.contractId > 0
       );
-  });
+ 
+      if (firstMatchingRange) {
+        setCurrentSelection(prevSelection => ({
+          ...prevSelection, // Keep the other properties
+          startTime: firstMatchingRange.startTime,
+          endTime: firstMatchingRange.endTime,
+          customerId: firstMatchingRange.customerId,
+          contractId: firstMatchingRange.contractId
+        }));
+      } else {
+        console.log('No matching range found.');
+      }
 
-  if (filteredRanges.length > 0) {
-      acc[team] = filteredRanges;
-  }
-
-  return acc;
-}, {});
-
-console.log("Filtered Ranges Object:", filteredRangesObject);
-
-// Extract the first matching range from filteredRangesObject
-const firstMatchingRange = Object.values(filteredRangesObject)
-  .flat() // Flatten all ranges across teams into a single array
-  .find(range => range.customerId > 0 && range.contractId > 0); // Find the first valid range
-
-console.log("firstMatchingRange",firstMatchingRange)
-// Update currentSelection using setCurrentSelection if a matching range is found
-if (firstMatchingRange) {
-  setCurrentSelection(prevSelection => ({
-      ...prevSelection, // Keep the other properties
-      startTime: firstMatchingRange.startTime,
-      endTime: firstMatchingRange.endTime,
-      customerId: firstMatchingRange.customerId,
-      contractId: firstMatchingRange.contractId
-  }));
-} else {
-  console.log('No matching range found.');
-}
-
-console.log("Updated Current Selection:", currentSelection);
-
-      if (firstMatchingRange.customerId === 0) {
+ 
+      if (firstMatchingRange === undefined || firstMatchingRange?.customerId === 0) {
         toast({
           type: 'error',
           message: 'Edit is disabled for new contract.',
@@ -476,7 +471,8 @@ console.log("Updated Current Selection:", currentSelection);
         contractId: firstMatchingRange.contractId,
         customerId: firstMatchingRange.customerId
       }));
-      setNavigateToCustomerEdit(true);
+      // setNavigateToCustomerEdit(true);
+      setCurrentSelection(null);
     }
     setAnchorEl(null);
   };
@@ -595,7 +591,7 @@ console.log("Updated Current Selection:", currentSelection);
   };
 
   if (navigateToCustomer) {
-    console.log("before navigate customer",currentSelection);
+    console.log("before navigate customer", currentSelection);
     return (
       <Navigate
         to="/Customer"
