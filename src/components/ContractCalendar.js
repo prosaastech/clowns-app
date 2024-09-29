@@ -398,7 +398,7 @@ const ContractCalendar = () => {
       console.log("currentSelection", currentSelection);
       const firstTeam = Object.keys(filteredRangesObject)[0]; // Get the first team
 const firstRangeArray = filteredRangesObject[firstTeam]; // Get the array of ranges for that team
-
+  
       console.log("customerId", firstRangeArray[0].customerId)
        if (customerId > 0) {
         toast({
@@ -406,7 +406,6 @@ const firstRangeArray = filteredRangesObject[firstTeam]; // Get the array of ran
           message: 'You can only edit this contract.',
         });
         return false;
-
       }
      
        //setNavigateToCustomer(true); // Trigger navigation
