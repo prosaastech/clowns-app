@@ -173,18 +173,22 @@ const ContractCalendar = () => {
 
   const handleMouseDown = (event, time, team) => {
     event.preventDefault();
+   
+
     setDragging(team);
     //console.log("Before Mouse up", currentSelection)
+    //console.log("Calling current selection null")
 
     setActiveSelection({ team, startTime: time, endTime: time, customerId: 0, contractId: 0 });
     //console.log("Before Mouse up1", currentSelection)
-
   };
 
   const handleMouseOver = (event, time, team) => {
     if (dragging === team && activeSelection) {
       // Update the end time of the active selection as you drag
       setActiveSelection(prev => ({ ...prev, endTime: time }));
+      setCurrentSelection(null);
+
     }
   };
 
@@ -207,6 +211,8 @@ const ContractCalendar = () => {
       const { team, startTime, endTime, customerId, contractId } = activeSelection;
       // console.log("before mmouseup", currentSelection)
       console.log("Before Mouse up ranges", selectedRanges)
+      // console.log("before mmouseup", currentSelection)
+      console.log("Before Mouse up ranges", selectedRanges)
       setSelectedRanges(prev => {
         const teamRanges = prev[team] || [];
         const isOverlapping = teamRanges.some(range =>
@@ -218,12 +224,15 @@ const ContractCalendar = () => {
 
         if (isOverlapping) {
 
+
           if (currentSelection?.customerId != 0) {
+
 
             //console.log("overlapping:", isOverlapping)
             const overlappingRange = teamRanges.find(range =>
               (range.startTime <= endTime && range.endTime >= startTime)
             );
+
 
 
             const currentRangeUpdate =
@@ -236,6 +245,9 @@ const ContractCalendar = () => {
           }
         }
         if (!isOverlapping) {
+          if (currentSelection === null) {
+
+            setCurrentSelection(activeSelection);
           if (currentSelection === null) {
 
             setCurrentSelection(activeSelection);
@@ -254,6 +266,7 @@ const ContractCalendar = () => {
       ]);
 
       // console.log("current selection Checking", currentSelection)
+      // console.log("current selection Checking", currentSelection)
       //setCurrentSelection(activeSelection);
 
       setActiveSelection(null); // Reset active selection after confirming
@@ -261,6 +274,7 @@ const ContractCalendar = () => {
 
     setDragging(null);
   };
+
 
 
 
@@ -308,12 +322,15 @@ const ContractCalendar = () => {
 
     if (hours === '12') {
       hours = '00';
+      hours = '00';
     }
     if (modifier === 'PM') {
+      hours = parseInt(hours, 10) + 12;
       hours = parseInt(hours, 10) + 12;
     }
 
     return new Date(today.getFullYear(), today.getMonth(), today.getDate(), hours, minutes);
+  }
   }
   const handleMenuClick = (action) => {
     if (action === 'cancel') {
@@ -378,14 +395,43 @@ const ContractCalendar = () => {
             range.customerId > 0 && // Check if customerId is greater than 0
             range.contractId > 0 // Check if contractId is greater than 0
           );
+          // Convert the time strings to Date objects for comparison
+          const rangeStartTime = convertToTime(range.startTime);
+          const rangeEndTime = convertToTime(range.endTime);
+          const currentStartTime = convertToTime(currentSelection.startTime);
+
+          // Perform the time and customerId/contractId checks
+          return (
+            rangeStartTime <= currentStartTime &&
+            (rangeEndTime >= currentStartTime || range.endTime === null) &&
+            range.customerId > 0 && // Check if customerId is greater than 0
+            range.contractId > 0 // Check if contractId is greater than 0
+          );
         });
+
 
         if (filteredRanges.length > 0) {
           acc[team] = filteredRanges;
+          acc[team] = filteredRanges;
         }
+
 
         return acc;
       }, {});
+
+      //console.log("filteredRangesObject", filteredRangesObject);
+
+      const team = currentSelection.team;
+      const teamRanges = filteredRangesObject[team] || []; // Get ranges for the selected team, or an empty array if not found
+
+      const firstMatchingRange = teamRanges.find(
+        range => range.customerId > 0 && range.contractId > 0
+      );
+
+       console.log("currentSelection123", currentSelection);
+console.log("firstMatchingRange",firstMatchingRange);
+
+      if (firstMatchingRange?.customerId > 0) {
 
       //console.log("filteredRangesObject", filteredRangesObject);
 
@@ -408,11 +454,19 @@ console.log("firstMatchingRange",firstMatchingRange);
 
       }
 
-      //setNavigateToCustomer(true); // Trigger navigation
+       setNavigateToCustomer(true); // Trigger navigation
       //it was commented for testing
-      setCurrentSelection(null);
+      //setCurrentSelection(null);
     }
     else if (action === 'EditContract') {
+      
+
+      const filteredRangesObject = Object.entries(selectedRanges).reduce((acc, [team, ranges]) => {
+        const filteredRanges = ranges.filter(range => {
+          // Convert the time strings to Date objects for comparison
+          const rangeStartTime = convertToTime(range.startTime);
+          const rangeEndTime = convertToTime(range.endTime);
+          const currentStartTime = convertToTime(currentSelection.startTime);
       
 
       const filteredRangesObject = Object.entries(selectedRanges).reduce((acc, [team, ranges]) => {
@@ -430,11 +484,24 @@ console.log("firstMatchingRange",firstMatchingRange);
             range.contractId > 0 // Check if contractId is greater than 0
           );
         });
+          // Perform the time and customerId/contractId checks
+          return (
+            rangeStartTime <= currentStartTime &&
+            (rangeEndTime >= currentStartTime || range.endTime === null) &&
+            range.customerId > 0 && // Check if customerId is greater than 0
+            range.contractId > 0 // Check if contractId is greater than 0
+          );
+        });
 
         if (filteredRanges.length > 0) {
           acc[team] = filteredRanges;
         }
+        if (filteredRanges.length > 0) {
+          acc[team] = filteredRanges;
+        }
 
+        return acc;
+      }, {});
         return acc;
       }, {});
 
@@ -456,7 +523,27 @@ console.log("firstMatchingRange",firstMatchingRange);
       } else {
         console.log('No matching range found.');
       }
+      const team = currentSelection.team;
+      const teamRanges = filteredRangesObject[team] || []; // Get ranges for the selected team, or an empty array if not found
 
+      const firstMatchingRange = teamRanges.find(
+        range => range.customerId > 0 && range.contractId > 0
+      );
+ 
+      if (firstMatchingRange) {
+        setCurrentSelection(prevSelection => ({
+          ...prevSelection, // Keep the other properties
+          startTime: firstMatchingRange.startTime,
+          endTime: firstMatchingRange.endTime,
+          customerId: firstMatchingRange.customerId,
+          contractId: firstMatchingRange.contractId
+        }));
+      } else {
+        console.log('No matching range found.');
+      }
+
+ 
+      if (firstMatchingRange === undefined || firstMatchingRange?.customerId === 0) {
  
       if (firstMatchingRange === undefined || firstMatchingRange?.customerId === 0) {
         toast({
@@ -471,7 +558,7 @@ console.log("firstMatchingRange",firstMatchingRange);
         contractId: firstMatchingRange.contractId,
         customerId: firstMatchingRange.customerId
       }));
-      // setNavigateToCustomerEdit(true);
+       setNavigateToCustomerEdit(true);
       setCurrentSelection(null);
     }
     setAnchorEl(null);
@@ -591,6 +678,7 @@ console.log("firstMatchingRange",firstMatchingRange);
   };
 
   if (navigateToCustomer) {
+    console.log("before navigate customer", currentSelection);
     console.log("before navigate customer", currentSelection);
     return (
       <Navigate
