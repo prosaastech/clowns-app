@@ -5,6 +5,7 @@ import { Navigate } from 'react-router-dom';
 const ProtectedRoute = ({ children }) => {
   const user = getUserFromToken();
   
+  console.log("Call it  from protected Route",user)
   if (!user) {
     // If the user is not logged in, redirect to the login page
     return <Navigate to="/" replace />;
