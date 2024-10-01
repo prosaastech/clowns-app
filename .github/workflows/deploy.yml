@@ -3,32 +3,35 @@ name: Deploy React App to Hostinger
 on:
   push:
     branches:
-      - master  # Adjust if your main branch has a different name
+      - master  # Trigger the workflow on push to the main branch
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+    - name: Checkout code
+      uses: actions/checkout@v2
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: '16'  # Specify your Node.js version
+    - name: Setup Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '18'  # Specify the Node.js version you are using
 
-      - name: Install dependencies
-        run: npm install
+    - name: Install dependencies
+      run: npm install
 
-      - name: Build React app
-        run: npm run build  # This creates the 'build' directory with production files
+    - name: Build the React app
+      run: npm run build
 
-      - name: Deploy to Hostinger
-        uses: SamKirkland/FTP-Deploy-Action@4.1.0
-        with:
-          server: ftp://prosaas.us  # Your Hostinger FTP server
-          username: ${{ secrets.HOSTINGER_FTP_USERNAME }}  # Your FTP username from GitHub Secrets
-          password: ${{ secrets.HOSTINGER_FTP_PASSWORD }}  # Your FTP password from GitHub Secrets
-          local-dir: build  # The build directory created by 'npm run build'
-          remote-dir: public_html/clowns-app  # Remote directory on Hostinger
+    - name: Upload to Hostinger via FTP
+      uses: SamKirkland/FTP-Deploy-Action@4.3.2
+      with:
+        ftp-server: ftp://92.112.189.43  # Your FTP server
+        ftp-username: ${{ secrets.FTP_USERNAME }}  # Set in GitHub secrets
+        ftp-password: ${{ secrets.FTP_PASSWORD }}  # Set in GitHub secrets
+        local-dir: build  # The directory created by 'npm run build'
+        remote-dir: /public_html/clowns-app  # The directory on your Hostinger account
+
+    - name: Verify Deployment
+      run: echo "Deployment completed successfully!"
