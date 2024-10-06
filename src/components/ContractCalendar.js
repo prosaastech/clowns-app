@@ -173,18 +173,22 @@ const ContractCalendar = () => {
 
   const handleMouseDown = (event, time, team) => {
     event.preventDefault();
+   
+
     setDragging(team);
     //console.log("Before Mouse up", currentSelection)
+    //console.log("Calling current selection null")
 
     setActiveSelection({ team, startTime: time, endTime: time, customerId: 0, contractId: 0 });
     //console.log("Before Mouse up1", currentSelection)
-
   };
 
   const handleMouseOver = (event, time, team) => {
     if (dragging === team && activeSelection) {
       // Update the end time of the active selection as you drag
       setActiveSelection(prev => ({ ...prev, endTime: time }));
+      //setCurrentSelection(null);
+
     }
   };
 
@@ -408,9 +412,9 @@ console.log("firstMatchingRange",firstMatchingRange);
 
       }
 
-      //setNavigateToCustomer(true); // Trigger navigation
+       setNavigateToCustomer(true); // Trigger navigation
       //it was commented for testing
-      setCurrentSelection(null);
+      //setCurrentSelection(null);
     }
     else if (action === 'EditContract') {
       
@@ -471,7 +475,7 @@ console.log("firstMatchingRange",firstMatchingRange);
         contractId: firstMatchingRange.contractId,
         customerId: firstMatchingRange.customerId
       }));
-      // setNavigateToCustomerEdit(true);
+       setNavigateToCustomerEdit(true);
       setCurrentSelection(null);
     }
     setAnchorEl(null);
