@@ -70,28 +70,27 @@ export default function ClientVerification() {
 
       setIsLoading(true); // Show loader before login starts
 
-      const response = await fetch(config.apiBaseUrl + `Utils/ValidateToken?CustomerId=` + customerId + '&token=' + token, {
+      const response = await fetch(config.apiBaseUrl + `UtilFunc/ValidateToken?CustomerId=` + customerId + '&token=' + token, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token1}`, // Include the token in the header
-
+          'Content-Type': 'application/json'
+    //      'Authorization': `Bearer ${token1}`, // Include the token in the header
         },
         body: JSON.stringify({ customerId, token }),
       });
-      const data = await response.json();
+      //const data = await response.json();
+      if (response.ok) {
+        const data = await response.json();
+        localStorage.setItem('token', data.token); // Store the token
+        console.log('Login successful:', data);
+         navigate(`/ClientView/${customerId}/contract/${contractId}`);
 
-      console.log(`Response ValidateToken:${data}`)
-      if (data === true) {
-        navigate(`/ClientView/${customerId}/contract/${contractId}`);
-      }
-      else {
+      } else {
         showToast({
           type: 'error',
           message: 'Invalid or expired token',
         });
-      }
-
+      } 
     }
     catch (error) {
 
@@ -107,13 +106,13 @@ export default function ClientVerification() {
       const token = localStorage.getItem('token');
 
       const payload = { customerId, contractId };
-      console.log('Sending Payload:', payload);  // Log the payload
+      console.log('Sending Payload:', token);  // Log the payload
 
-      const response = await fetch(config.apiBaseUrl + 'Utils/SendToken?CustomerId=' + customerId + '&ContractId=' + contractId, {
+      const response = await fetch(config.apiBaseUrl + 'UtilFunc/SendToken?CustomerId=' + customerId + '&ContractId=' + contractId, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`, // Include the token in the header
+          'Content-Type': 'application/json'
+          //'Authorization': `Bearer ${token}`, // Include the token in the header
 
         },
         body: JSON.stringify(payload),
