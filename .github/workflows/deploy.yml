@@ -1,10 +1,11 @@
-name: Deploy React App to Hostinger
+name: Deploy React App to Server
 
 on:
   push:
     branches:
-      - master  # Trigger the workflow on push to the main branch
-  workflow_dispatch:  # Allows manual triggering of the
+      - master
+  workflow_dispatch:
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -16,7 +17,7 @@ jobs:
     - name: Setup Node.js
       uses: actions/setup-node@v2
       with:
-        node-version: '16'  # Specify the Node.js version you are using
+        node-version: '16'
 
     - name: Install dependencies
       run: npm install
@@ -24,14 +25,17 @@ jobs:
     - name: Build the React app
       run: npm run build
 
-    - name: Upload to Hostinger via FTP
-      uses: SamKirkland/FTP-Deploy-Action@4.3.2
+    - name: Upload to Server via SFTP
+      uses: appleboy/ssh-action@v1
       with:
-        ftp-server: ftp://92.112.189.43  # Your FTP server
-        ftp-username: ${{ secrets.HOSTINGER_FTP_USERNAME }}  # Set in GitHub secrets
-        ftp-password: ${{ secrets.HOSTINGER_FTP_PASSWORD }}  # Set in GitHub secrets
-        local-dir: build  # The directory created by 'npm run build'
-        remote-dir: /public_html/clowns-app  # The directory on your Hostinger account
+        host: ${{ secrets.DEPLOYMENT_SERVER }}
+        username: ${{ secrets.DEPLOYMENT_USERNAME }}
+        password: ${{ secrets.DEPLOYMENT_PASSWORD }}
+        port: ${{ secrets.DEPLOYMENT_PORT }}
+        script: |
+          mkdir -p /home/clown/ClownsCRM/clowns-app/build
+          rm -rf /home/clown/ClownsCRM/clowns-app/build/*
+          cp -r build/* /home/clown/ClownsCRM/clowns-app/build/
 
     - name: Verify Deployment
       run: echo "Deployment completed successfully!"
