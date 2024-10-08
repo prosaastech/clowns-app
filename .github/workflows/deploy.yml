@@ -1,3 +1,5 @@
+name: Deploy React App to Server
+
 on:
   push:
     branches:
@@ -14,7 +16,8 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
-      node-version: '20'
+      with:
+        node-version: '20'
 
     - name: Setup Node.js
       uses: actions/setup-node@v2
