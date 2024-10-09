@@ -38,10 +38,16 @@ jobs:
         password: ${{ secrets.DEPLOYMENT_PASSWORD }}
         port: ${{ secrets.DEPLOYMENT_PORT }}
         script: |
+          # Clean the server's build directory
           rm -rf /home/clown/ClownsCRM/clowns-app/build/*
-          echo "Current Directory: $(pwd)"  # Log current directory
-          if [ -d /home/runner/work/prosaastech/build ]; then  # Ensure to check for the build directory
-           cp -r /home/runner/work/prosaastech/build/* /home/clown/ClownsCRM/clowns-app/build/
+          
+          # Log the current directory
+          echo "Current Directory: $(pwd)"
+
+          # Check if the build directory exists
+          if [ -d /home/runner/work/prosaastech/build ]; then
+            echo "Build directory exists. Copying files..."
+            cp -r -d /home/runner/work/prosaastech/build/* /home/clown/ClownsCRM/clowns-app/build/
           else
             echo "Build directory not found. Skipping file copy."
             exit 1
