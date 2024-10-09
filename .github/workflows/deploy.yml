@@ -18,31 +18,28 @@ jobs:
       uses: actions/setup-node@v3
       with:
         node-version: '20'
-      run: echo "Node.js version set to 20."
 
     - name: Checkout code
       uses: actions/checkout@v3
-      run: echo "Code checked out from repository."
 
     - name: Install dependencies
-      run: |
-        echo "Installing dependencies..."
-        npm install
-        echo "Dependencies installed."
+      run: npm install
+      # Log installation status
+      continue-on-error: false  # Stop if installation fails
 
     - name: Build the React app
       run: |
         echo "Building the React app..."
         CI=false npm run build
-        echo "Build process completed."
+        echo "Build completed."
 
     - name: Check if local build folder exists
       run: |
         echo "Checking if local build folder exists..."
         if [ -d "./build" ]; then
-          echo "Build folder exists."
+          echo "Local build folder exists."
         else
-          echo "Build folder does not exist."
+          echo "Local build folder does not exist. Exiting."
           exit 1
         fi
 
@@ -55,27 +52,32 @@ jobs:
         port: ${{ secrets.DEPLOYMENT_PORT }}
         script: |
           echo "Starting deployment..."
-          
-          echo "Checking if build directory exists on the server..."
+
+          echo "Checking if server build directory exists..."
           if [ -d /home/clown/ClownsCRM/clowns-app/build ]; then
-            echo "Server build directory exists."
+            echo "Server build directory found."
           else
-            echo "Server build directory not found, creating it..."
+            echo "Server build directory not found. Creating..."
             mkdir -p /home/clown/ClownsCRM/clowns-app/build
-            echo "Server build directory created."
           fi
-          
+
           echo "Removing old build files..."
           rm -rf /home/clown/ClownsCRM/clowns-app/build/*
           echo "Old build files removed."
-          
-          echo "Copying new build files to the server..."
-          cp -r /home/clown/ClownsCRM/clowns-app/build/* /home/clown/ClownsCRM/clowns-app/build/
-          echo "Files copied successfully."
-          
-          echo "Listing contents of the server build directory after copy:"
-          ls -la /home/clown/ClownsCRM/clowns-app/build/
-          echo "Contents listed."
+
+          echo "Copying new build files..."
+          scp -r ./build/* /home/clown/ClownsCRM/clowns-app/build/
+          echo "New build files copied successfully."
 
     - name: Verify Deployment
+      run: |
+        echo "Verifying deployment..."
+        if ssh ${{ secrets.DEPLOYMENT_USERNAME }}@${{ secrets.DEPLOYMENT_SERVER }} "[ -d /home/clown/ClownsCRM/clowns-app/build ]"; then
+          echo "Build directory exists on the server. Deployment was successful."
+        else
+          echo "Build directory is missing on the server. Deployment failed."
+          exit 1
+        fi
+
+    - name: Deployment Status
       run: echo "Deployment completed successfully!"
