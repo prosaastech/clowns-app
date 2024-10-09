@@ -38,20 +38,22 @@ jobs:
         password: ${{ secrets.DEPLOYMENT_PASSWORD }}
         port: ${{ secrets.DEPLOYMENT_PORT }}
         script: |
-          # Clean the server's build directory
+          echo "Starting deployment..."
+          echo "Removing old build files..."
           rm -rf /home/clown/ClownsCRM/clowns-app/build/*
+          echo "Old build files removed."
           
-          # Log the current directory
-          echo "Current Directory: $(pwd)"
-
-          # Check if the build directory exists
+          echo "Current Directory: $(pwd)"  # Log current directory
+          
           if [ -d /home/runner/work/prosaastech/build ]; then
-            echo "Build directory exists. Copying files..."
-            cp -r -d /home/runner/work/prosaastech/build/* /home/clown/ClownsCRM/clowns-app/build/
+            echo "Build directory found, copying files..."
+            cp -r /home/runner/work/prosaastech/build/* /home/clown/ClownsCRM/clowns-app/build/
+            echo "Files copied successfully."
           else
             echo "Build directory not found. Skipping file copy."
             exit 1
           fi
-
+          
+          echo "Deployment completed successfully!"
     - name: Verify Deployment
       run: echo "Deployment completed successfully!"
