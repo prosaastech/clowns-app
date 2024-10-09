@@ -38,7 +38,6 @@ jobs:
         password: ${{ secrets.DEPLOYMENT_PASSWORD }}
         port: ${{ secrets.DEPLOYMENT_PORT }}
         script: |
-          mkdir -p /home/clown/ClownsCRM/clowns-app/build
           rm -rf /home/clown/ClownsCRM/clowns-app/build/*
           echo "Current Directory: $(pwd)"  # Log current directory
           if [ -d ./build ]; then  # Ensure to check for the build directory
