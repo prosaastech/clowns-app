@@ -40,8 +40,8 @@ jobs:
         script: |
           rm -rf /home/clown/ClownsCRM/clowns-app/build/*
           echo "Current Directory: $(pwd)"  # Log current directory
-          if [ -d ./build ]; then  # Ensure to check for the build directory
-           cp -r ./build/* /home/clown/ClownsCRM/clowns-app/build/
+          if [ -d /home/runner/work/prosaastech/build ]; then  # Ensure to check for the build directory
+           cp -r /home/runner/work/prosaastech/build/* /home/clown/ClownsCRM/clowns-app/build/
           else
             echo "Build directory not found. Skipping file copy."
             exit 1
