@@ -13,6 +13,9 @@ import ClientVerification from './components/Customer/ClientVerification';
 import ClientView from './components/ClientView';
 
 const App = () => {
+    // Log the Node.js version when the app starts
+    console.log('Node Version:', process.env.REACT_APP_NODE_VERSION);
+
     return (
         <Router>
             <Routes>
