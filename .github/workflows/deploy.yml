@@ -28,7 +28,7 @@ jobs:
     - name: Build the React app
       run: CI=false npm run build
 
-    - name: Check if build folder exists
+    - name: Check if local build folder exists
       run: |
         if [ -d "./build" ]; then
           echo "Build folder exists."
@@ -46,19 +46,22 @@ jobs:
         port: ${{ secrets.DEPLOYMENT_PORT }}
         script: |
           echo "Starting deployment..."
+          
+          echo "Checking if build directory exists on the server..."
+          if [ -d /home/clown/ClownsCRM/clowns-app/build ]; then
+            echo "Server build directory exists."
+          else
+            echo "Server build directory not found, creating it..."
+            mkdir -p /home/clown/ClownsCRM/clowns-app/build
+          fi
+          
           echo "Removing old build files..."
           rm -rf /home/clown/ClownsCRM/clowns-app/build/*
           echo "Old build files removed."
           
-          echo "Current Directory: $(pwd)"
-          if [ -d ./build ]; then
-            echo "Build directory found, copying files..."
-            cp -r ./build/* /home/clown/ClownsCRM/clowns-app/build/
-            echo "Files copied successfully."
-          else
-            echo "Build directory not found. Skipping file copy."
-            exit 1
-          fi
+          echo "Copying new build files to the server..."
+          scp -r ./build/* ${{ secrets.DEPLOYMENT_USERNAME }}@${{ secrets.DEPLOYMENT_SERVER }}:/home/clown/ClownsCRM/clowns-app/build/
+          echo "Files copied successfully."
 
     - name: Verify Deployment
       run: echo "Deployment completed successfully!"
