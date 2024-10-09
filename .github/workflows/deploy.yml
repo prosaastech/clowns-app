@@ -24,7 +24,6 @@ jobs:
 
     - name: Install dependencies
       run: npm install
-      # Log installation status
       continue-on-error: false  # Stop if installation fails
 
     - name: Build the React app
@@ -53,6 +52,15 @@ jobs:
         script: |
           echo "Starting deployment..."
 
+          # Check SSH connection
+          echo "Verifying SSH connection to the server..."
+          if ssh -p ${{ secrets.DEPLOYMENT_PORT }} ${{ secrets.DEPLOYMENT_USERNAME }}@${{ secrets.DEPLOYMENT_SERVER }} "exit"; then
+            echo "Successfully connected to the server."
+          else
+            echo "Failed to connect to the server. Exiting."
+            exit 1
+          fi
+
           echo "Checking if server build directory exists..."
           if [ -d /home/clown/ClownsCRM/clowns-app/build ]; then
             echo "Server build directory found."
@@ -66,13 +74,13 @@ jobs:
           echo "Old build files removed."
 
           echo "Copying new build files..."
-          scp -r ./build/* /home/clown/ClownsCRM/clowns-app/build/
+          scp -P ${{ secrets.DEPLOYMENT_PORT }} -r ./build/* ${{ secrets.DEPLOYMENT_USERNAME }}@${{ secrets.DEPLOYMENT_SERVER }}:/home/clown/ClownsCRM/clowns-app/build/
           echo "New build files copied successfully."
 
     - name: Verify Deployment
       run: |
         echo "Verifying deployment..."
-        if ssh ${{ secrets.DEPLOYMENT_USERNAME }}@${{ secrets.DEPLOYMENT_SERVER }} "[ -d /home/clown/ClownsCRM/clowns-app/build ]"; then
+        if ssh -p ${{ secrets.DEPLOYMENT_PORT }} ${{ secrets.DEPLOYMENT_USERNAME }}@${{ secrets.DEPLOYMENT_SERVER }} "[ -d /home/clown/ClownsCRM/clowns-app/build ]"; then
           echo "Build directory exists on the server. Deployment was successful."
         else
           echo "Build directory is missing on the server. Deployment failed."
