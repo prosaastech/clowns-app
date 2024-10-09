@@ -30,7 +30,7 @@ jobs:
         CI: false
       run: npm run build
 
-    - name: Upload to Server via SFTP
+    - name: Upload to Server via SSH
       uses: appleboy/ssh-action@v1.1.0
       with:
         host: ${{ secrets.DEPLOYMENT_SERVER }}
@@ -45,9 +45,9 @@ jobs:
           
           echo "Current Directory: $(pwd)"  # Log current directory
           
-          if [ -d /home/runner/work/prosaastech/build ]; then
+          if [ -d ./build ]; then
             echo "Build directory found, copying files..."
-            cp -r /home/runner/work/prosaastech/build/* /home/clown/ClownsCRM/clowns-app/build/
+            cp -r ./build/* /home/clown/ClownsCRM/clowns-app/build/
             echo "Files copied successfully."
           else
             echo "Build directory not found. Skipping file copy."
@@ -55,5 +55,9 @@ jobs:
           fi
           
           echo "Deployment completed successfully!"
+
     - name: Verify Deployment
-      run: echo "Deployment completed successfully!"
+      run: |
+        echo "Verifying deployment..."
+        ls -la /home/clown/ClownsCRM/clowns-app/build/
+        echo "Deployment verified!"
