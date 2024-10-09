@@ -40,7 +40,12 @@ jobs:
         script: |
           mkdir -p /home/clown/ClownsCRM/clowns-app/build
           rm -rf /home/clown/ClownsCRM/clowns-app/build/*
-          cp -r build/* /home/clown/ClownsCRM/clowns-app/build/
+          if [ -d build ]; then
+            cp -r build/* /home/clown/ClownsCRM/clowns-app/build/
+          else
+            echo "Build directory not found. Skipping file copy."
+            exit 1
+          fi
 
     - name: Verify Deployment
       run: echo "Deployment completed successfully!"
