@@ -18,18 +18,27 @@ jobs:
       uses: actions/setup-node@v3
       with:
         node-version: '20'
+      run: echo "Node.js version set to 20."
 
     - name: Checkout code
       uses: actions/checkout@v3
+      run: echo "Code checked out from repository."
 
     - name: Install dependencies
-      run: npm install
+      run: |
+        echo "Installing dependencies..."
+        npm install
+        echo "Dependencies installed."
 
     - name: Build the React app
-      run: CI=false npm run build
+      run: |
+        echo "Building the React app..."
+        CI=false npm run build
+        echo "Build process completed."
 
     - name: Check if local build folder exists
       run: |
+        echo "Checking if local build folder exists..."
         if [ -d "./build" ]; then
           echo "Build folder exists."
         else
@@ -53,6 +62,7 @@ jobs:
           else
             echo "Server build directory not found, creating it..."
             mkdir -p /home/clown/ClownsCRM/clowns-app/build
+            echo "Server build directory created."
           fi
           
           echo "Removing old build files..."
@@ -60,8 +70,12 @@ jobs:
           echo "Old build files removed."
           
           echo "Copying new build files to the server..."
-          scp -r ./build/* ${{ secrets.DEPLOYMENT_USERNAME }}@${{ secrets.DEPLOYMENT_SERVER }}:/home/clown/ClownsCRM/clowns-app/build/
+          cp -r /home/clown/ClownsCRM/clowns-app/build/* /home/clown/ClownsCRM/clowns-app/build/
           echo "Files copied successfully."
+          
+          echo "Listing contents of the server build directory after copy:"
+          ls -la /home/clown/ClownsCRM/clowns-app/build/
+          echo "Contents listed."
 
     - name: Verify Deployment
       run: echo "Deployment completed successfully!"
