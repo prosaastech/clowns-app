@@ -12,7 +12,7 @@ const BounceTab = ({ bounces, formData, setFormData }) => {
   const [editIndex, setEditIndex] = useState(null);
 
   const handleBounceChange = (event) => {
-    const bounceId = event.target.value;
+    const bounceId = event.target.value; 
     setSelectedBounce(bounceId);
 
     const Bounce = bounces.find(char => char.bounceId === bounceId);
